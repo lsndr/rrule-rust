@@ -238,6 +238,8 @@ impl JsRRule {
       vec.push(map_js_month(month));
     }
 
+    replace_with_or_abort(&mut self.rrule, |self_| self_.by_month(&vec));
+
     Ok(self)
   }
 

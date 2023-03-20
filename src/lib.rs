@@ -280,6 +280,8 @@ impl JsRRule {
 pub struct JsRRuleSet {
   tz: Tz,
   rrule_set: RRuleSet,
+  before: Option<i64>,
+  after: Option<i64>,
 }
 
 #[napi]
@@ -290,7 +292,12 @@ impl JsRRuleSet {
     let date = timestamp_to_date_with_tz(dtstart, &tz);
     let rrule_set = RRuleSet::new(date);
 
-    JsRRuleSet { rrule_set, tz }
+    JsRRuleSet {
+      rrule_set,
+      tz,
+      before: None,
+      after: None,
+    }
   }
 
   #[napi]
@@ -319,18 +326,14 @@ impl JsRRuleSet {
 
   #[napi]
   pub fn after(&mut self, timestamp: i64) -> napi::Result<&Self> {
-    replace_with_or_abort(&mut self.rrule_set, |self_| {
-      self_.after(timestamp_to_date_with_tz(timestamp, &self.tz))
-    });
+    self.after = Some(timestamp);
 
     Ok(self)
   }
 
   #[napi]
   pub fn before(&mut self, timestamp: i64) -> napi::Result<&Self> {
-    replace_with_or_abort(&mut self.rrule_set, |self_| {
-      self_.before(timestamp_to_date_with_tz(timestamp, &self.tz))
-    });
+    self.before = Some(timestamp);
 
     Ok(self)
   }
@@ -368,23 +371,50 @@ impl JsRRuleSet {
     Ok(arr)
   }*/
 
+  fn is_after(&self, timestamp: i64) -> bool {
+    if let Some(after) = self.after {
+      if timestamp <= after {
+        return false;
+      }
+    }
+
+    true
+  }
+
+  fn is_before(&self, timestamp: i64) -> bool {
+    if let Some(before) = self.before {
+      if timestamp >= before {
+        return false;
+      }
+    }
+
+    true
+  }
+
   #[napi(ts_return_type = "number[]")]
   pub fn all(&self, env: Env, limit: Option<u32>) -> napi::Result<Array> {
     let mut arr = env.create_array(0).unwrap();
-    let iter = self.rrule_set.into_iter();
     let mut left = match limit {
       Some(number) => number,
       None => 0,
     };
 
-    for date in iter {
+    for date in self.rrule_set.into_iter() {
       if left > 0 {
         left = left - 1;
       } else if limit.is_some() {
         break;
       }
 
-      arr.insert(date.timestamp_millis()).unwrap();
+      let timestamp = date.timestamp_millis();
+      let is_after = self.is_after(timestamp);
+      let is_before = self.is_before(timestamp);
+
+      if is_after && is_before {
+        arr.insert(timestamp).unwrap();
+      } else if !is_before {
+        break;
+      }
     }
 
     Ok(arr)

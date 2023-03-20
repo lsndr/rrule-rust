@@ -185,6 +185,8 @@ impl JsRRule {
       vec.push(day);
     }
 
+    replace_with_or_abort(&mut self.rrule, |self_| self_.by_weekday(vec));
+
     Ok(self)
   }
 

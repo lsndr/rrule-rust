@@ -1,5 +1,5 @@
 {
-  "name": "@rrule-rust/linux-arm64-musl",
+  "name": "@rrule-rust/lib-linux-arm64-musl",
   "version": "0.0.1-2",
   "os": [
     "linux"

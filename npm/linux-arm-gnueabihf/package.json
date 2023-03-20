@@ -1,5 +1,5 @@
 {
-  "name": "@rrule-rust/linux-arm-gnueabihf",
+  "name": "@rrule-rust/lib-linux-arm-gnueabihf",
   "version": "0.0.1-2",
   "os": [
     "linux"

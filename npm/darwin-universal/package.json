@@ -1,5 +1,5 @@
 {
-  "name": "@rrule-rust/darwin-universal",
+  "name": "@rrule-rust/lib-darwin-universal",
   "version": "0.0.1-2",
   "os": [
     "darwin"

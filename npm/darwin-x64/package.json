@@ -1,5 +1,5 @@
 {
-  "name": "@rrule-rust/darwin-x64",
+  "name": "@rrule-rust/lib-darwin-x64",
   "version": "0.0.1-2",
   "os": [
     "darwin"

@@ -1,5 +1,5 @@
 {
-  "name": "@rrule-rust/win32-x64-msvc",
+  "name": "@rrule-rust/lib-win32-x64-msvc",
   "version": "0.0.1-2",
   "os": [
     "win32"

@@ -1,5 +1,5 @@
 {
-  "name": "@rrule-rust/android-arm64",
+  "name": "@rrule-rust/lib-android-arm64",
   "version": "0.0.1-2",
   "os": [
     "android"

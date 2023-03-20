@@ -1,5 +1,5 @@
 {
-  "name": "@rrule-rust/linux-x64-gnu",
+  "name": "@rrule-rust/lib-linux-x64-gnu",
   "version": "0.0.1-2",
   "os": [
     "linux"

@@ -1,5 +1,5 @@
 {
-  "name": "@rrule-rust/android-arm-eabi",
+  "name": "@rrule-rust/lib-android-arm-eabi",
   "version": "0.0.1-2",
   "os": [
     "android"

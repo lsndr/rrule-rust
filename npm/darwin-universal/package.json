@@ -1,0 +1,15 @@
+{
+  "name": "@rrule-rust/darwin-universal",
+  "version": "0.0.0",
+  "os": [
+    "darwin"
+  ],
+  "main": "rrule-rust.darwin-universal.node",
+  "files": [
+    "rrule-rust.darwin-universal.node"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@rrule-rust/linux-arm64-musl",
+  "version": "0.0.0",
+  "os": [
+    "linux"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "main": "rrule-rust.linux-arm64-musl.node",
+  "files": [
+    "rrule-rust.linux-arm64-musl.node"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">= 10"
+  },
+  "libc": [
+    "musl"
+  ]
+}

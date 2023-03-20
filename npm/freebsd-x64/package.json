@@ -1,6 +1,6 @@
 {
   "name": "@rrule-rust/lib-freebsd-x64",
-  "version": "0.0.1-3",
+  "version": "0.0.1-4",
   "os": [
     "freebsd"
   ],

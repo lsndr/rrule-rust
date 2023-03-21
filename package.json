@@ -3,6 +3,19 @@
   "version": "0.0.1-6",
   "main": "index.js",
   "types": "index.d.ts",
+  "keywords": [
+    "rrule",
+    "icalendar",
+    "rust",
+    "rs"
+  ],
+  "description": "RRule implementation for Node.js written in Rust",
+  "repository": "lsndr/rrule-rust",
+  "author": {
+    "name": "lsndr",
+    "email": "alexander@lsndr.me",
+    "url": "https://lsndr.me"
+  },
   "napi": {
     "name": "rrule-rust",
     "package": {

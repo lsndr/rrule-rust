@@ -258,7 +258,7 @@ impl JsRRule {
   }
 
   #[napi]
-  pub fn get_weekstart(&mut self, day: JsWeekday) -> napi::Result<&Self> {
+  pub fn set_weekstart(&mut self, day: JsWeekday) -> napi::Result<&Self> {
     replace_with_or_abort(&mut self.rrule, |self_| {
       self_.week_start(map_js_weekday(day))
     });

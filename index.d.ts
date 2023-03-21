@@ -64,7 +64,7 @@ export class RRule {
   setByMonth(months: Month[]): this
   setByWeekno(weekNumbers: Array<number>): this
   setByYearday(days: Array<number>): this
-  getWeekstart(day: Weekday): this
+  setWeekstart(day: Weekday): this
   setUntil(timestamp: number): this
 }
 export type JsRRuleSet = RRuleSet

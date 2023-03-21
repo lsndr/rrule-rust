@@ -297,7 +297,7 @@ impl JsRRuleSet {
     JsRRuleSet { rrule_set, tz }
   }
 
-  #[napi(factory)]
+  #[napi(factory, ts_return_type="RRuleSet")]
   pub fn parse(str: String) -> Self {
     let rrule_set: RRuleSet = str.parse().unwrap();
     let dtstart = rrule_set.get_dt_start();

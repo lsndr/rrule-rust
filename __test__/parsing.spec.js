@@ -1,7 +1,7 @@
 const test = require('ava');
 const { RRule, RRuleSet, Frequency, Month, Weekday } = require('../');
 
-test('should properly parse weekly recurrence', (t) => {
+test('Should properly parse weekly recurrence', (t) => {
     const set = RRuleSet.parse('DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR');
     const asString = set.toString();
 

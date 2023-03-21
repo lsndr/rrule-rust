@@ -83,7 +83,7 @@ test('Every other week on Monday, Wednesday and Friday until December 24, 1997, 
 
   t.is(asString, 'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR');
   t.deepEqual(dates, [
-    // 873205200000 - missing this date
+    // TODO: rrule crate does not include dtstart date (873205200000), create a bug report
     873291600000,
     873464400000,
     874328400000,

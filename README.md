@@ -26,7 +26,7 @@ See [test folder](https://github.com/lsndr/rrule-rust/tree/master/__test__) to f
 import { RRule, RRuleSet, Frequency } from 'rrule-rust';
 
 const rrule = new RRule(Frequency.Daily).setCount(5);
-const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
 const dates = set.all(); // [ 873205200000, 873291600000, 873378000000, 873464400000, 873550800000 ]
 const asString = set.toString(); // DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=daily;COUNT=5;BYHOUR=9;BYMINUTE=0;BYSECOND=0

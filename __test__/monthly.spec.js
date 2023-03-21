@@ -3,7 +3,7 @@ const { RRule, RRuleSet, Frequency, Month, Weekday } = require('../');
 
 test('Monthly on the 1st Friday for ten occurrences', (t) => {
   const rrule = new RRule(Frequency.Monthly).setCount(10).setByWeekday([Weekday.Friday]).setBySetpos([1]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -25,7 +25,7 @@ test('Monthly on the 1st Friday for ten occurrences', (t) => {
 
 test('Monthly on the 1st Friday until December 24, 1997', (t) => {
   const rrule = new RRule(Frequency.Monthly).setUntil(882921600000).setByWeekday([Weekday.Friday]).setBySetpos([1]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -41,7 +41,7 @@ test('Monthly on the 1st Friday until December 24, 1997', (t) => {
 
 test('Every other month on the 1st and last Sunday of the month for 10 occurrences', (t) => {
   const rrule = new RRule(Frequency.Monthly).setInterval(2).setCount(10).setByWeekday([Weekday.Sunday, Weekday.Sunday]).setBySetpos([1, -1]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -63,7 +63,7 @@ test('Every other month on the 1st and last Sunday of the month for 10 occurrenc
 
 test('Monthly on the second to last Monday of the month for 6 months', (t) => {
   const rrule = new RRule(Frequency.Monthly).setCount(6).setByWeekday([Weekday.Monday]).setBySetpos([-2]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -81,7 +81,7 @@ test('Monthly on the second to last Monday of the month for 6 months', (t) => {
 
 test('Monthly on the third to the last day of the month, limit 6', (t) => {
   const rrule = new RRule(Frequency.Monthly).setByMonthday([-3]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all(6);
@@ -99,7 +99,7 @@ test('Monthly on the third to the last day of the month, limit 6', (t) => {
 
 test('Monthly on the 2nd and 15th of the month for 10 occurrences', (t) => {
   const rrule = new RRule(Frequency.Monthly).setCount(10).setByMonthday([2, 15]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -121,7 +121,7 @@ test('Monthly on the 2nd and 15th of the month for 10 occurrences', (t) => {
 
 test('Monthly on the first and last day of the month for 10 occurrences', (t) => {
   const rrule = new RRule(Frequency.Monthly).setCount(10).setByMonthday([1, -1]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -143,7 +143,7 @@ test('Monthly on the first and last day of the month for 10 occurrences', (t) =>
 
 test('Every 18 months on the 10th thru 15th of the month for 10 occurrences', (t) => {
   const rrule = new RRule(Frequency.Monthly).setCount(10).setInterval(18).setByMonthday([10, 11, 12, 13, 14, 15]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -165,7 +165,7 @@ test('Every 18 months on the 10th thru 15th of the month for 10 occurrences', (t
 
 test('Every Tuesday, every other month, limit 18', (t) => {
   const rrule = new RRule(Frequency.Monthly).setInterval(2).setByWeekday([Weekday.Tuesday]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all(18);

@@ -3,7 +3,7 @@ const { RRule, RRuleSet, Frequency, Month, Weekday } = require('../');
 
 test('Yearly in June and July for 10 occurrences', (t) => {
   const rrule = new RRule(Frequency.Yearly).setCount(10).setByMonth([Month.June, Month.July]);
-  const set = new RRuleSet(865947600000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(865947600000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -25,7 +25,7 @@ test('Yearly in June and July for 10 occurrences', (t) => {
 
 test('Every other year on January, February, and March for 10 occurrences', (t) => {
   const rrule = new RRule(Frequency.Yearly).setInterval(2).setCount(10).setByMonth([Month.January, Month.February, Month.March]);
-  const set = new RRuleSet(858002400000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(858002400000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -47,7 +47,7 @@ test('Every other year on January, February, and March for 10 occurrences', (t) 
 
 test('Every 3rd year on the 1st, 100th and 200th day for 10 occurrences', (t) => {
   const rrule = new RRule(Frequency.Yearly).setCount(10).setInterval(3).setByYearday([1, 100, 200]);
-  const set = new RRuleSet(852127200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(852127200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -69,7 +69,7 @@ test('Every 3rd year on the 1st, 100th and 200th day for 10 occurrences', (t) =>
 
 test('Every 20th Monday of the year, limit 3', (t) => {
   const rrule = new RRule(Frequency.Yearly).setByWeekday([Weekday.Monday]).setBySetpos([20]);
-  const set = new RRuleSet(863442000000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(863442000000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all(3);
@@ -84,7 +84,7 @@ test('Every 20th Monday of the year, limit 3', (t) => {
 
 test('Monday of week number 20 (where the default start of the week is Monday), limit 3', (t) => {
   const rrule = new RRule(Frequency.Yearly).setWeekstart(Weekday.Monday).setByWeekday([Weekday.Monday]).setByWeekno([20]);
-  const set = new RRuleSet(863442000000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(863442000000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all(3);
@@ -99,7 +99,7 @@ test('Monday of week number 20 (where the default start of the week is Monday), 
 
 test('Every Thursday in March, limit 11', (t) => {
   const rrule = new RRule(Frequency.Yearly).setByMonth([Month.March]).setByWeekday([Weekday.Thursday]);
-  const set = new RRuleSet(858261600000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(858261600000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all(11);
@@ -122,7 +122,7 @@ test('Every Thursday in March, limit 11', (t) => {
 
 test('Every Friday the 13th, limit 5', (t) => {
   const rrule = new RRule(Frequency.Yearly).setByWeekday([Weekday.Friday]).setByMonthday([13]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').exdate(889797600000).rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addExdate(889797600000).addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all(5);
@@ -140,7 +140,7 @@ test('Every Friday the 13th, limit 5', (t) => {
 
 test('Every four years, the first Tuesday after a Monday in November, forever (U.S. Presidential Election day)', (t) => {
   const rrule = new RRule(Frequency.Yearly).setInterval(4).setByMonth([Month.November]).setByWeekday([Weekday.Tuesday]).setByMonthday([2, 3, 4, 5, 6, 7, 8]);
-  const set = new RRuleSet(847202400000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(847202400000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all(3);
@@ -152,19 +152,3 @@ test('Every four years, the first Tuesday after a Monday in November, forever (U
     1099404000000,
   ]);
 });
-
-/*
-test('', (t) => {
-  const rrule = new RRule(Frequency.Yearly).setCount(10).setByMonth([6, 7]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
-
-  const asString = set.toString();
-  const dates = set.all();
-
-  console.log(dates.map(t => new Date(t)));
-
-  t.is(asString, '');
-  t.deepEqual(dates, [
-  ]);
-});
-*/

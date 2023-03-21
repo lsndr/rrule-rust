@@ -72,12 +72,11 @@ export class RRuleSet {
   constructor(dtstart: number, tzid: string)
   static parse(str: string): JsRRuleSet
   toString(): string
-  rrule(jsRrule: RRule): this
-  exrule(jsRrule: RRule): this
-  after(timestamp: number): this
-  before(timestamp: number): this
-  exdate(timestamp: number): this
-  getDtstart(): number
-  getTzid(): string
+  addRrule(jsRrule: RRule): this
+  addExrule(jsRrule: RRule): this
+  addExdate(timestamp: number): this
+  get dtstart(): number
+  get tzid(): string
   all(limit?: number | undefined | null): number[]
+  between(after: number, before: number, inclusive?: boolean | undefined | null): number[]
 }

@@ -3,7 +3,7 @@ const { RRule, RRuleSet, Frequency, Month, Weekday } = require('../');
 
 test('Weekly for 10 occurrences', (t) => {
   const rrule = new RRule(Frequency.Weekly).setCount(10);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -25,7 +25,7 @@ test('Weekly for 10 occurrences', (t) => {
 
 test('Weekly until December 24, 1997', (t) => {
   const rrule = new RRule(Frequency.Weekly).setUntil(882921600000);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -54,7 +54,7 @@ test('Weekly until December 24, 1997', (t) => {
 
 test('Every other week - limit 10', (t) => {
   const rrule = new RRule(Frequency.Weekly).setInterval(2).setWeekstart(Weekday.Sunday);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all(10);
@@ -76,7 +76,7 @@ test('Every other week - limit 10', (t) => {
 
 test('Every other week on Monday, Wednesday and Friday until December 24, 1997, but starting on Tuesday, September 2, 1997', (t) => {
   const rrule = new RRule(Frequency.Weekly).setInterval(2).setUntil(882921600000).setWeekstart(Weekday.Sunday).setByWeekday([Weekday.Monday, Weekday.Wednesday, Weekday.Friday]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();

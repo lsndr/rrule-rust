@@ -3,7 +3,7 @@ const { RRule, RRuleSet, Frequency, Month, Weekday } = require('../');
 
 test('Daily for 10 occurrences', (t) => {
   const rrule = new RRule(Frequency.Daily).setCount(10);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const dates = set.all();
   const asString = set.toString();
@@ -18,9 +18,37 @@ test('Daily for 10 occurrences', (t) => {
   ]);
 });
 
+test('Daily for 10 occurrences between 873550800000 and 873723600000 inclusively', (t) => {
+  const rrule = new RRule(Frequency.Daily).setCount(10);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+
+  const dates = set.between(873550800000, 873723600000, true);
+  const asString = set.toString();
+
+  t.is(asString, 'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=daily;COUNT=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0');
+  t.deepEqual(dates, [
+    873550800000,
+    873637200000,
+    873723600000,
+  ]);
+});
+
+test('Daily for 10 occurrences between 873550800000 and 873723600000 exclusively', (t) => {
+  const rrule = new RRule(Frequency.Daily).setCount(10);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+
+  const dates = set.between(873550800000, 873723600000, false);
+  const asString = set.toString();
+
+  t.is(asString, 'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=daily;COUNT=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0');
+  t.deepEqual(dates, [
+    873637200000,
+  ]);
+});
+
 test('Daily until September 7, 1997', (t) => {
   const rrule = new RRule(Frequency.Daily).setUntil(873590400000);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const dates = set.all();
   const asString = set.toString();
@@ -35,7 +63,7 @@ test('Daily until September 7, 1997', (t) => {
 
 test('Every other day', (t) => {
   const rrule = new RRule(Frequency.Daily).setCount(6).setInterval(2);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const dates = set.all();
   const asString = set.toString();
@@ -53,7 +81,7 @@ test('Every other day', (t) => {
 
 test('Every 10 days, 5 occurrences', (t) => {
   const rrule = new RRule(Frequency.Daily).setCount(5).setInterval(10);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const dates = set.all();
   const asString = set.toString();
@@ -70,7 +98,7 @@ test('Every 10 days, 5 occurrences', (t) => {
 
 test('Every Monday in January, for 3 years', (t) => {
   const rrule = new RRule(Frequency.Daily).setByMonth([Month.January]).setByWeekday([Weekday.Monday]).setUntil(949327200000);
-  const set = new RRuleSet(873205200000, 'US/Eastern').rrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();

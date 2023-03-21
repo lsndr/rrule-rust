@@ -284,8 +284,6 @@ impl JsRRule {
 pub struct JsRRuleSet {
   tz: Tz,
   rrule_set: RRuleSet,
-  before: Option<i64>,
-  after: Option<i64>,
 }
 
 #[napi]
@@ -296,12 +294,7 @@ impl JsRRuleSet {
     let date = timestamp_to_date_with_tz(dtstart, &tz);
     let rrule_set = RRuleSet::new(date);
 
-    JsRRuleSet {
-      rrule_set,
-      tz,
-      before: None,
-      after: None,
-    }
+    JsRRuleSet { rrule_set, tz }
   }
 
   #[napi(factory)]
@@ -310,12 +303,7 @@ impl JsRRuleSet {
     let dtstart = rrule_set.get_dt_start();
     let tz = dtstart.timezone();
 
-    JsRRuleSet {
-      rrule_set,
-      tz,
-      before: None,
-      after: None,
-    }
+    JsRRuleSet { rrule_set, tz }
   }
 
   #[napi]
@@ -324,7 +312,7 @@ impl JsRRuleSet {
   }
 
   #[napi]
-  pub fn rrule(&mut self, js_rrule: &JsRRule) -> napi::Result<&Self> {
+  pub fn add_rrule(&mut self, js_rrule: &JsRRule) -> napi::Result<&Self> {
     let dt_start = self.rrule_set.get_dt_start().clone();
     let rrule = js_rrule.validate(dt_start);
 
@@ -334,7 +322,7 @@ impl JsRRuleSet {
   }
 
   #[napi]
-  pub fn exrule(&mut self, js_rrule: &JsRRule) -> napi::Result<&Self> {
+  pub fn add_exrule(&mut self, js_rrule: &JsRRule) -> napi::Result<&Self> {
     let rrule = js_rrule.validate(*self.rrule_set.get_dt_start());
 
     replace_with_or_abort(&mut self.rrule_set, |self_| self_.exrule(rrule));
@@ -343,21 +331,7 @@ impl JsRRuleSet {
   }
 
   #[napi]
-  pub fn after(&mut self, timestamp: i64) -> napi::Result<&Self> {
-    self.after = Some(timestamp);
-
-    Ok(self)
-  }
-
-  #[napi]
-  pub fn before(&mut self, timestamp: i64) -> napi::Result<&Self> {
-    self.before = Some(timestamp);
-
-    Ok(self)
-  }
-
-  #[napi]
-  pub fn exdate(&mut self, timestamp: i64) -> napi::Result<&Self> {
+  pub fn add_exdate(&mut self, timestamp: i64) -> napi::Result<&Self> {
     replace_with_or_abort(&mut self.rrule_set, |self_| {
       self_.exdate(timestamp_to_date_with_tz(timestamp, &self.tz))
     });
@@ -365,13 +339,13 @@ impl JsRRuleSet {
     Ok(self)
   }
 
-  #[napi]
-  pub fn get_dtstart(&self) -> napi::Result<i64> {
+  #[napi(getter)]
+  pub fn dtstart(&self) -> napi::Result<i64> {
     Ok(self.rrule_set.get_dt_start().timestamp_millis())
   }
 
-  #[napi]
-  pub fn get_tzid(&self) -> napi::Result<String> {
+  #[napi(getter)]
+  pub fn tzid(&self) -> napi::Result<String> {
     Ok(String::from(self.tz.name()))
   }
 
@@ -389,21 +363,25 @@ impl JsRRuleSet {
     Ok(arr)
   }*/
 
-  fn is_after(&self, timestamp: i64) -> bool {
-    if let Some(after) = self.after {
-      if timestamp <= after {
-        return false;
-      }
+  fn is_after(&self, timestamp: i64, after_timestamp: i64, inclusive: Option<bool>) -> bool {
+    let inclusive = inclusive.unwrap_or(false);
+
+    if inclusive && timestamp < after_timestamp {
+      return false;
+    } else if !inclusive && timestamp <= after_timestamp {
+      return false;
     }
 
     true
   }
 
-  fn is_before(&self, timestamp: i64) -> bool {
-    if let Some(before) = self.before {
-      if timestamp >= before {
-        return false;
-      }
+  fn is_before(&self, timestamp: i64, before_timestamp: i64, inclusive: Option<bool>) -> bool {
+    let inclusive = inclusive.unwrap_or(false);
+
+    if inclusive && timestamp > before_timestamp {
+      return false;
+    } else if !inclusive && timestamp >= before_timestamp {
+      return false;
     }
 
     true
@@ -425,8 +403,20 @@ impl JsRRuleSet {
       }
 
       let timestamp = date.timestamp_millis();
-      let is_after = self.is_after(timestamp);
-      let is_before = self.is_before(timestamp);
+      arr.insert(timestamp).unwrap();
+    }
+
+    Ok(arr)
+  }
+
+  #[napi(ts_return_type = "number[]")]
+  pub fn between(&self, env: Env, after: i64, before: i64, inclusive: Option<bool>) -> napi::Result<Array> {
+    let mut arr = env.create_array(0).unwrap();
+
+    for date in self.rrule_set.into_iter() {
+      let timestamp = date.timestamp_millis();
+      let is_after = self.is_after(timestamp, after, inclusive);
+      let is_before = self.is_before(timestamp, before, inclusive);
 
       if is_after && is_before {
         arr.insert(timestamp).unwrap();

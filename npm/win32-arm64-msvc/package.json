@@ -1,6 +1,6 @@
 {
   "name": "@rrule-rust/lib-win32-arm64-msvc",
-  "version": "0.0.1-6",
+  "version": "0.0.1-7",
   "os": [
     "win32"
   ],

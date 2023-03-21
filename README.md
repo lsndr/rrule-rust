@@ -6,7 +6,7 @@
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/lsndr/rrule-rust/blob/master/LICENSE.md)
 
 
-`rrule-rust` is a [napi-rs](https://napi.rs) wrapper around Rust's [rrule](https://crates.io/crates/rrule)
+`rrule-rust` is a [napi-rs](https://napi.rs) wrapper around Rust's [rrule](https://crates.io/crates/rrule) crate
 
 
 1. [Quick Start](#quick-start)

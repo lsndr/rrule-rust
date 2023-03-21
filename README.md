@@ -15,7 +15,7 @@
 
 ## Quick Start
 
-See [__test__ folder](https://github.com/lsndr/rrule-rust/tree/master/__test__) to see more use cases
+See [test folder](https://github.com/lsndr/rrule-rust/tree/master/__test__) to find more use cases
 
 ```
   npm install rrule-rust 

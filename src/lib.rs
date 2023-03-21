@@ -304,6 +304,20 @@ impl JsRRuleSet {
     }
   }
 
+  #[napi(factory)]
+  pub fn parse(str: String) -> Self {
+    let rrule_set: RRuleSet = str.parse().unwrap();
+    let dtstart = rrule_set.get_dt_start();
+    let tz = dtstart.timezone();
+
+    JsRRuleSet {
+      rrule_set,
+      tz,
+      before: None,
+      after: None,
+    }
+  }
+
   #[napi]
   pub fn to_string(&self) -> napi::Result<String> {
     Ok(self.rrule_set.to_string())

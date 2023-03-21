@@ -70,6 +70,7 @@ export class RRule {
 export type JsRRuleSet = RRuleSet
 export class RRuleSet {
   constructor(dtstart: number, tzid: string)
+  static parse(str: string): JsRRuleSet
   toString(): string
   rrule(jsRrule: RRule): this
   exrule(jsRrule: RRule): this

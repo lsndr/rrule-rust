@@ -125,10 +125,6 @@ jobs:
         run: ${{ matrix.settings.setup }}
         if: ${{ matrix.settings.setup }}
         shell: bash
-      - name: Setup node x86
-        if: matrix.settings.target == 'i686-pc-windows-msvc'
-        run: npm config set supportedArchitectures.cpu "ia32"
-        shell: bash
       - name: Install dependencies
         run: npm install
       - name: Setup node x86
@@ -295,7 +291,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: |
-          npm config set supportedArchitectures.libc "musl"
           npm install
       - name: Download artifacts
         uses: actions/download-artifact@v3
@@ -331,8 +326,6 @@ jobs:
         shell: bash
       - name: Install dependencies
         run: |
-          npm config set supportedArchitectures.cpu "arm64"
-          npm config set supportedArchitectures.libc "glibc"
           npm install
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -365,8 +358,6 @@ jobs:
         shell: bash
       - name: Install dependencies
         run: |
-          npm config set supportedArchitectures.cpu "arm64"
-          npm config set supportedArchitectures.libc "musl"
           npm install
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -405,7 +396,6 @@ jobs:
         shell: bash
       - name: Install dependencies
         run: |
-          npm config set supportedArchitectures.cpu "arm"
           npm install
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2

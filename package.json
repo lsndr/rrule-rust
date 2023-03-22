@@ -58,7 +58,8 @@
     "typescript": "^4.9.4"
   },
   "pre-commit": [
-    "lint:fix-staged"
+    "lint:fix-staged",
+    "test"
   ],
   "lint-staged": {
     "**/*.{js,ts,json}": "eslint --fix --max-warnings=0"

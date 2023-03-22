@@ -10,6 +10,7 @@
 
 
 1. [Quick Start](#quick-start)
+2. [Perfomance](#perfomance)
 2. RRule
 3. RRuleSet
 
@@ -31,6 +32,22 @@ const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
 const dates = set.all(); // [ 873205200000, 873291600000, 873378000000, 873464400000, 873550800000 ]
 const asString = set.toString(); // DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=daily;COUNT=5;BYHOUR=9;BYMINUTE=0;BYSECOND=0
 ```
+
+## Perfomance
+
+```
+  Host: MacBook Pro, 13-inch, 2018
+  OS: macOS 13.2 (22D49)
+  Processor: 2,3 GHz Quad-Core Intel Core i5
+  Memory: 16 GB 2133 MHz LPDDR3
+```
+
+|          | rrule        | rrule-rust   |              |
+| -------- | ------------ | ------------ | ------------ |
+| UTC TZ   | 8 128 ops/s  | 42 343 ops/s | ~5x faster   |
+| Other TZ | 68 ops/s     | 40 549 ops/s | ~600x faster |
+
+You can run becnhamrks using `npm run benchmark`
 
 ## License
 

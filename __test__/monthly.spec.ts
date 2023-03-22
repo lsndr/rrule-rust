@@ -1,5 +1,5 @@
-const test = require('ava');
-const { RRule, RRuleSet, Frequency, Month, Weekday } = require('../');
+import test from 'ava';
+import { RRule, RRuleSet, Frequency, Weekday } from '../';
 
 test('Monthly on the 1st Friday for ten occurrences', (t) => {
   const rrule = new RRule(Frequency.Monthly).setCount(10).setByWeekday([Weekday.Friday]).setBySetpos([1]);

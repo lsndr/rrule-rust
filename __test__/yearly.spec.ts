@@ -1,5 +1,5 @@
-const test = require('ava');
-const { RRule, RRuleSet, Frequency, Month, Weekday } = require('../');
+import test from 'ava';
+import { RRule, RRuleSet, Frequency, Month, Weekday } from '../';
 
 test('Yearly in June and July for 10 occurrences', (t) => {
   const rrule = new RRule(Frequency.Yearly).setCount(10).setByMonth([Month.June, Month.July]);

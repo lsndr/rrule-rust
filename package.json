@@ -46,7 +46,13 @@
     "ts-node": "^10.9.1"
   },
   "ava": {
-    "timeout": "3m"
+    "timeout": "3m",
+    "extensions": [
+			"ts"
+		],
+		"require": [
+			"ts-node/register"
+		]
   },
   "engines": {
     "node": ">= 10"

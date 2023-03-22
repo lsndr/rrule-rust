@@ -47,7 +47,7 @@ const asString = set.toString(); // DTSTART;TZID=US/Eastern:19970902T090000\nFRE
 | UTC TZ   | 8 128 ops/s  | 42 343 ops/s | ~5x faster   |
 | Other TZ | 68 ops/s     | 40 549 ops/s | ~600x faster |
 
-You can run becnhamrks using `npm run benchmark`
+You can run benchmarks using `npm run benchmark`
 
 ## License
 

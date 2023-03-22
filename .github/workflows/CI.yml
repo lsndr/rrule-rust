@@ -127,7 +127,7 @@ jobs:
         shell: bash
       - name: Setup node x86
         if: matrix.settings.target == 'i686-pc-windows-msvc'
-        run: npm run config set supportedArchitectures.cpu "ia32"
+        run: npm config set supportedArchitectures.cpu "ia32"
         shell: bash
       - name: Install dependencies
         run: npm run install

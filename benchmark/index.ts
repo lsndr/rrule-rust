@@ -5,7 +5,9 @@ import rust from '../';
 b.suite(
   'UTC TZ',
   b.add('rrule-rust', () => {
-    const rrule = new rust.RRule(rust.Frequency.Daily).setCount(30).setInterval(1);
+    const rrule = new rust.RRule(rust.Frequency.Daily)
+      .setCount(30)
+      .setInterval(1);
     const set = new rust.RRuleSet(1679428740000, 'UTC').addRrule(rrule);
 
     set.all();
@@ -16,7 +18,7 @@ b.suite(
       dtstart: new Date(Date.UTC(2023, 2, 21, 23, 59, 0)),
       tzid: 'UTC',
       count: 30,
-      interval: 1
+      interval: 1,
     });
 
     rrule.all();
@@ -24,13 +26,17 @@ b.suite(
 
   b.cycle(),
   b.complete(),
-)
+);
 
 b.suite(
   'Other TZ',
   b.add('rrule-rust', () => {
-    const rrule = new rust.RRule(rust.Frequency.Daily).setCount(30).setInterval(1);
-    const set = new rust.RRuleSet(1679428740000, 'Pacific/Kiritimati').addRrule(rrule);
+    const rrule = new rust.RRule(rust.Frequency.Daily)
+      .setCount(30)
+      .setInterval(1);
+    const set = new rust.RRuleSet(1679428740000, 'Pacific/Kiritimati').addRrule(
+      rrule,
+    );
 
     set.all();
   }),
@@ -40,7 +46,7 @@ b.suite(
       dtstart: new Date(Date.UTC(2023, 2, 21, 23, 59, 0)),
       tzid: 'Pacific/Kiritimati',
       count: 30,
-      interval: 1
+      interval: 1,
     });
 
     rrule.all();
@@ -48,4 +54,4 @@ b.suite(
 
   b.cycle(),
   b.complete(),
-)
+);

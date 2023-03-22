@@ -40,19 +40,37 @@
   "license": "MIT",
   "devDependencies": {
     "@napi-rs/cli": "^2.15.1",
+    "@types/node": "^18.15.5",
+    "@typescript-eslint/eslint-plugin": "^5.50.0",
+    "@typescript-eslint/parser": "^5.50.0",
     "ava": "^5.1.1",
     "benny": "^3.7.1",
+    "eslint": "^8.33.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "lint-staged": "^13.1.0",
+    "pre-commit": "^1.2.2",
+    "prettier": "^2.8.3",
     "rrule": "^2.7.2",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  },
+  "pre-commit": [
+    "lint:fix-staged"
+  ],
+  "lint-staged": {
+    "**/*.{js,ts,json}": "eslint --fix --max-warnings=0"
   },
   "ava": {
     "timeout": "3m",
     "extensions": [
-			"ts"
-		],
-		"require": [
-			"ts-node/register"
-		]
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
   },
   "engines": {
     "node": ">= 10"
@@ -65,6 +83,9 @@
     "test": "ava",
     "universal": "napi universal",
     "version": "napi version",
-    "benchmark": "ts-node ./benchmark/index.ts"
+    "benchmark": "ts-node ./benchmark/index.ts",
+    "lint": "eslint \"**/*.{js,ts,json}\" --max-warnings=0",
+    "lint:fix": "npm run lint -- --fix",
+    "lint:fix-staged": "lint-staged"
   }
 }

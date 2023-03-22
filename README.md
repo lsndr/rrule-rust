@@ -11,15 +11,13 @@
 
 1. [Quick Start](#quick-start)
 2. [Perfomance](#perfomance)
-2. RRule
-3. RRuleSet
 
 ## Quick Start
 
 See [test folder](https://github.com/lsndr/rrule-rust/tree/master/__test__) to find more use cases
 
 ```
-  npm install rrule-rust 
+  npm i rrule-rust 
 ```
 
 

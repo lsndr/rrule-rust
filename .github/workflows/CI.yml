@@ -28,38 +28,38 @@ jobs:
           - host: macos-latest
             target: x86_64-apple-darwin
             build: |
-              yarn build
+              npm run build
               strip -x *.node
           - host: windows-latest
-            build: yarn build
+            build: npm run build
             target: x86_64-pc-windows-msvc
           - host: windows-latest
             build: |
-              yarn build --target i686-pc-windows-msvc
-              yarn test
+              npm run build --target i686-pc-windows-msvc
+              npm test
             target: i686-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
             build: |-
               set -e &&
-              yarn build --target x86_64-unknown-linux-gnu &&
+              npm run build --target x86_64-unknown-linux-gnu &&
               strip *.node
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
-            build: set -e && yarn build && strip *.node
+            build: set -e && npm run build && strip *.node
           - host: macos-latest
             target: aarch64-apple-darwin
             build: |
-              yarn build --target aarch64-apple-darwin
+              npm run build --target aarch64-apple-darwin
               strip -x *.node
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
             build: |-
               set -e &&
-              yarn build --target aarch64-unknown-linux-gnu &&
+              npm run build --target aarch64-unknown-linux-gnu &&
               aarch64-unknown-linux-gnu-strip *.node
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
@@ -67,17 +67,17 @@ jobs:
               sudo apt-get update
               sudo apt-get install gcc-arm-linux-gnueabihf -y
             build: |
-              yarn build --target armv7-unknown-linux-gnueabihf
+              npm run build --target armv7-unknown-linux-gnueabihf
               arm-linux-gnueabihf-strip *.node
           - host: ubuntu-latest
             target: aarch64-linux-android
             build: |
-              yarn build --target aarch64-linux-android
+              npm run build --target aarch64-linux-android
               ${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip *.node
           - host: ubuntu-latest
             target: armv7-linux-androideabi
             build: |
-              yarn build --target armv7-linux-androideabi
+              npm run build --target armv7-linux-androideabi
               ${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip *.node
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
@@ -85,11 +85,11 @@ jobs:
             build: |-
               set -e &&
               rustup target add aarch64-unknown-linux-musl &&
-              yarn build --target aarch64-unknown-linux-musl &&
+              npm run build --target aarch64-unknown-linux-musl &&
               /aarch64-linux-musl-cross/bin/aarch64-linux-musl-strip *.node
           - host: windows-latest
             target: aarch64-pc-windows-msvc
-            build: yarn build --target aarch64-pc-windows-msvc
+            build: npm run build --target aarch64-pc-windows-msvc
     name: stable - ${{ matrix.settings.target }} - node@18
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -100,7 +100,7 @@ jobs:
         with:
           node-version: 18
           check-latest: true
-          cache: yarn
+          cache: npm
       - name: Install
         uses: dtolnay/rust-toolchain@stable
         if: ${{ !matrix.settings.docker }}
@@ -127,17 +127,17 @@ jobs:
         shell: bash
       - name: Setup node x86
         if: matrix.settings.target == 'i686-pc-windows-msvc'
-        run: yarn config set supportedArchitectures.cpu "ia32"
+        run: npm run config set supportedArchitectures.cpu "ia32"
         shell: bash
       - name: Install dependencies
-        run: yarn install
+        run: npm run install
       - name: Setup node x86
         uses: actions/setup-node@v3
         if: matrix.settings.target == 'i686-pc-windows-msvc'
         with:
           node-version: 18
           check-latest: true
-          cache: yarn
+          cache: npm run
           architecture: x86
       - name: Build in docker
         uses: addnab/docker-run-action@v3
@@ -184,8 +184,8 @@ jobs:
             rustc --version
             echo "~~~~ node -v ~~~~"
             node -v
-            echo "~~~~ yarn --version ~~~~"
-            yarn --version
+            echo "~~~~ npm --version ~~~~"
+            npm --version
           run: |
             export PATH="/usr/local/cargo/bin:$PATH"
             pwd
@@ -193,13 +193,13 @@ jobs:
             whoami
             env
             freebsd-version
-            yarn install
-            yarn build
+            npm install
+            npm run build
             strip -x *.node
-            yarn test
+            npm run test
             rm -rf node_modules
             rm -rf target
-            rm -rf .yarn/cache
+            rm -rf .npm/cache
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -228,9 +228,9 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
-          cache: yarn
+          cache: npm
       - name: Install dependencies
-        run: yarn install
+        run: npm run install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -240,7 +240,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: yarn test
+        run: npm run test
   test-linux-x64-gnu-binding:
     name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
     needs:
@@ -260,9 +260,9 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
-          cache: yarn
+          cache: npm
       - name: Install dependencies
-        run: yarn install
+        run: npm run install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -272,7 +272,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim yarn test
+        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-slim npm test
   test-linux-x64-musl-binding:
     name: Test bindings on x86_64-unknown-linux-musl - node@${{ matrix.node }}
     needs:
@@ -292,11 +292,11 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           check-latest: true
-          cache: yarn
+          cache: npm
       - name: Install dependencies
         run: |
-          yarn config set supportedArchitectures.libc "musl"
-          yarn install
+          npm config set supportedArchitectures.libc "musl"
+          npm install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -306,7 +306,7 @@ jobs:
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine yarn test
+        run: docker run --rm -v $(pwd):/build -w /build node:${{ matrix.node }}-alpine npm test
   test-linux-aarch64-gnu-binding:
     name: Test bindings on aarch64-unknown-linux-gnu - node@${{ matrix.node }}
     needs:
@@ -331,9 +331,9 @@ jobs:
         shell: bash
       - name: Install dependencies
         run: |
-          yarn config set supportedArchitectures.cpu "arm64"
-          yarn config set supportedArchitectures.libc "glibc"
-          yarn install
+          npm config set supportedArchitectures.cpu "arm64"
+          npm config set supportedArchitectures.libc "glibc"
+          npm install
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
@@ -346,7 +346,7 @@ jobs:
           options: '--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build'
           run: |
             set -e
-            yarn test
+            npm test
             ls -la
   test-linux-aarch64-musl-binding:
     name: Test bindings on aarch64-unknown-linux-musl - node@${{ matrix.node }}
@@ -365,9 +365,9 @@ jobs:
         shell: bash
       - name: Install dependencies
         run: |
-          yarn config set supportedArchitectures.cpu "arm64"
-          yarn config set supportedArchitectures.libc "musl"
-          yarn install
+          npm config set supportedArchitectures.cpu "arm64"
+          npm config set supportedArchitectures.libc "musl"
+          npm install
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
@@ -380,7 +380,7 @@ jobs:
           options: '--platform linux/arm64 -v ${{ github.workspace }}:/build -w /build'
           run: |
             set -e
-            yarn test
+            npm test
   test-linux-arm-gnueabihf-binding:
     name: Test bindings on armv7-unknown-linux-gnueabihf - node@${{ matrix.node }}
     needs:
@@ -405,8 +405,8 @@ jobs:
         shell: bash
       - name: Install dependencies
         run: |
-          yarn config set supportedArchitectures.cpu "arm"
-          yarn install
+          npm config set supportedArchitectures.cpu "arm"
+          npm install
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
@@ -419,7 +419,7 @@ jobs:
           options: '--platform linux/arm/v7 -v ${{ github.workspace }}:/build -w /build'
           run: |
             set -e
-            yarn test
+            npm test
             ls -la
   universal-macOS:
     name: Build universal macOS binary
@@ -433,9 +433,9 @@ jobs:
         with:
           node-version: 18
           check-latest: true
-          cache: yarn
+          cache: npm
       - name: Install dependencies
-        run: yarn install
+        run: npm install
       - name: Download macOS x64 artifact
         uses: actions/download-artifact@v3
         with:
@@ -447,7 +447,7 @@ jobs:
           name: bindings-aarch64-apple-darwin
           path: artifacts
       - name: Combine binaries
-        run: yarn universal
+        run: npm universal
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
@@ -473,15 +473,15 @@ jobs:
         with:
           node-version: 18
           check-latest: true
-          cache: yarn
+          cache: npm
       - name: Install dependencies
-        run: yarn install
+        run: npm install
       - name: Download all artifacts
         uses: actions/download-artifact@v3
         with:
           path: artifacts
       - name: Move artifacts
-        run: yarn artifacts
+        run: npm artifacts
       - name: List packages
         run: ls -R ./npm
         shell: bash

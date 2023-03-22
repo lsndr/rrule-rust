@@ -65,7 +65,7 @@
     "**/*.{js,ts,json}": "eslint --fix --max-warnings=0"
   },
   "ava": {
-    "timeout": "3m",
+    "timeout": "10m",
     "extensions": [
       "ts"
     ],

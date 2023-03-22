@@ -130,14 +130,14 @@ jobs:
         run: npm config set supportedArchitectures.cpu "ia32"
         shell: bash
       - name: Install dependencies
-        run: npm run install
+        run: npm install
       - name: Setup node x86
         uses: actions/setup-node@v3
         if: matrix.settings.target == 'i686-pc-windows-msvc'
         with:
           node-version: 18
           check-latest: true
-          cache: npm run
+          cache: npm
           architecture: x86
       - name: Build in docker
         uses: addnab/docker-run-action@v3
@@ -230,7 +230,7 @@ jobs:
           check-latest: true
           cache: npm
       - name: Install dependencies
-        run: npm run install
+        run: npm install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -262,7 +262,7 @@ jobs:
           check-latest: true
           cache: npm
       - name: Install dependencies
-        run: npm run install
+        run: npm install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:

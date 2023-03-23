@@ -55,15 +55,15 @@ export class RRule {
   toString(): string
   setInterval(interval: number): this
   setCount(count: number): this
-  setByWeekday(weekdays: Weekday[]): this
-  setByHour(hours: Array<number>): this
-  setByMinute(minutes: Array<number>): this
-  setBySecond(seconds: Array<number>): this
-  setByMonthday(days: Array<number>): this
-  setBySetpos(poses: Array<number>): this
-  setByMonth(months: Month[]): this
-  setByWeekno(weekNumbers: Array<number>): this
-  setByYearday(days: Array<number>): this
+  setByWeekday(weekdays: ReadonlyArray<Weekday>): this
+  setByHour(hours: ReadonlyArray<number>): this
+  setByMinute(minutes: ReadonlyArray<number>): this
+  setBySecond(seconds: ReadonlyArray<number>): this
+  setByMonthday(days: ReadonlyArray<number>): this
+  setBySetpos(poses: ReadonlyArray<number>): this
+  setByMonth(months: ReadonlyArray<Month>): this
+  setByWeekno(weekNumbers: ReadonlyArray<number>): this
+  setByYearday(days: ReadonlyArray<number>): this
   setWeekstart(day: Weekday): this
   setUntil(timestamp: number): this
 }

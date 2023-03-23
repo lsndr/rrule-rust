@@ -174,7 +174,7 @@ impl JsRRule {
   #[napi]
   pub fn set_by_weekday(
     &mut self,
-    #[napi(ts_arg_type = "Weekday[]")] weekdays: Array,
+    #[napi(ts_arg_type = "ReadonlyArray<Weekday>")] weekdays: Array,
   ) -> napi::Result<&Self> {
     let mut vec: Vec<NWeekday> = Vec::new();
 
@@ -191,35 +191,50 @@ impl JsRRule {
   }
 
   #[napi]
-  pub fn set_by_hour(&mut self, hours: Vec<u8>) -> napi::Result<&Self> {
+  pub fn set_by_hour(
+    &mut self,
+    #[napi(ts_arg_type = "ReadonlyArray<number>")] hours: Vec<u8>,
+  ) -> napi::Result<&Self> {
     replace_with_or_abort(&mut self.rrule, |self_| self_.by_hour(hours));
 
     Ok(self)
   }
 
   #[napi]
-  pub fn set_by_minute(&mut self, minutes: Vec<u8>) -> napi::Result<&Self> {
+  pub fn set_by_minute(
+    &mut self,
+    #[napi(ts_arg_type = "ReadonlyArray<number>")] minutes: Vec<u8>,
+  ) -> napi::Result<&Self> {
     replace_with_or_abort(&mut self.rrule, |self_| self_.by_minute(minutes));
 
     Ok(self)
   }
 
   #[napi]
-  pub fn set_by_second(&mut self, seconds: Vec<u8>) -> napi::Result<&Self> {
+  pub fn set_by_second(
+    &mut self,
+    #[napi(ts_arg_type = "ReadonlyArray<number>")] seconds: Vec<u8>,
+  ) -> napi::Result<&Self> {
     replace_with_or_abort(&mut self.rrule, |self_| self_.by_second(seconds));
 
     Ok(self)
   }
 
   #[napi]
-  pub fn set_by_monthday(&mut self, days: Vec<i8>) -> napi::Result<&Self> {
+  pub fn set_by_monthday(
+    &mut self,
+    #[napi(ts_arg_type = "ReadonlyArray<number>")] days: Vec<i8>,
+  ) -> napi::Result<&Self> {
     replace_with_or_abort(&mut self.rrule, |self_| self_.by_month_day(days));
 
     Ok(self)
   }
 
   #[napi]
-  pub fn set_by_setpos(&mut self, poses: Vec<i32>) -> napi::Result<&Self> {
+  pub fn set_by_setpos(
+    &mut self,
+    #[napi(ts_arg_type = "ReadonlyArray<number>")] poses: Vec<i32>,
+  ) -> napi::Result<&Self> {
     replace_with_or_abort(&mut self.rrule, |self_| self_.by_set_pos(poses));
 
     Ok(self)
@@ -228,7 +243,7 @@ impl JsRRule {
   #[napi]
   pub fn set_by_month(
     &mut self,
-    #[napi(ts_arg_type = "Month[]")] months: Array,
+    #[napi(ts_arg_type = "ReadonlyArray<Month>")] months: Array,
   ) -> napi::Result<&Self> {
     let mut vec: Vec<Month> = Vec::new();
 
@@ -244,14 +259,20 @@ impl JsRRule {
   }
 
   #[napi]
-  pub fn set_by_weekno(&mut self, week_numbers: Vec<i8>) -> napi::Result<&Self> {
+  pub fn set_by_weekno(
+    &mut self,
+    #[napi(ts_arg_type = "ReadonlyArray<number>")] week_numbers: Vec<i8>,
+  ) -> napi::Result<&Self> {
     replace_with_or_abort(&mut self.rrule, |self_| self_.by_week_no(week_numbers));
 
     Ok(self)
   }
 
   #[napi]
-  pub fn set_by_yearday(&mut self, days: Vec<i16>) -> napi::Result<&Self> {
+  pub fn set_by_yearday(
+    &mut self,
+    #[napi(ts_arg_type = "ReadonlyArray<number>")] days: Vec<i16>,
+  ) -> napi::Result<&Self> {
     replace_with_or_abort(&mut self.rrule, |self_| self_.by_year_day(days));
 
     Ok(self)
@@ -297,7 +318,7 @@ impl JsRRuleSet {
     JsRRuleSet { rrule_set, tz }
   }
 
-  #[napi(factory, ts_return_type="RRuleSet")]
+  #[napi(factory, ts_return_type = "RRuleSet")]
   pub fn parse(str: String) -> Self {
     let rrule_set: RRuleSet = str.parse().unwrap();
     let dtstart = rrule_set.get_dt_start();
@@ -410,7 +431,13 @@ impl JsRRuleSet {
   }
 
   #[napi(ts_return_type = "number[]")]
-  pub fn between(&self, env: Env, after: i64, before: i64, inclusive: Option<bool>) -> napi::Result<Array> {
+  pub fn between(
+    &self,
+    env: Env,
+    after: i64,
+    before: i64,
+    inclusive: Option<bool>,
+  ) -> napi::Result<Array> {
     let mut arr = env.create_array(0).unwrap();
 
     for date in self.rrule_set.into_iter() {

@@ -78,7 +78,7 @@ impl JsRRule {
   #[napi(getter, ts_return_type = "Weekday[]")]
   pub fn by_weekday(&self, env: Env) -> napi::Result<Array> {
     let ndays = self.rrule.get_by_weekday();
-    let mut arr = env.create_array(0).unwrap();
+    let mut arr = env.create_array(0)?;
 
     for nday in ndays.iter() {
       let day = match nday {
@@ -86,7 +86,7 @@ impl JsRRule {
         _ => panic!("Unsupported"),
       };
 
-      arr.insert(map_rust_weekday(day)).unwrap();
+      arr.insert(map_rust_weekday(day))?;
     }
 
     Ok(arr)
@@ -120,10 +120,10 @@ impl JsRRule {
   #[napi(getter, ts_return_type = "Month[]")]
   pub fn by_month(&self, env: Env) -> napi::Result<Array> {
     let months = self.rrule.get_by_month();
-    let mut arr = env.create_array(0).unwrap();
+    let mut arr = env.create_array(0)?;
 
     for month in months.iter() {
-      arr.insert(map_rust_month(month)).unwrap();
+      arr.insert(map_rust_month(month))?;
     }
 
     Ok(arr)
@@ -296,8 +296,8 @@ impl JsRRule {
     Ok(self)
   }
 
-  pub fn validate(&self, dt_start: DateTime<Tz>) -> RRule {
-    self.rrule.clone().validate(dt_start).unwrap()
+  pub fn validate(&self, dt_start: DateTime<Tz>) -> napi::Result<RRule> {
+    return Ok(self.rrule.clone().validate(dt_start).map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?);
   }
 }
 
@@ -310,21 +310,21 @@ pub struct JsRRuleSet {
 #[napi]
 impl JsRRuleSet {
   #[napi(constructor)]
-  pub fn new(dtstart: i64, tzid: String) -> Self {
-    let tz = map_js_tz(&tzid);
+  pub fn new(dtstart: i64, tzid: String) -> napi::Result<Self> {
+    let tz = map_js_tz(&tzid)?;
     let date = timestamp_to_date_with_tz(dtstart, &tz);
     let rrule_set = RRuleSet::new(date);
 
-    JsRRuleSet { rrule_set, tz }
+    Ok(JsRRuleSet { rrule_set, tz })
   }
 
   #[napi(factory, ts_return_type = "RRuleSet")]
-  pub fn parse(str: String) -> Self {
-    let rrule_set: RRuleSet = str.parse().unwrap();
+  pub fn parse(str: String) -> napi::Result<Self> {
+    let rrule_set: RRuleSet = str.parse().map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
     let dtstart = rrule_set.get_dt_start();
     let tz = dtstart.timezone();
 
-    JsRRuleSet { rrule_set, tz }
+    Ok(JsRRuleSet { rrule_set, tz })
   }
 
   #[napi]
@@ -335,7 +335,7 @@ impl JsRRuleSet {
   #[napi]
   pub fn add_rrule(&mut self, js_rrule: &JsRRule) -> napi::Result<&Self> {
     let dt_start = self.rrule_set.get_dt_start().clone();
-    let rrule = js_rrule.validate(dt_start);
+    let rrule = js_rrule.validate(dt_start)?;
 
     replace_with_or_abort(&mut self.rrule_set, |self_| self_.rrule(rrule));
 
@@ -344,7 +344,7 @@ impl JsRRuleSet {
 
   #[napi]
   pub fn add_exrule(&mut self, js_rrule: &JsRRule) -> napi::Result<&Self> {
-    let rrule = js_rrule.validate(*self.rrule_set.get_dt_start());
+    let rrule = js_rrule.validate(*self.rrule_set.get_dt_start())?;
 
     replace_with_or_abort(&mut self.rrule_set, |self_| self_.exrule(rrule));
 
@@ -410,7 +410,7 @@ impl JsRRuleSet {
 
   #[napi(ts_return_type = "number[]")]
   pub fn all(&self, env: Env, limit: Option<u32>) -> napi::Result<Array> {
-    let mut arr = env.create_array(0).unwrap();
+    let mut arr = env.create_array(0)?;
     let mut left = match limit {
       Some(number) => number,
       None => 0,
@@ -424,7 +424,7 @@ impl JsRRuleSet {
       }
 
       let timestamp = date.timestamp_millis();
-      arr.insert(timestamp).unwrap();
+      arr.insert(timestamp)?;
     }
 
     Ok(arr)
@@ -438,7 +438,7 @@ impl JsRRuleSet {
     before: i64,
     inclusive: Option<bool>,
   ) -> napi::Result<Array> {
-    let mut arr = env.create_array(0).unwrap();
+    let mut arr = env.create_array(0)?;
 
     for date in self.rrule_set.into_iter() {
       let timestamp = date.timestamp_millis();
@@ -446,7 +446,7 @@ impl JsRRuleSet {
       let is_before = self.is_before(timestamp, before, inclusive);
 
       if is_after && is_before {
-        arr.insert(timestamp).unwrap();
+        arr.insert(timestamp)?;
       } else if !is_before {
         break;
       }
@@ -548,9 +548,9 @@ fn map_rust_month(month: &u8) -> JsMonth {
   }
 }
 
-fn map_js_tz(tz: &str) -> Tz {
-  let chrono_tz = tz.parse().unwrap();
-  Tz::Tz(chrono_tz)
+fn map_js_tz(tz: &str) -> napi::Result<Tz> {
+  let chrono_tz = tz.parse().map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+  Ok(Tz::Tz(chrono_tz))
 }
 
 fn timestamp_to_date_with_tz(timestamp: i64, tz: &Tz) -> DateTime<Tz> {

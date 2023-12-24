@@ -23,24 +23,22 @@ test('Should properly parse monthly recurrence', () => {
 });
 
 test('Should throw error on missing start date', () => {
-  expect(() => RRuleSet.parse('Invalid')).toThrowErrorMatchingInlineSnapshot(
-    `"RRule parsing error: Missing start date. There needs to be a unique start date which the iteration can start from."`,
+  expect(() => RRuleSet.parse('Invalid')).toThrowError(
+    'RRule parsing error: Missing start date. There needs to be a unique start date which the iteration can start from.',
   );
 });
 
 test('Should throw error on invalid timezone', () => {
   expect(() =>
     RRuleSet.parse('DTSTART;TZID=Invalid:19970907T090000'),
-  ).toThrowErrorMatchingInlineSnapshot(
-    `"RRule parsing error: \`Invalid\` is not a valid timezone."`,
-  );
+  ).toThrowError('RRule parsing error: `Invalid` is not a valid timezone.');
 });
 
 test('Should throw error on invalid recurrence rule', () => {
   expect(() =>
     RRuleSet.parse('DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:Invalid'),
-  ).toThrowErrorMatchingInlineSnapshot(
-    `"RRule parsing error: \`Invalid\` is a malformed property parameter. Parameter should be specified as \`key=value\`"`,
+  ).toThrowError(
+    'RRule parsing error: `Invalid` is a malformed property parameter. Parameter should be specified as `key=value`',
   );
 });
 
@@ -49,9 +47,7 @@ test('Should throw error on invalid frequency', () => {
     RRuleSet.parse(
       'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=Invalid',
     ),
-  ).toThrowErrorMatchingInlineSnapshot(
-    `"RRule parsing error: \`INVALID\` is not a valid frequency."`,
-  );
+  ).toThrowError('RRule parsing error: `INVALID` is not a valid frequency.');
 });
 
 test('Should throw error on invalid interval', () => {
@@ -59,8 +55,8 @@ test('Should throw error on invalid interval', () => {
     RRuleSet.parse(
       'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=DAILY;INTERVAL=Invalid',
     ),
-  ).toThrowErrorMatchingInlineSnapshot(
-    `"RRule parsing error: \`Invalid\` is not a valid INTERVAL value."`,
+  ).toThrowError(
+    'RRule parsing error: `Invalid` is not a valid INTERVAL value.',
   );
 });
 
@@ -69,9 +65,7 @@ test('Should throw error on invalid count', () => {
     RRuleSet.parse(
       'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=DAILY;COUNT=Invalid',
     ),
-  ).toThrowErrorMatchingInlineSnapshot(
-    `"RRule parsing error: \`Invalid\` is not a valid COUNT value."`,
-  );
+  ).toThrowError('RRule parsing error: `Invalid` is not a valid COUNT value.');
 });
 
 test('Should throw error on invalid until', () => {
@@ -79,8 +73,8 @@ test('Should throw error on invalid until', () => {
     RRuleSet.parse(
       'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=DAILY;UNTIL=Invalid',
     ),
-  ).toThrowErrorMatchingInlineSnapshot(
-    `"RRule parsing error: \`Invalid\` is not a valid datetime format for \`UNTIL\`."`,
+  ).toThrowError(
+    'RRule parsing error: `Invalid` is not a valid datetime format for `UNTIL`.',
   );
 });
 
@@ -89,7 +83,7 @@ test('Should throw error on invalid week start', () => {
     RRuleSet.parse(
       'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=DAILY;WKST=Invalid',
     ),
-  ).toThrowErrorMatchingInlineSnapshot(
-    `"RRule parsing error: \`Invalid\` is not a valid weekday start. Valid values are \`MO\`, \`TU\`, \`WE\`, \`TH\`, \`FR\`, \`SA\` and \`SU\`."`,
+  ).toThrowError(
+    'RRule parsing error: `Invalid` is not a valid weekday start. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`.',
   );
 });

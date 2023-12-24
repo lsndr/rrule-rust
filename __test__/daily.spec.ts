@@ -93,7 +93,9 @@ test('Every Monday in January, for 3 years', () => {
     .setByMonth([Month.January])
     .setByWeekday([Weekday.Monday])
     .setUntil(949327200000);
-  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(873205200000, 'US/Eastern')
+    .addRrule(rrule)
+    .addExdate(949327200000);
 
   const asString = set.toString();
   const dates = set.all();
@@ -104,6 +106,11 @@ test('Every Monday in January, for 3 years', () => {
   expect(dates).toEqual([
     884008800000, 884613600000, 885218400000, 885823200000, 915458400000,
     916063200000, 916668000000, 917272800000, 946908000000, 947512800000,
-    948117600000, 948722400000, 949327200000,
+    948117600000, 948722400000,
   ]);
+  expect(set.getRrules().map((r) => r.toString())).toEqual([
+    'FREQ=daily;UNTIL=20000131T140000Z;BYMONTH=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
+  ]);
+  expect(set.getExrules().map((r) => r.toString())).toEqual([]);
+  expect(set.getExdates()).toEqual([949327200000]);
 });

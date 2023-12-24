@@ -3,7 +3,7 @@
 use chrono::{DateTime, Month, TimeZone, Weekday};
 use napi::bindgen_prelude::*;
 use replace_with::replace_with_or_abort;
-use rrule::{Frequency, NWeekday, RRule, RRuleSet, Tz, Unvalidated};
+use rrule::{Frequency, NWeekday, RRule, RRuleSet, Tz, Unvalidated, Validated};
 
 #[macro_use]
 extern crate napi_derive;
@@ -46,16 +46,280 @@ pub enum JsMonth {
   December,
 }
 
+pub enum RRuleType {
+  Unvalidated(RRule<Unvalidated>),
+  Validated(RRule<Validated>),
+}
+
+fn to_unvalidated(rrule: &RRule<Validated>) -> RRule<Unvalidated> {
+  let by_month = rrule
+    .get_by_month()
+    .iter()
+    .map(|m| Month::try_from(*m).unwrap())
+    .collect::<Vec<_>>();
+  let mut unvalidated = RRule::new(rrule.get_freq())
+    .interval(rrule.get_interval())
+    .week_start(rrule.get_week_start())
+    .by_set_pos(rrule.get_by_set_pos().to_vec())
+    .by_month(&by_month)
+    .by_month_day(rrule.get_by_month_day().to_vec())
+    .by_year_day(rrule.get_by_year_day().to_vec())
+    .by_week_no(rrule.get_by_week_no().to_vec())
+    .by_weekday(rrule.get_by_weekday().to_vec())
+    .by_hour(rrule.get_by_hour().to_vec())
+    .by_minute(rrule.get_by_minute().to_vec())
+    .by_second(rrule.get_by_second().to_vec());
+
+  if let Some(count) = rrule.get_count() {
+    unvalidated = unvalidated.count(count);
+  }
+
+  if let Some(until) = rrule.get_until() {
+    unvalidated = unvalidated.until(*until);
+  }
+
+  unvalidated
+}
+
+impl RRuleType {
+  pub fn get_freq(&self) -> Frequency {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_freq(),
+      RRuleType::Validated(rrule) => rrule.get_freq(),
+    }
+  }
+
+  pub fn get_interval(&self) -> u16 {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_interval(),
+      RRuleType::Validated(rrule) => rrule.get_interval(),
+    }
+  }
+
+  pub fn get_count(&self) -> Option<u32> {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_count(),
+      RRuleType::Validated(rrule) => rrule.get_count(),
+    }
+  }
+
+  pub fn get_by_weekday(&self) -> &[NWeekday] {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_by_weekday(),
+      RRuleType::Validated(rrule) => rrule.get_by_weekday(),
+    }
+  }
+
+  pub fn get_by_hour(&self) -> &[u8] {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_by_hour(),
+      RRuleType::Validated(rrule) => rrule.get_by_hour(),
+    }
+  }
+
+  pub fn get_by_minute(&self) -> &[u8] {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_by_minute(),
+      RRuleType::Validated(rrule) => rrule.get_by_minute(),
+    }
+  }
+
+  pub fn get_by_second(&self) -> &[u8] {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_by_second(),
+      RRuleType::Validated(rrule) => rrule.get_by_second(),
+    }
+  }
+
+  pub fn get_by_month_day(&self) -> &[i8] {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_by_month_day(),
+      RRuleType::Validated(rrule) => rrule.get_by_month_day(),
+    }
+  }
+
+  pub fn get_by_set_pos(&self) -> &[i32] {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_by_set_pos(),
+      RRuleType::Validated(rrule) => rrule.get_by_set_pos(),
+    }
+  }
+
+  pub fn get_by_month(&self) -> &[u8] {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_by_month(),
+      RRuleType::Validated(rrule) => rrule.get_by_month(),
+    }
+  }
+
+  pub fn get_by_week_no(&self) -> &[i8] {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_by_week_no(),
+      RRuleType::Validated(rrule) => rrule.get_by_week_no(),
+    }
+  }
+
+  pub fn get_by_year_day(&self) -> &[i16] {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_by_year_day(),
+      RRuleType::Validated(rrule) => rrule.get_by_year_day(),
+    }
+  }
+
+  pub fn get_week_start(&self) -> Weekday {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_week_start(),
+      RRuleType::Validated(rrule) => rrule.get_week_start(),
+    }
+  }
+
+  pub fn get_until(&self) -> Option<&DateTime<Tz>> {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.get_until(),
+      RRuleType::Validated(rrule) => rrule.get_until(),
+    }
+  }
+
+  pub fn interval(self, interval: u16) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.interval(interval)),
+      RRuleType::Validated(rrule) => {
+        RRuleType::Unvalidated(to_unvalidated(&rrule).interval(interval))
+      }
+    }
+  }
+
+  pub fn count(self, count: u32) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.count(count)),
+      RRuleType::Validated(rrule) => RRuleType::Unvalidated(to_unvalidated(&rrule).count(count)),
+    }
+  }
+
+  pub fn by_weekday(self, weekdays: Vec<NWeekday>) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.by_weekday(weekdays)),
+      RRuleType::Validated(rrule) => {
+        RRuleType::Unvalidated(to_unvalidated(&rrule).by_weekday(weekdays))
+      }
+    }
+  }
+
+  pub fn by_hour(self, hours: Vec<u8>) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.by_hour(hours)),
+      RRuleType::Validated(rrule) => RRuleType::Unvalidated(to_unvalidated(&rrule).by_hour(hours)),
+    }
+  }
+
+  pub fn by_minute(self, minutes: Vec<u8>) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.by_minute(minutes)),
+      RRuleType::Validated(rrule) => {
+        RRuleType::Unvalidated(to_unvalidated(&rrule).by_minute(minutes))
+      }
+    }
+  }
+
+  pub fn by_second(self, seconds: Vec<u8>) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.by_second(seconds)),
+      RRuleType::Validated(rrule) => {
+        RRuleType::Unvalidated(to_unvalidated(&rrule).by_second(seconds))
+      }
+    }
+  }
+
+  pub fn by_month_day(self, days: Vec<i8>) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.by_month_day(days)),
+      RRuleType::Validated(rrule) => {
+        RRuleType::Unvalidated(to_unvalidated(&rrule).by_month_day(days))
+      }
+    }
+  }
+
+  pub fn by_set_pos(self, poses: Vec<i32>) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.by_set_pos(poses)),
+      RRuleType::Validated(rrule) => {
+        RRuleType::Unvalidated(to_unvalidated(&rrule).by_set_pos(poses))
+      }
+    }
+  }
+
+  pub fn by_month(self, months: &[Month]) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.by_month(months)),
+      RRuleType::Validated(rrule) => {
+        RRuleType::Unvalidated(to_unvalidated(&rrule).by_month(months))
+      }
+    }
+  }
+
+  pub fn by_week_no(self, week_numbers: Vec<i8>) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.by_week_no(week_numbers)),
+      RRuleType::Validated(rrule) => {
+        RRuleType::Unvalidated(to_unvalidated(&rrule).by_week_no(week_numbers))
+      }
+    }
+  }
+
+  pub fn by_year_day(self, days: Vec<i16>) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.by_year_day(days)),
+      RRuleType::Validated(rrule) => {
+        RRuleType::Unvalidated(to_unvalidated(&rrule).by_year_day(days))
+      }
+    }
+  }
+
+  pub fn week_start(self, day: Weekday) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.week_start(day)),
+      RRuleType::Validated(rrule) => RRuleType::Unvalidated(to_unvalidated(&rrule).week_start(day)),
+    }
+  }
+
+  pub fn until(self, until: DateTime<Tz>) -> Self {
+    match self {
+      RRuleType::Unvalidated(rrule) => RRuleType::Unvalidated(rrule.until(until)),
+      RRuleType::Validated(rrule) => RRuleType::Unvalidated(to_unvalidated(&rrule).until(until)),
+    }
+  }
+
+  pub fn validate(&self, dt_start: DateTime<Tz>) -> Result<RRule<Validated>> {
+    match self {
+      RRuleType::Unvalidated(rrule) => {
+        let rrule = rrule
+          .clone()
+          .validate(dt_start)
+          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+        Ok(rrule)
+      }
+      RRuleType::Validated(rrule) => Ok(rrule.clone()),
+    }
+  }
+
+  pub fn to_string(&self) -> String {
+    match self {
+      RRuleType::Unvalidated(rrule) => rrule.to_string(),
+      RRuleType::Validated(rrule) => rrule.to_string(),
+    }
+  }
+}
+
 #[napi(js_name = "RRule")]
 pub struct JsRRule {
-  rrule: RRule<Unvalidated>,
+  rrule: RRuleType,
 }
 
 #[napi]
 impl JsRRule {
   #[napi(constructor)]
   pub fn new(frequency: JsFrequency) -> Self {
-    let rrule = RRule::new(map_js_frequency(frequency));
+    let rrule = RRuleType::Unvalidated(RRule::new(map_js_frequency(frequency)));
 
     JsRRule { rrule }
   }
@@ -297,13 +561,7 @@ impl JsRRule {
   }
 
   pub fn validate(&self, dt_start: DateTime<Tz>) -> napi::Result<RRule> {
-    return Ok(
-      self
-        .rrule
-        .clone()
-        .validate(dt_start)
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?,
-    );
+    return Ok(self.rrule.validate(dt_start)?);
   }
 }
 
@@ -378,19 +636,45 @@ impl JsRRuleSet {
     Ok(String::from(self.tz.name()))
   }
 
-  /*#[napi(ts_return_type="RRule[]")]
+  #[napi(ts_return_type = "RRule[]")]
   pub fn get_rrules(&self, env: Env) -> napi::Result<Array> {
-    let mut arr = env.create_array(0).unwrap();
+    let mut arr = env.create_array(0)?;
     let rrules = self.rrule_set.get_rrule();
 
     for rrule in rrules.iter() {
       arr.insert(JsRRule {
-        freq: map_rust_frequency(rrule.get_freq())
-      }).unwrap();
+        rrule: RRuleType::Validated(rrule.clone()),
+      })?
     }
 
     Ok(arr)
-  }*/
+  }
+
+  #[napi(ts_return_type = "RRule[]")]
+  pub fn get_exrules(&self, env: Env) -> napi::Result<Array> {
+    let mut arr = env.create_array(0)?;
+    let rrules = self.rrule_set.get_exrule();
+
+    for rrule in rrules.iter() {
+      arr.insert(JsRRule {
+        rrule: RRuleType::Validated(rrule.clone()),
+      })?
+    }
+
+    Ok(arr)
+  }
+
+  #[napi(ts_return_type = "number[]")]
+  pub fn get_exdates(&self, env: Env) -> napi::Result<Array> {
+    let mut arr = env.create_array(0)?;
+    let dates = self.rrule_set.get_exdate();
+
+    for date in dates.iter() {
+      arr.insert(date.timestamp_millis())?
+    }
+
+    Ok(arr)
+  }
 
   fn is_after(&self, timestamp: i64, after_timestamp: i64, inclusive: Option<bool>) -> bool {
     let inclusive = inclusive.unwrap_or(false);
@@ -487,15 +771,6 @@ fn map_js_frequency(freq: JsFrequency) -> Frequency {
     JsFrequency::Yearly => Frequency::Yearly,
   }
 }
-
-/*fn map_rust_rrule (rrule: RRule) -> JsRRule {
-  JsRRule {
-    freq: map_rust_frequency(rrule.get_freq()),
-    interval: Some(rrule.get_interval()),
-    count: rrule.get_count(),
-    by_weekday:
-  }
-}*/
 
 fn map_js_weekday(weekday: JsWeekday) -> Weekday {
   match weekday {

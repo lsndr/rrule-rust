@@ -35,6 +35,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "lts/*"
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
       - name: Download all artifacts
         uses: actions/download-artifact@v3
         with:

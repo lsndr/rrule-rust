@@ -6,10 +6,11 @@ on:
       - master
       - next
       - "*.x"
-
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true  
 permissions:
-  contents: read # for checkout
-
+  contents: read
 jobs:
   build_and_test:
     uses: ./.github/workflows/build-and-test.yml

@@ -297,7 +297,13 @@ impl JsRRule {
   }
 
   pub fn validate(&self, dt_start: DateTime<Tz>) -> napi::Result<RRule> {
-    return Ok(self.rrule.clone().validate(dt_start).map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?);
+    return Ok(
+      self
+        .rrule
+        .clone()
+        .validate(dt_start)
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?,
+    );
   }
 }
 
@@ -320,7 +326,9 @@ impl JsRRuleSet {
 
   #[napi(factory, ts_return_type = "RRuleSet")]
   pub fn parse(str: String) -> napi::Result<Self> {
-    let rrule_set: RRuleSet = str.parse().map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+    let rrule_set: RRuleSet = str
+      .parse()
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
     let dtstart = rrule_set.get_dt_start();
     let tz = dtstart.timezone();
 
@@ -549,7 +557,9 @@ fn map_rust_month(month: &u8) -> JsMonth {
 }
 
 fn map_js_tz(tz: &str) -> napi::Result<Tz> {
-  let chrono_tz = tz.parse().map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+  let chrono_tz = tz
+    .parse()
+    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
   Ok(Tz::Tz(chrono_tz))
 }
 

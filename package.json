@@ -60,11 +60,11 @@
     "typescript": "^4.9.4"
   },
   "pre-commit": [
-    "lint:fix-staged",
-    "test"
+    "lint:fix-staged"
   ],
   "lint-staged": {
-    "**/*.{js,ts,json}": "eslint --fix --max-warnings=0"
+    "**/*.{js,ts,json}": "eslint --fix --max-warnings=0",
+    "**/*.rs": "rustfmt"
   },
   "engines": {
     "node": ">= 10"
@@ -78,8 +78,8 @@
     "universal": "napi universal",
     "version": "napi version",
     "benchmark": "ts-node ./benchmark/index.ts",
-    "lint": "eslint \"**/*.{js,ts,json}\" --max-warnings=0",
-    "lint:fix": "yarn lint --fix",
+    "lint": "cargo fmt --all -- --check && eslint \"**/*.{js,ts,json}\" --max-warnings=0",
+    "lint:fix": "cargo fmt --all && yarn lint --fix",
     "lint:fix-staged": "lint-staged"
   }
 }

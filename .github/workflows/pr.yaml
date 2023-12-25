@@ -5,5 +5,21 @@ concurrency:
 on:
   pull_request: null
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'yarn'
+      - name: Install
+        run: |
+          yarn install --frozen-lockfile
+      - name: Lint
+        run: |
+          yarn lint
   build_and_test:
     uses: ./.github/workflows/build-and-test.yml

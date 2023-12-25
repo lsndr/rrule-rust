@@ -81,5 +81,8 @@
     "lint": "cargo fmt --all -- --check && eslint \"**/*.{js,ts,json}\" --max-warnings=0",
     "lint:fix": "cargo fmt --all && yarn lint --fix",
     "lint:fix-staged": "lint-staged"
+  },
+  "dependencies": {
+    "semantic-release": "^22.0.12"
   }
 }

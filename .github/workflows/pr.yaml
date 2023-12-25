@@ -1,0 +1,9 @@
+name: "Build & Test"
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true  
+on:
+  pull_request: null
+jobs:
+  build_and_test:
+    uses: ./.github/workflows/build-and-test.yml

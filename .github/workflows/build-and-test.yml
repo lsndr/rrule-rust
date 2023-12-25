@@ -212,7 +212,10 @@ jobs:
           check-latest: true
           cache: yarn
       - name: Install dependencies
-        run: yarn install
+        run: | 
+          # Remove semantic-release because it's not compatible with Node 14
+          yarn remove semantic-release @semantic-release/git
+          yarn install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -244,7 +247,10 @@ jobs:
           check-latest: true
           cache: yarn
       - name: Install dependencies
-        run: yarn install
+        run: | 
+          # Remove semantic-release because it's not compatible with Node 14
+          yarn remove semantic-release @semantic-release/git
+          yarn install
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
@@ -277,6 +283,8 @@ jobs:
           cache: yarn
       - name: Install dependencies
         run: |
+          # Remove semantic-release because it's not compatible with Node 14
+          yarn remove semantic-release @semantic-release/git
           yarn config set supportedArchitectures.libc "musl"
           yarn install
       - name: Download artifacts

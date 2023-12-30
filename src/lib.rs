@@ -3,7 +3,7 @@
 use chrono::{DateTime, Month, TimeZone, Weekday};
 use napi::bindgen_prelude::*;
 use replace_with::replace_with_or_abort;
-use rrule::{Frequency, NWeekday, RRule, RRuleSet, Tz, Unvalidated, Validated};
+use rrule::{Frequency, NWeekday, RRule, RRuleSet, Tz, Unvalidated};
 
 #[macro_use]
 extern crate napi_derive;
@@ -46,12 +46,7 @@ pub enum JsMonth {
   December,
 }
 
-pub enum RRuleType {
-  Unvalidated(RRule<Unvalidated>),
-  Validated(RRule<Validated>),
-}
-
-fn to_unvalidated(rrule: &RRule<Validated>) -> RRule<Unvalidated> {
+fn to_unvalidated(rrule: &RRule) -> RRule<Unvalidated> {
   let by_month = rrule
     .get_by_month()
     .iter()

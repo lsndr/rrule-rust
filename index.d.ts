@@ -77,9 +77,9 @@ export class RRuleSet {
   addExdate(timestamp: number): this
   get dtstart(): number
   get tzid(): string
-  getRrules(): RRule[]
-  getExrules(): RRule[]
-  getExdates(): number[]
+  getRrules(): Array<RRule>
+  getExrules(): Array<RRule>
+  getExdates(): Array<number>
   all(limit?: number | undefined | null): number[]
   between(after: number, before: number, inclusive?: boolean | undefined | null): number[]
 }

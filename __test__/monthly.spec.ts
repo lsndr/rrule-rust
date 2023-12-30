@@ -193,3 +193,34 @@ test('Every Tuesday, every other month, limit 18', () => {
     890143200000, 890748000000, 891352800000,
   ]);
 });
+
+test('Monthly on the second to last Monday of the month for 6 months', () => {
+  const rrule = new RRule(Frequency.Monthly)
+    .setByWeekday([{ weekday: Weekday.Monday, n: -2 }])
+    .setCount(6);
+  const set = new RRuleSet(
+    new Date('1997-09-22T09:00:00-04:00').getTime(),
+    'US/Eastern',
+  ).addRrule(rrule);
+
+  const asString = set.toString();
+  const dates = set.all(8);
+
+  expect(asString).toBe(
+    'DTSTART;TZID=US/Eastern:19970922T090000\nFREQ=monthly;COUNT=6;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=-2MO',
+  );
+  expect(dates.map((d) => new Date(d).toISOString())).toEqual([
+    '1997-09-22T13:00:00.000Z',
+    '1997-10-20T13:00:00.000Z',
+    '1997-11-17T14:00:00.000Z',
+    '1997-12-22T14:00:00.000Z',
+    '1998-01-19T14:00:00.000Z',
+    '1998-02-16T14:00:00.000Z',
+  ]);
+});
+
+test('Errors on invalid by-weekday', () => {
+  expect(() =>
+    new RRule(Frequency.Monthly).setByWeekday(['invalid' as any]),
+  ).toThrowError('Value is non of these types `JsNWeekday`, `JsWeekday`');
+});

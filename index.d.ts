@@ -21,6 +21,16 @@ export const enum Weekday {
   Saturday = 5,
   Sunday = 6
 }
+export interface NWeekday {
+  /**
+   * If set, this represents the nth occurrence of the weekday.
+   * Otherwise it represents every occurrence of the weekday.
+   *
+   * A negative value represents nth occurrence from the end.
+   */
+  n?: number
+  weekday: Weekday
+}
 export const enum Month {
   January = 0,
   February = 1,
@@ -42,7 +52,7 @@ export class RRule {
   get frequency(): Frequency
   get interval(): number
   get count(): number | null
-  get byWeekday(): Weekday[]
+  get byWeekday(): NWeekday[]
   get byHour(): Array<number>
   get byMinute(): Array<number>
   get bySecond(): Array<number>
@@ -56,7 +66,7 @@ export class RRule {
   toString(): string
   setInterval(interval: number): this
   setCount(count: number): this
-  setByWeekday(weekdays: ReadonlyArray<Weekday>): this
+  setByWeekday(weekdays: readonly Array<NWeekday | Weekday>): this
   setByHour(hours: ReadonlyArray<number>): this
   setByMinute(minutes: ReadonlyArray<number>): this
   setBySecond(seconds: ReadonlyArray<number>): this

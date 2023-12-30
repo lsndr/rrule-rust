@@ -60,6 +60,15 @@ impl JsRRule {
     JsRRule { rrule }
   }
 
+  #[napi(factory, ts_return_type = "RRule")]
+  pub fn parse(str: String) -> napi::Result<Self> {
+    let rrule: RRule<Unvalidated> = str
+      .parse()
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+
+    Ok(JsRRule { rrule })
+  }
+
   #[napi(getter)]
   pub fn frequency(&self) -> napi::Result<JsFrequency> {
     Ok(map_rust_frequency(self.rrule.get_freq()))

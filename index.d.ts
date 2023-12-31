@@ -85,4 +85,8 @@ export class RRuleSet {
   getRdates(): Array<number>
   all(limit?: number | undefined | null): number[]
   between(after: number, before: number, inclusive?: boolean | undefined | null): number[]
+  occurrences(): Occurrences
+}
+export class Occurrences {
+  [Symbol.iterator](): Iterator<number, void, void>
 }

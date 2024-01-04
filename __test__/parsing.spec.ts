@@ -1,4 +1,4 @@
-import { RRuleSet } from '../';
+import { Frequency, Weekday, RRule, RRuleSet } from '../';
 
 test('Should properly parse weekly recurrence', () => {
   const set = RRuleSet.parse(
@@ -84,6 +84,80 @@ test('Should throw error on invalid week start', () => {
       'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=DAILY;WKST=Invalid',
     ),
   ).toThrowError(
+    'RRule parsing error: `Invalid` is not a valid weekday start. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`.',
+  );
+});
+
+test('Should properly parse weekly individual recurrence rule', () => {
+  const rule = RRule.parse(
+    'FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
+  );
+  expect(rule.frequency).toBe(Frequency.Weekly);
+  expect(rule.interval).toBe(2);
+  expect(rule.until).toBe(new Date('1997-12-24T00:00:00Z').getTime());
+  expect(rule.weekstart).toBe(Weekday.Sunday);
+  expect(rule.byWeekday).toEqual([
+    Weekday.Monday,
+    Weekday.Wednesday,
+    Weekday.Friday,
+  ]);
+
+  const asString = rule.toString();
+  expect(asString).toBe(
+    'FREQ=weekly;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYDAY=MO,WE,FR',
+  );
+});
+
+test('Should properly parse individual recurrence rule with RRULE prefix', () => {
+  const rule = RRule.parse(
+    'RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
+  );
+
+  const asString = rule.toString();
+  expect(asString).toBe(
+    'FREQ=weekly;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYDAY=MO,WE,FR',
+  );
+});
+
+test('Should properly parse monthly individual recurrence rule', () => {
+  const rule = RRule.parse('FREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=1SU,-1SU');
+  expect(rule.frequency).toBe(Frequency.Monthly);
+  expect(rule.interval).toBe(2);
+  expect(rule.count).toBe(10);
+
+  // TODO: NWeekday not supported yet
+  //expect(rule.byWeekday)
+
+  const asString = rule.toString();
+  expect(asString).toBe('FREQ=monthly;COUNT=10;INTERVAL=2;BYDAY=SU,-1SU');
+});
+
+test('Should throw error on invalid individual recurrence rule', () => {
+  expect(() => RRule.parse('Invalid')).toThrowError(
+    'RRule parsing error: `Invalid` is a malformed property parameter. Parameter should be specified as `key=value',
+  );
+});
+
+test('Should throw error on invalid individual recurrence rule frequency', () => {
+  expect(() => RRule.parse('FREQ=Invalid')).toThrowError(
+    'RRule parsing error: `INVALID` is not a valid frequency.',
+  );
+});
+
+test('Should throw error on invalid individual recurrence rule interval', () => {
+  expect(() => RRule.parse('FREQ=DAILY;INTERVAL=Invalid')).toThrowError(
+    'RRule parsing error: `Invalid` is not a valid INTERVAL value.',
+  );
+});
+
+test('Should throw error on invalid individual recurrence rule until', () => {
+  expect(() => RRule.parse('FREQ=DAILY;UNTIL=Invalid')).toThrowError(
+    'RRule parsing error: `Invalid` is not a valid datetime format for `UNTIL`.',
+  );
+});
+
+test('Should throw error on invalid individual recurrence rule week start', () => {
+  expect(() => RRule.parse('FREQ=DAILY;WKST=Invalid')).toThrowError(
     'RRule parsing error: `Invalid` is not a valid weekday start. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`.',
   );
 });

@@ -38,6 +38,7 @@ export const enum Month {
 export type JsRRule = RRule
 export class RRule {
   constructor(frequency: Frequency)
+  static parse(str: string): RRule
   get frequency(): Frequency
   get interval(): number
   get count(): number | null

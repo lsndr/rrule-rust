@@ -398,6 +398,15 @@ impl JsRRuleSet {
     Ok(self)
   }
 
+  #[napi]
+  pub fn add_rdate(&mut self, timestamp: i64) -> napi::Result<&Self> {
+    replace_with_or_abort(&mut self.rrule_set, |self_| {
+      self_.rdate(timestamp_to_date_with_tz(timestamp, &self.tz))
+    });
+
+    Ok(self)
+  }
+
   #[napi(getter)]
   pub fn dtstart(&self) -> napi::Result<i64> {
     Ok(self.rrule_set.get_dt_start().timestamp_millis())
@@ -437,6 +446,16 @@ impl JsRRuleSet {
     return self
       .rrule_set
       .get_exdate()
+      .iter()
+      .map(|date| date.timestamp_millis())
+      .collect();
+  }
+
+  #[napi]
+  pub fn get_rdates(&self) -> Vec<i64> {
+    return self
+      .rrule_set
+      .get_rdate()
       .iter()
       .map(|date| date.timestamp_millis())
       .collect();

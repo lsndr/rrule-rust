@@ -147,6 +147,33 @@ test('Every 18 months on the 10th thru 15th of the month for 10 occurrences', ()
   ]);
 });
 
+test('Monthly 5 times with two rdates and one exdate', () => {
+  const rrule = new RRule(Frequency.Monthly).setCount(5);
+  const set = new RRuleSet(new Date('2012-02-01T02:30:00Z').getTime(), 'UTC')
+    .addRrule(rrule)
+    .addRdate(new Date('2012-07-01T02:30:00Z').getTime())
+    .addRdate(new Date('2012-07-02T02:30:00Z').getTime())
+    .addExdate(new Date('2012-06-01T02:30:00Z').getTime());
+
+  const dates = set.all();
+
+  expect(set.getRdates().map((d) => new Date(d).toISOString())).toEqual([
+    '2012-07-01T02:30:00.000Z',
+    '2012-07-02T02:30:00.000Z',
+  ]);
+  expect(set.getExdates().map((d) => new Date(d).toISOString())).toEqual([
+    '2012-06-01T02:30:00.000Z',
+  ]);
+  expect(dates.map((d) => new Date(d).toISOString())).toEqual([
+    '2012-02-01T02:30:00.000Z',
+    '2012-03-01T02:30:00.000Z',
+    '2012-04-01T02:30:00.000Z',
+    '2012-05-01T02:30:00.000Z',
+    '2012-07-01T02:30:00.000Z',
+    '2012-07-02T02:30:00.000Z',
+  ]);
+});
+
 test('Every Tuesday, every other month, limit 18', () => {
   const rrule = new RRule(Frequency.Monthly)
     .setInterval(2)

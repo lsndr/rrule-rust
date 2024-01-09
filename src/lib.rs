@@ -46,6 +46,36 @@ pub enum JsMonth {
   December,
 }
 
+fn to_unvalidated(rrule: &RRule) -> RRule<Unvalidated> {
+  let by_month = rrule
+    .get_by_month()
+    .iter()
+    .map(|m| Month::try_from(*m).unwrap())
+    .collect::<Vec<_>>();
+  let mut unvalidated = RRule::new(rrule.get_freq())
+    .interval(rrule.get_interval())
+    .week_start(rrule.get_week_start())
+    .by_set_pos(rrule.get_by_set_pos().to_vec())
+    .by_month(&by_month)
+    .by_month_day(rrule.get_by_month_day().to_vec())
+    .by_year_day(rrule.get_by_year_day().to_vec())
+    .by_week_no(rrule.get_by_week_no().to_vec())
+    .by_weekday(rrule.get_by_weekday().to_vec())
+    .by_hour(rrule.get_by_hour().to_vec())
+    .by_minute(rrule.get_by_minute().to_vec())
+    .by_second(rrule.get_by_second().to_vec());
+
+  if let Some(count) = rrule.get_count() {
+    unvalidated = unvalidated.count(count);
+  }
+
+  if let Some(until) = rrule.get_until() {
+    unvalidated = unvalidated.until(*until);
+  }
+
+  unvalidated
+}
+
 #[napi(js_name = "RRule")]
 pub struct JsRRule {
   rrule: RRule<Unvalidated>,
@@ -58,6 +88,15 @@ impl JsRRule {
     let rrule = RRule::new(map_js_frequency(frequency));
 
     JsRRule { rrule }
+  }
+
+  #[napi(factory, ts_return_type = "RRule")]
+  pub fn parse(str: String) -> napi::Result<Self> {
+    let rrule: RRule<Unvalidated> = str
+      .parse()
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+
+    Ok(JsRRule { rrule })
   }
 
   #[napi(getter)]
@@ -368,6 +407,15 @@ impl JsRRuleSet {
     Ok(self)
   }
 
+  #[napi]
+  pub fn add_rdate(&mut self, timestamp: i64) -> napi::Result<&Self> {
+    replace_with_or_abort(&mut self.rrule_set, |self_| {
+      self_.rdate(timestamp_to_date_with_tz(timestamp, &self.tz))
+    });
+
+    Ok(self)
+  }
+
   #[napi(getter)]
   pub fn dtstart(&self) -> napi::Result<i64> {
     Ok(self.rrule_set.get_dt_start().timestamp_millis())
@@ -378,19 +426,49 @@ impl JsRRuleSet {
     Ok(String::from(self.tz.name()))
   }
 
-  /*#[napi(ts_return_type="RRule[]")]
-  pub fn get_rrules(&self, env: Env) -> napi::Result<Array> {
-    let mut arr = env.create_array(0).unwrap();
-    let rrules = self.rrule_set.get_rrule();
+  #[napi]
+  pub fn get_rrules(&self) -> Vec<JsRRule> {
+    return self
+      .rrule_set
+      .get_rrule()
+      .iter()
+      .map(|rrule| JsRRule {
+        rrule: to_unvalidated(rrule),
+      })
+      .collect();
+  }
 
-    for rrule in rrules.iter() {
-      arr.insert(JsRRule {
-        freq: map_rust_frequency(rrule.get_freq())
-      }).unwrap();
-    }
+  #[napi]
+  pub fn get_exrules(&self) -> Vec<JsRRule> {
+    return self
+      .rrule_set
+      .get_exrule()
+      .iter()
+      .map(|rrule| JsRRule {
+        rrule: to_unvalidated(rrule),
+      })
+      .collect();
+  }
 
-    Ok(arr)
-  }*/
+  #[napi]
+  pub fn get_exdates(&self) -> Vec<i64> {
+    return self
+      .rrule_set
+      .get_exdate()
+      .iter()
+      .map(|date| date.timestamp_millis())
+      .collect();
+  }
+
+  #[napi]
+  pub fn get_rdates(&self) -> Vec<i64> {
+    return self
+      .rrule_set
+      .get_rdate()
+      .iter()
+      .map(|date| date.timestamp_millis())
+      .collect();
+  }
 
   fn is_after(&self, timestamp: i64, after_timestamp: i64, inclusive: Option<bool>) -> bool {
     let inclusive = inclusive.unwrap_or(false);
@@ -462,6 +540,12 @@ impl JsRRuleSet {
 
     Ok(arr)
   }
+
+  #[napi]
+  pub fn occurrences(&self, this: Reference<JsRRuleSet>, env: Env) -> napi::Result<Occurrences> {
+    let iter = this.share_with(env, |set| Ok(set.rrule_set.into_iter()))?;
+    Ok(Occurrences { iter })
+  }
 }
 
 fn map_rust_frequency(freq: Frequency) -> JsFrequency {
@@ -487,15 +571,6 @@ fn map_js_frequency(freq: JsFrequency) -> Frequency {
     JsFrequency::Yearly => Frequency::Yearly,
   }
 }
-
-/*fn map_rust_rrule (rrule: RRule) -> JsRRule {
-  JsRRule {
-    freq: map_rust_frequency(rrule.get_freq()),
-    interval: Some(rrule.get_interval()),
-    count: rrule.get_count(),
-    by_weekday:
-  }
-}*/
 
 fn map_js_weekday(weekday: JsWeekday) -> Weekday {
   match weekday {
@@ -568,4 +643,20 @@ fn timestamp_to_date_with_tz(timestamp: i64, tz: &Tz) -> DateTime<Tz> {
     .timestamp_millis_opt(timestamp)
     .unwrap()
     .with_timezone(tz)
+}
+
+#[napi(iterator)]
+pub struct Occurrences {
+  iter: SharedReference<JsRRuleSet, rrule::RRuleSetIter<'static>>,
+}
+
+#[napi]
+impl Generator for Occurrences {
+  type Yield = i64;
+  type Next = ();
+  type Return = ();
+
+  fn next(&mut self, _next: Option<Self::Next>) -> Option<Self::Yield> {
+    self.iter.next().map(|date| date.timestamp_millis())
+  }
 }

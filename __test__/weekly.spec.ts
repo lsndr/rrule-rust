@@ -1,4 +1,5 @@
 import { RRule, RRuleSet, Frequency, Weekday } from '../';
+import { takeN } from './utils';
 
 test('Weekly for 10 occurrences', () => {
   const rrule = new RRule(Frequency.Weekly).setCount(10);
@@ -6,6 +7,7 @@ test('Weekly for 10 occurrences', () => {
 
   const asString = set.toString();
   const dates = set.all();
+  const iteratorDates = Array.from(set.occurrences());
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;COUNT=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
@@ -14,6 +16,7 @@ test('Weekly for 10 occurrences', () => {
     873205200000, 873810000000, 874414800000, 875019600000, 875624400000,
     876229200000, 876834000000, 877438800000, 878047200000, 878652000000,
   ]);
+  expect(iteratorDates).toEqual(dates);
 });
 
 test('Weekly until December 24, 1997', () => {
@@ -22,6 +25,7 @@ test('Weekly until December 24, 1997', () => {
 
   const asString = set.toString();
   const dates = set.all();
+  const iteratorDates = Array.from(set.occurrences());
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;UNTIL=19971224T000000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
@@ -32,6 +36,7 @@ test('Weekly until December 24, 1997', () => {
     879256800000, 879861600000, 880466400000, 881071200000, 881676000000,
     882280800000, 882885600000,
   ]);
+  expect(iteratorDates).toEqual(dates);
 });
 
 test('Every other week - limit 10', () => {
@@ -42,6 +47,7 @@ test('Every other week - limit 10', () => {
 
   const asString = set.toString();
   const dates = set.all(10);
+  const iteratorDates = Array.from(takeN(set.occurrences(), 10));
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
@@ -50,6 +56,7 @@ test('Every other week - limit 10', () => {
     873205200000, 874414800000, 875624400000, 876834000000, 878047200000,
     879256800000, 880466400000, 881676000000, 882885600000, 884095200000,
   ]);
+  expect(iteratorDates).toEqual(dates);
 });
 
 test('Every other week on Monday, Wednesday and Friday until December 24, 1997, but starting on Tuesday, September 2, 1997', () => {
@@ -62,6 +69,7 @@ test('Every other week on Monday, Wednesday and Friday until December 24, 1997, 
 
   const asString = set.toString();
   const dates = set.all();
+  const iteratorDates = Array.from(set.occurrences());
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
@@ -75,4 +83,5 @@ test('Every other week on Monday, Wednesday and Friday until December 24, 1997, 
     879516000000, 880380000000, 880552800000, 880725600000, 881589600000,
     881762400000, 881935200000, 882799200000,
   ]);
+  expect(iteratorDates).toEqual(dates);
 });

@@ -38,6 +38,7 @@ export const enum Month {
 export type JsRRule = RRule
 export class RRule {
   constructor(frequency: Frequency)
+  static parse(str: string): RRule
   get frequency(): Frequency
   get interval(): number
   get count(): number | null
@@ -75,8 +76,17 @@ export class RRuleSet {
   addRrule(jsRrule: RRule): this
   addExrule(jsRrule: RRule): this
   addExdate(timestamp: number): this
+  addRdate(timestamp: number): this
   get dtstart(): number
   get tzid(): string
+  getRrules(): Array<RRule>
+  getExrules(): Array<RRule>
+  getExdates(): Array<number>
+  getRdates(): Array<number>
   all(limit?: number | undefined | null): number[]
   between(after: number, before: number, inclusive?: boolean | undefined | null): number[]
+  occurrences(): Occurrences
+}
+export class Occurrences {
+  [Symbol.iterator](): Iterator<number, void, void>
 }

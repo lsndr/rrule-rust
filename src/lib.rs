@@ -540,6 +540,12 @@ impl JsRRuleSet {
 
     Ok(arr)
   }
+
+  #[napi]
+  pub fn occurrences(&self, this: Reference<JsRRuleSet>, env: Env) -> napi::Result<Occurrences> {
+    let iter = this.share_with(env, |set| Ok(set.rrule_set.into_iter()))?;
+    Ok(Occurrences { iter })
+  }
 }
 
 fn map_rust_frequency(freq: Frequency) -> JsFrequency {
@@ -637,4 +643,20 @@ fn timestamp_to_date_with_tz(timestamp: i64, tz: &Tz) -> DateTime<Tz> {
     .timestamp_millis_opt(timestamp)
     .unwrap()
     .with_timezone(tz)
+}
+
+#[napi(iterator)]
+pub struct Occurrences {
+  iter: SharedReference<JsRRuleSet, rrule::RRuleSetIter<'static>>,
+}
+
+#[napi]
+impl Generator for Occurrences {
+  type Yield = i64;
+  type Next = ();
+  type Return = ();
+
+  fn next(&mut self, _next: Option<Self::Next>) -> Option<Self::Yield> {
+    self.iter.next().map(|date| date.timestamp_millis())
+  }
 }

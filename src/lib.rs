@@ -30,6 +30,40 @@ pub enum JsWeekday {
   Sunday,
 }
 
+#[napi(object, js_name = "NWeekday")]
+pub struct JsNWeekday {
+  /// If set, this represents the nth occurrence of the weekday.
+  /// Otherwise it represents every occurrence of the weekday.
+  ///
+  /// A negative value represents nth occurrence from the end.
+  pub n: Option<i16>,
+  pub weekday: JsWeekday,
+}
+
+impl From<NWeekday> for JsNWeekday {
+  fn from(nday: NWeekday) -> Self {
+    match nday {
+      NWeekday::Every(weekday) => JsNWeekday {
+        n: None,
+        weekday: map_rust_weekday(weekday),
+      },
+      NWeekday::Nth(n, weekday) => JsNWeekday {
+        n: Some(n),
+        weekday: map_rust_weekday(weekday),
+      },
+    }
+  }
+}
+
+impl Into<NWeekday> for JsNWeekday {
+  fn into(self) -> NWeekday {
+    match self.n {
+      Some(n) => NWeekday::Nth(n, map_js_weekday(self.weekday)),
+      None => NWeekday::Every(map_js_weekday(self.weekday)),
+    }
+  }
+}
+
 #[napi(js_name = "Month")]
 pub enum JsMonth {
   January,
@@ -114,21 +148,14 @@ impl JsRRule {
     Ok(self.rrule.get_count())
   }
 
-  #[napi(getter, ts_return_type = "Weekday[]")]
-  pub fn by_weekday(&self, env: Env) -> napi::Result<Array> {
-    let ndays = self.rrule.get_by_weekday();
-    let mut arr = env.create_array(0)?;
-
-    for nday in ndays.iter() {
-      let day = match nday {
-        NWeekday::Every(day) => *day,
-        _ => panic!("Unsupported"),
-      };
-
-      arr.insert(map_rust_weekday(day))?;
-    }
-
-    Ok(arr)
+  #[napi(getter, ts_return_type = "NWeekday[]")]
+  pub fn by_weekday(&self) -> Vec<JsNWeekday> {
+    return self
+      .rrule
+      .get_by_weekday()
+      .iter()
+      .map(|nday| JsNWeekday::from(*nday))
+      .collect();
   }
 
   #[napi(getter)]
@@ -213,18 +240,19 @@ impl JsRRule {
   #[napi]
   pub fn set_by_weekday(
     &mut self,
-    #[napi(ts_arg_type = "ReadonlyArray<Weekday>")] weekdays: Array,
+    #[napi(ts_arg_type = "readonly Array<NWeekday | Weekday>")] weekdays: Vec<
+      Either<JsNWeekday, JsWeekday>,
+    >,
   ) -> napi::Result<&Self> {
-    let mut vec: Vec<NWeekday> = Vec::new();
+    let by_weekday = weekdays
+      .into_iter()
+      .map(|weekday| match weekday {
+        Either::A(nday) => nday.into(),
+        Either::B(weekday) => NWeekday::Every(map_js_weekday(weekday)),
+      })
+      .collect();
 
-    for i in 0..weekdays.len() {
-      let day: JsWeekday = weekdays.get(i).unwrap().unwrap();
-      let day = NWeekday::Every(map_js_weekday(day));
-
-      vec.push(day);
-    }
-
-    replace_with_or_abort(&mut self.rrule, |self_| self_.by_weekday(vec));
+    replace_with_or_abort(&mut self.rrule, |self_| self_.by_weekday(by_weekday));
 
     Ok(self)
   }

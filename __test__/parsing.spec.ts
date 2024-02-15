@@ -94,7 +94,9 @@ test('Should properly parse weekly individual recurrence rule', () => {
   );
   expect(rule.frequency).toBe(Frequency.Weekly);
   expect(rule.interval).toBe(2);
-  expect(rule.until).toBe(new Date('1997-12-24T00:00:00Z').getTime());
+  expect(rule.until?.timestamp).toBe(
+    new Date('1997-12-24T00:00:00Z').getTime(),
+  );
   expect(rule.weekstart).toBe(Weekday.Sunday);
   expect(rule.byWeekday).toEqual([
     { weekday: Weekday.Monday },

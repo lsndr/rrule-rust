@@ -1,6 +1,6 @@
 #![deny(clippy::all)]
 
-use chrono::{DateTime, Month, TimeZone, Weekday};
+use chrono::{DateTime, Datelike, Month, TimeZone, Timelike, Weekday};
 use napi::bindgen_prelude::*;
 use replace_with::replace_with_or_abort;
 use rrule::{Frequency, NWeekday, RRule, RRuleSet, Tz, Unvalidated};
@@ -110,6 +110,155 @@ fn to_unvalidated(rrule: &RRule) -> RRule<Unvalidated> {
   unvalidated
 }
 
+#[napi(js_name = "RRuleTimezone")]
+pub struct RRuleTimezone {
+  tz: Tz,
+}
+
+#[napi]
+impl RRuleTimezone {
+  #[napi(constructor)]
+  pub fn new(tz: String) -> napi::Result<Self> {
+    let tz = map_js_tz(&tz)?;
+
+    Ok(RRuleTimezone::new_with_tz(tz))
+  }
+
+  pub fn new_with_tz(tz: Tz) -> Self {
+    RRuleTimezone { tz }
+  }
+
+  /**
+   * The name of the timezone. If the timezone is local, it will return "Local".
+   */
+  #[napi(getter)]
+  pub fn name(&self) -> String {
+    self.tz.name().to_string()
+  }
+
+  #[napi(getter)]
+  pub fn is_local(&self) -> bool {
+    self.tz.is_local()
+  }
+}
+
+#[napi(js_name = "RRuleDateTime")]
+pub struct RRuleDateTime {
+  date_time: DateTime<Tz>,
+}
+
+#[napi]
+impl RRuleDateTime {
+  #[napi(constructor)]
+  pub fn new_with_js_date(
+    date: napi::Either<napi::JsDate, f64>,
+    timezone: Option<String>,
+  ) -> napi::Result<Self> {
+    let timestamp = match date {
+      Either::A(date) => date.value_of(),
+      Either::B(date) => Ok(date),
+    }?;
+    let mut date_time = Tz::LOCAL.timestamp_nanos((timestamp * 1_000_000f64) as i64);
+    if let Some(timezone) = timezone {
+      date_time = date_time.with_timezone(&map_js_tz(&timezone)?);
+    }
+
+    Ok(RRuleDateTime::new_with_date_time(date_time))
+  }
+
+  pub fn new_with_date_time(date_time: DateTime<Tz>) -> Self {
+    RRuleDateTime { date_time }
+  }
+
+  #[napi(getter)]
+  pub fn timestamp(&self) -> i64 {
+    self.date_time.timestamp_millis()
+  }
+
+  #[napi(getter)]
+  pub fn timezone(&self) -> RRuleTimezone {
+    RRuleTimezone::new_with_tz(self.date_time.timezone())
+  }
+
+  #[napi(getter)]
+  pub fn day(&self) -> u32 {
+    self.date_time.day()
+  }
+
+  #[napi(getter)]
+  pub fn month(&self) -> u32 {
+    self.date_time.month()
+  }
+
+  #[napi(getter)]
+  pub fn year(&self) -> i32 {
+    self.date_time.year()
+  }
+
+  #[napi(getter)]
+  pub fn hour(&self) -> u32 {
+    self.date_time.hour()
+  }
+
+  #[napi(getter)]
+  pub fn minute(&self) -> u32 {
+    self.date_time.minute()
+  }
+
+  #[napi(getter)]
+  pub fn second(&self) -> u32 {
+    self.date_time.second()
+  }
+
+  #[napi(getter)]
+  pub fn millisecond(&self) -> u32 {
+    let nanoseconds = self.date_time.nanosecond();
+    nanoseconds / 1_000_000
+  }
+
+  #[napi(getter)]
+  pub fn to_string(&self) -> String {
+    self.date_time.to_string()
+  }
+
+  #[napi(ts_return_type = "Date")]
+  pub fn to_date(&self, env: Env) -> napi::Result<napi::JsDate> {
+    env.create_date(self.date_time.timestamp_millis() as f64)
+  }
+
+  #[napi(ts_return_type = "Date")]
+  pub fn to_utc_date(&self, env: Env) -> napi::Result<napi::JsDate> {
+    env.create_date(self.date_time.naive_utc().timestamp_millis() as f64)
+  }
+}
+
+impl From<DateTime<Tz>> for RRuleDateTime {
+  fn from(date_time: DateTime<Tz>) -> Self {
+    RRuleDateTime::new_with_date_time(date_time)
+  }
+}
+
+impl Into<DateTime<Tz>> for RRuleDateTime {
+  fn into(self) -> DateTime<Tz> {
+    self.date_time
+  }
+}
+
+impl From<napi::JsDate> for RRuleDateTime {
+  fn from(date: napi::JsDate) -> Self {
+    RRuleDateTime::new_with_js_date(napi::Either::A(date), None).unwrap()
+  }
+}
+
+impl From<napi::Either<&RRuleDateTime, napi::JsDate>> for RRuleDateTime {
+  fn from(date: napi::Either<&RRuleDateTime, napi::JsDate>) -> Self {
+    match date {
+      Either::A(date) => RRuleDateTime::new_with_date_time(date.date_time),
+      Either::B(date) => RRuleDateTime::new_with_js_date(napi::Either::A(date), None).unwrap(),
+    }
+  }
+}
+
 #[napi(js_name = "RRule")]
 pub struct JsRRule {
   rrule: RRule<Unvalidated>,
@@ -211,9 +360,9 @@ impl JsRRule {
   }
 
   #[napi(getter)]
-  pub fn until(&self) -> napi::Result<Option<i64>> {
+  pub fn until(&self) -> napi::Result<Option<RRuleDateTime>> {
     Ok(match self.rrule.get_until() {
-      Some(until) => Some(until.timestamp_millis()),
+      Some(until) => Some(RRuleDateTime::new_with_date_time(until.clone())),
       None => None,
     })
   }
@@ -240,7 +389,7 @@ impl JsRRule {
   #[napi]
   pub fn set_by_weekday(
     &mut self,
-    #[napi(ts_arg_type = "readonly Array<NWeekday | Weekday>")] weekdays: Vec<
+    #[napi(ts_arg_type = "ReadonlyArray<NWeekday | Weekday>")] weekdays: Vec<
       Either<JsNWeekday, JsWeekday>,
     >,
   ) -> napi::Result<&Self> {
@@ -355,10 +504,12 @@ impl JsRRule {
   }
 
   #[napi]
-  pub fn set_until(&mut self, timestamp: i64) -> napi::Result<&Self> {
-    replace_with_or_abort(&mut self.rrule, |self_| {
-      self_.until(Tz::UTC.timestamp_millis_opt(timestamp).unwrap())
-    });
+  pub fn set_until(
+    &mut self,
+    date_time: napi::Either<&RRuleDateTime, napi::JsDate>,
+  ) -> napi::Result<&Self> {
+    let date_time = RRuleDateTime::from(date_time);
+    replace_with_or_abort(&mut self.rrule, |self_| self_.until(date_time.date_time));
 
     Ok(self)
   }
@@ -376,19 +527,16 @@ impl JsRRule {
 
 #[napi(js_name = "RRuleSet")]
 pub struct JsRRuleSet {
-  tz: Tz,
   rrule_set: RRuleSet,
 }
 
 #[napi]
 impl JsRRuleSet {
   #[napi(constructor)]
-  pub fn new(dtstart: i64, tzid: String) -> napi::Result<Self> {
-    let tz = map_js_tz(&tzid)?;
-    let date = timestamp_to_date_with_tz(dtstart, &tz);
-    let rrule_set = RRuleSet::new(date);
+  pub fn new(dtstart: napi::Either<&RRuleDateTime, napi::JsDate>) -> napi::Result<Self> {
+    let rrule_set = RRuleSet::new(RRuleDateTime::from(dtstart).date_time);
 
-    Ok(JsRRuleSet { rrule_set, tz })
+    Ok(JsRRuleSet { rrule_set })
   }
 
   #[napi(factory, ts_return_type = "RRuleSet")]
@@ -396,10 +544,8 @@ impl JsRRuleSet {
     let rrule_set: RRuleSet = str
       .parse()
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
-    let dtstart = rrule_set.get_dt_start();
-    let tz = dtstart.timezone();
 
-    Ok(JsRRuleSet { rrule_set, tz })
+    Ok(JsRRuleSet { rrule_set })
   }
 
   #[napi]
@@ -427,31 +573,32 @@ impl JsRRuleSet {
   }
 
   #[napi]
-  pub fn add_exdate(&mut self, timestamp: i64) -> napi::Result<&Self> {
+  pub fn add_exdate(
+    &mut self,
+    date_time: napi::Either<&RRuleDateTime, napi::JsDate>,
+  ) -> napi::Result<&Self> {
     replace_with_or_abort(&mut self.rrule_set, |self_| {
-      self_.exdate(timestamp_to_date_with_tz(timestamp, &self.tz))
+      self_.exdate(RRuleDateTime::from(date_time).date_time)
     });
 
     Ok(self)
   }
 
   #[napi]
-  pub fn add_rdate(&mut self, timestamp: i64) -> napi::Result<&Self> {
+  pub fn add_rdate(
+    &mut self,
+    date_time: napi::Either<&RRuleDateTime, napi::JsDate>,
+  ) -> napi::Result<&Self> {
     replace_with_or_abort(&mut self.rrule_set, |self_| {
-      self_.rdate(timestamp_to_date_with_tz(timestamp, &self.tz))
+      self_.rdate(RRuleDateTime::from(date_time).date_time)
     });
 
     Ok(self)
   }
 
   #[napi(getter)]
-  pub fn dtstart(&self) -> napi::Result<i64> {
-    Ok(self.rrule_set.get_dt_start().timestamp_millis())
-  }
-
-  #[napi(getter)]
-  pub fn tzid(&self) -> napi::Result<String> {
-    Ok(String::from(self.tz.name()))
+  pub fn dtstart(&self) -> RRuleDateTime {
+    RRuleDateTime::new_with_date_time(self.rrule_set.get_dt_start().clone())
   }
 
   #[napi]
@@ -479,26 +626,31 @@ impl JsRRuleSet {
   }
 
   #[napi]
-  pub fn get_exdates(&self) -> Vec<i64> {
+  pub fn get_exdates(&self) -> Vec<RRuleDateTime> {
     return self
       .rrule_set
       .get_exdate()
       .iter()
-      .map(|date| date.timestamp_millis())
+      .map(|date| RRuleDateTime::new_with_date_time(date.clone()))
       .collect();
   }
 
   #[napi]
-  pub fn get_rdates(&self) -> Vec<i64> {
+  pub fn get_rdates(&self) -> Vec<RRuleDateTime> {
     return self
       .rrule_set
       .get_rdate()
       .iter()
-      .map(|date| date.timestamp_millis())
+      .map(|date| RRuleDateTime::new_with_date_time(date.clone()))
       .collect();
   }
 
-  fn is_after(&self, timestamp: i64, after_timestamp: i64, inclusive: Option<bool>) -> bool {
+  fn is_after(
+    &self,
+    timestamp: DateTime<Tz>,
+    after_timestamp: DateTime<Tz>,
+    inclusive: Option<bool>,
+  ) -> bool {
     let inclusive = inclusive.unwrap_or(false);
 
     if inclusive && timestamp < after_timestamp {
@@ -510,7 +662,12 @@ impl JsRRuleSet {
     true
   }
 
-  fn is_before(&self, timestamp: i64, before_timestamp: i64, inclusive: Option<bool>) -> bool {
+  fn is_before(
+    &self,
+    timestamp: DateTime<Tz>,
+    before_timestamp: DateTime<Tz>,
+    inclusive: Option<bool>,
+  ) -> bool {
     let inclusive = inclusive.unwrap_or(false);
 
     if inclusive && timestamp > before_timestamp {
@@ -522,51 +679,47 @@ impl JsRRuleSet {
     true
   }
 
-  #[napi(ts_return_type = "number[]")]
-  pub fn all(&self, env: Env, limit: Option<u32>) -> napi::Result<Array> {
-    let mut arr = env.create_array(0)?;
-    let mut left = match limit {
-      Some(number) => number,
-      None => 0,
-    };
-
-    for date in self.rrule_set.into_iter() {
-      if left > 0 {
-        left = left - 1;
-      } else if limit.is_some() {
-        break;
-      }
-
-      let timestamp = date.timestamp_millis();
-      arr.insert(timestamp)?;
+  #[napi]
+  pub fn all(&self, limit: Option<u32>) -> Vec<RRuleDateTime> {
+    let iter = self.rrule_set.into_iter();
+    if let Some(limit) = limit {
+      return iter
+        .take(limit as usize)
+        .map(|date| RRuleDateTime::new_with_date_time(date))
+        .collect();
+    } else {
+      return iter
+        .map(|date| RRuleDateTime::new_with_date_time(date))
+        .collect();
     }
-
-    Ok(arr)
   }
 
-  #[napi(ts_return_type = "number[]")]
+  #[napi]
   pub fn between(
     &self,
-    env: Env,
-    after: i64,
-    before: i64,
+    after: napi::Either<&RRuleDateTime, napi::JsDate>,
+    before: napi::Either<&RRuleDateTime, napi::JsDate>,
     inclusive: Option<bool>,
-  ) -> napi::Result<Array> {
-    let mut arr = env.create_array(0)?;
+  ) -> napi::Result<Vec<RRuleDateTime>> {
+    let _after = RRuleDateTime::from(after).date_time;
+    let _before = RRuleDateTime::from(before).date_time;
+    return Ok(
+      self
+        .rrule_set
+        .into_iter()
+        .take_while(|date| {
+          let is_before = self.is_before(*date, _before, inclusive);
 
-    for date in self.rrule_set.into_iter() {
-      let timestamp = date.timestamp_millis();
-      let is_after = self.is_after(timestamp, after, inclusive);
-      let is_before = self.is_before(timestamp, before, inclusive);
+          is_before
+        })
+        .filter(|date| {
+          let is_after = self.is_after(*date, _after, inclusive);
 
-      if is_after && is_before {
-        arr.insert(timestamp)?;
-      } else if !is_before {
-        break;
-      }
-    }
-
-    Ok(arr)
+          is_after
+        })
+        .map(|date| RRuleDateTime::new_with_date_time(date))
+        .collect::<Vec<_>>(),
+    );
   }
 
   #[napi]
@@ -666,13 +819,6 @@ fn map_js_tz(tz: &str) -> napi::Result<Tz> {
   Ok(Tz::Tz(chrono_tz))
 }
 
-fn timestamp_to_date_with_tz(timestamp: i64, tz: &Tz) -> DateTime<Tz> {
-  Tz::UTC
-    .timestamp_millis_opt(timestamp)
-    .unwrap()
-    .with_timezone(tz)
-}
-
 #[napi(iterator)]
 pub struct Occurrences {
   iter: SharedReference<JsRRuleSet, rrule::RRuleSetIter<'static>>,
@@ -680,11 +826,14 @@ pub struct Occurrences {
 
 #[napi]
 impl Generator for Occurrences {
-  type Yield = i64;
+  type Yield = RRuleDateTime;
   type Next = ();
   type Return = ();
 
   fn next(&mut self, _next: Option<Self::Next>) -> Option<Self::Yield> {
-    self.iter.next().map(|date| date.timestamp_millis())
+    self
+      .iter
+      .next()
+      .map(|date| RRuleDateTime::new_with_date_time(date))
   }
 }

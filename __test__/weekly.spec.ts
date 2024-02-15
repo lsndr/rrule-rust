@@ -1,13 +1,15 @@
-import { RRule, RRuleSet, Frequency, Weekday } from '../';
+import { RRule, RRuleDateTime, RRuleSet, Frequency, Weekday } from '../';
 import { takeN } from './utils';
 
 test('Weekly for 10 occurrences', () => {
   const rrule = new RRule(Frequency.Weekly).setCount(10);
-  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(
+    new RRuleDateTime(873205200000, 'US/Eastern'),
+  ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all();
-  const iteratorDates = Array.from(set.occurrences());
+  const dates = set.all().map((d) => d.timestamp);
+  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;COUNT=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
@@ -20,12 +22,16 @@ test('Weekly for 10 occurrences', () => {
 });
 
 test('Weekly until December 24, 1997', () => {
-  const rrule = new RRule(Frequency.Weekly).setUntil(882921600000);
-  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+  const rrule = new RRule(Frequency.Weekly).setUntil(
+    new RRuleDateTime(882921600000, 'UTC'),
+  );
+  const set = new RRuleSet(
+    new RRuleDateTime(873205200000, 'US/Eastern'),
+  ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all();
-  const iteratorDates = Array.from(set.occurrences());
+  const dates = set.all().map((d) => d.timestamp);
+  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;UNTIL=19971224T000000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
@@ -43,11 +49,15 @@ test('Every other week - limit 10', () => {
   const rrule = new RRule(Frequency.Weekly)
     .setInterval(2)
     .setWeekstart(Weekday.Sunday);
-  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(
+    new RRuleDateTime(873205200000, 'US/Eastern'),
+  ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all(10);
-  const iteratorDates = Array.from(takeN(set.occurrences(), 10));
+  const dates = set.all(10).map((d) => d.timestamp);
+  const iteratorDates = Array.from(takeN(set.occurrences(), 10)).map(
+    (d) => d.timestamp,
+  );
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
@@ -62,14 +72,16 @@ test('Every other week - limit 10', () => {
 test('Every other week on Monday, Wednesday and Friday until December 24, 1997, but starting on Tuesday, September 2, 1997', () => {
   const rrule = new RRule(Frequency.Weekly)
     .setInterval(2)
-    .setUntil(882921600000)
+    .setUntil(new RRuleDateTime(882921600000, 'UTC'))
     .setWeekstart(Weekday.Sunday)
     .setByWeekday([Weekday.Monday, Weekday.Wednesday, Weekday.Friday]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(
+    new RRuleDateTime(873205200000, 'US/Eastern'),
+  ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all();
-  const iteratorDates = Array.from(set.occurrences());
+  const dates = set.all().map((d) => d.timestamp);
+  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',

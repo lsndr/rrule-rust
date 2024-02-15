@@ -8,8 +8,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 chrono = "0.4.24"
-# Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
-napi = { version = "2.11.1", default-features = false, features = ["napi4"] }
+# Default enable napi5 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
+napi = { version = "2.11.1", default-features = false, features = ["napi5"] }
 napi-derive = "2.11.0"
 replace_with = "0.1.7"
 rrule = { version = "0.11.0", features = ["exrule"] }

@@ -1,15 +1,17 @@
-import { RRule, RRuleSet, Frequency, Month, Weekday } from '../';
+import { RRule, RRuleDateTime, RRuleSet, Frequency, Month, Weekday } from '../';
 import { takeN } from './utils';
 
 test('Yearly in June and July for 10 occurrences', () => {
   const rrule = new RRule(Frequency.Yearly)
     .setCount(10)
     .setByMonth([Month.June, Month.July]);
-  const set = new RRuleSet(865947600000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(
+    new RRuleDateTime(865947600000, 'US/Eastern'),
+  ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all();
-  const iteratorDates = Array.from(set.occurrences());
+  const dates = set.all().map((d) => d.timestamp);
+  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970610T090000\nFREQ=yearly;COUNT=10;BYMONTH=6,7;BYMONTHDAY=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
@@ -26,11 +28,13 @@ test('Every other year on January, February, and March for 10 occurrences', () =
     .setInterval(2)
     .setCount(10)
     .setByMonth([Month.January, Month.February, Month.March]);
-  const set = new RRuleSet(858002400000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(
+    new RRuleDateTime(858002400000, 'US/Eastern'),
+  ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all();
-  const iteratorDates = Array.from(set.occurrences());
+  const dates = set.all().map((d) => d.timestamp);
+  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970310T090000\nFREQ=yearly;COUNT=10;INTERVAL=2;BYMONTH=1,2,3;BYMONTHDAY=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
@@ -47,11 +51,13 @@ test('Every 3rd year on the 1st, 100th and 200th day for 10 occurrences', () => 
     .setCount(10)
     .setInterval(3)
     .setByYearday([1, 100, 200]);
-  const set = new RRuleSet(852127200000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(
+    new RRuleDateTime(852127200000, 'US/Eastern'),
+  ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all();
-  const iteratorDates = Array.from(set.occurrences());
+  const dates = set.all().map((d) => d.timestamp);
+  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970101T090000\nFREQ=yearly;COUNT=10;INTERVAL=3;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYYEARDAY=1,100,200',
@@ -67,11 +73,15 @@ test('Every 20th Monday of the year, limit 3', () => {
   const rrule = new RRule(Frequency.Yearly)
     .setByWeekday([Weekday.Monday])
     .setBySetpos([20]);
-  const set = new RRuleSet(863442000000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(
+    new RRuleDateTime(863442000000, 'US/Eastern'),
+  ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all(3);
-  const iteratorDates = Array.from(takeN(set.occurrences(), 3));
+  const dates = set.all(3).map((d) => d.timestamp);
+  const iteratorDates = Array.from(takeN(set.occurrences(), 3)).map(
+    (d) => d.timestamp,
+  );
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970512T090000\nFREQ=yearly;BYSETPOS=20;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
@@ -85,11 +95,15 @@ test('Monday of week number 20 (where the default start of the week is Monday), 
     .setWeekstart(Weekday.Monday)
     .setByWeekday([Weekday.Monday])
     .setByWeekno([20]);
-  const set = new RRuleSet(863442000000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(
+    new RRuleDateTime(863442000000, 'US/Eastern'),
+  ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all(3);
-  const iteratorDates = Array.from(takeN(set.occurrences(), 3));
+  const dates = set.all(3).map((d) => d.timestamp);
+  const iteratorDates = Array.from(takeN(set.occurrences(), 3)).map(
+    (d) => d.timestamp,
+  );
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970512T090000\nFREQ=yearly;BYWEEKNO=20;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
@@ -102,11 +116,15 @@ test('Every Thursday in March, limit 11', () => {
   const rrule = new RRule(Frequency.Yearly)
     .setByMonth([Month.March])
     .setByWeekday([Weekday.Thursday]);
-  const set = new RRuleSet(858261600000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(
+    new RRuleDateTime(858261600000, 'US/Eastern'),
+  ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all(11);
-  const iteratorDates = Array.from(takeN(set.occurrences(), 11));
+  const dates = set.all(11).map((d) => d.timestamp);
+  const iteratorDates = Array.from(takeN(set.occurrences(), 11)).map(
+    (d) => d.timestamp,
+  );
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970313T090000\nFREQ=yearly;BYMONTH=3;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TH',
@@ -123,13 +141,15 @@ test('Every Friday the 13th, limit 5', () => {
   const rrule = new RRule(Frequency.Yearly)
     .setByWeekday([Weekday.Friday])
     .setByMonthday([13]);
-  const set = new RRuleSet(873205200000, 'US/Eastern')
-    .addExdate(889797600000)
+  const set = new RRuleSet(new RRuleDateTime(873205200000, 'US/Eastern'))
+    .addExdate(new RRuleDateTime(889797600000))
     .addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all(5);
-  const iteratorDates = Array.from(takeN(set.occurrences(), 5));
+  const dates = set.all(5).map((d) => d.timestamp);
+  const iteratorDates = Array.from(takeN(set.occurrences(), 5)).map(
+    (d) => d.timestamp,
+  );
 
   // TODO: rrule crate doesn't add exdate to string output, create a bug report
   expect(asString).toBe(
@@ -147,11 +167,15 @@ test('Every four years, the first Tuesday after a Monday in November, forever (U
     .setByMonth([Month.November])
     .setByWeekday([Weekday.Tuesday])
     .setByMonthday([2, 3, 4, 5, 6, 7, 8]);
-  const set = new RRuleSet(847202400000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(
+    new RRuleDateTime(847202400000, 'US/Eastern'),
+  ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all(3);
-  const iteratorDates = Array.from(takeN(set.occurrences(), 3));
+  const dates = set.all(3).map((d) => d.timestamp);
+  const iteratorDates = Array.from(takeN(set.occurrences(), 3)).map(
+    (d) => d.timestamp,
+  );
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19961105T090000\nFREQ=yearly;INTERVAL=4;BYMONTH=11;BYMONTHDAY=2,3,4,5,6,7,8;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',

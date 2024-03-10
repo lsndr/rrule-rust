@@ -45,6 +45,29 @@ export const enum Month {
   November = 10,
   December = 11
 }
+export class RRuleTimezone {
+  constructor(tz: string)
+  /**
+  * The name of the timezone. If the timezone is local, it will return "Local".
+  */
+  get name(): string
+  get isLocal(): boolean
+}
+export class RRuleDateTime {
+  constructor(date: Date | number, timezone?: string | undefined | null)
+  get timestamp(): number
+  get timezone(): RRuleTimezone
+  get day(): number
+  get month(): number
+  get year(): number
+  get hour(): number
+  get minute(): number
+  get second(): number
+  get millisecond(): number
+  get toString(): string
+  toDate(): Date
+  toUtcDate(): Date
+}
 export type JsRRule = RRule
 export class RRule {
   constructor(frequency: Frequency)
@@ -62,11 +85,11 @@ export class RRule {
   get byWeekno(): Array<number>
   get byYearday(): Array<number>
   get weekstart(): Weekday
-  get until(): number | null
+  get until(): RRuleDateTime | null
   toString(): string
   setInterval(interval: number): this
   setCount(count: number): this
-  setByWeekday(weekdays: readonly Array<NWeekday | Weekday>): this
+  setByWeekday(weekdays: ReadonlyArray<NWeekday | Weekday>): this
   setByHour(hours: ReadonlyArray<number>): this
   setByMinute(minutes: ReadonlyArray<number>): this
   setBySecond(seconds: ReadonlyArray<number>): this
@@ -76,27 +99,26 @@ export class RRule {
   setByWeekno(weekNumbers: ReadonlyArray<number>): this
   setByYearday(days: ReadonlyArray<number>): this
   setWeekstart(day: Weekday): this
-  setUntil(timestamp: number): this
+  setUntil(dateTime: RRuleDateTime | Date): this
 }
 export type JsRRuleSet = RRuleSet
 export class RRuleSet {
-  constructor(dtstart: number, tzid: string)
+  constructor(dtstart: RRuleDateTime | Date)
   static parse(str: string): RRuleSet
   toString(): string
   addRrule(jsRrule: RRule): this
   addExrule(jsRrule: RRule): this
-  addExdate(timestamp: number): this
-  addRdate(timestamp: number): this
-  get dtstart(): number
-  get tzid(): string
+  addExdate(dateTime: RRuleDateTime | Date): this
+  addRdate(dateTime: RRuleDateTime | Date): this
+  get dtstart(): RRuleDateTime
   getRrules(): Array<RRule>
   getExrules(): Array<RRule>
-  getExdates(): Array<number>
-  getRdates(): Array<number>
-  all(limit?: number | undefined | null): number[]
-  between(after: number, before: number, inclusive?: boolean | undefined | null): number[]
+  getExdates(): Array<RRuleDateTime>
+  getRdates(): Array<RRuleDateTime>
+  all(limit?: number | undefined | null): Array<RRuleDateTime>
+  between(after: RRuleDateTime | Date, before: RRuleDateTime | Date, inclusive?: boolean | undefined | null): Array<RRuleDateTime>
   occurrences(): Occurrences
 }
 export class Occurrences {
-  [Symbol.iterator](): Iterator<number, void, void>
+  [Symbol.iterator](): Iterator<RRuleDateTime, void, void>
 }

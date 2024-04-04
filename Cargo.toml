@@ -12,7 +12,7 @@ chrono = "0.4.24"
 napi = { version = "2.11.1", default-features = false, features = ["napi5"] }
 napi-derive = "2.11.0"
 replace_with = "0.1.7"
-rrule = { version = "0.11.0", features = ["exrule"] }
+rrule = { version = "0.12.0", features = ["exrule"] }
 
 [build-dependencies]
 napi-build = "2.0.1"

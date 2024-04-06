@@ -98,6 +98,23 @@ impl RRuleDateTime {
   pub fn to_utc_date(&self, env: Env) -> napi::Result<napi::JsDate> {
     env.create_date(self.date_time.naive_utc().and_utc().timestamp_millis() as f64)
   }
+
+  #[napi(
+    ts_return_type = "{ day: number, month: number, year: number, hour: number, minute: number, second: number, millisecond: number }"
+  )]
+  pub fn to_object(&self, env: Env) -> napi::Result<napi::JsObject> {
+    let mut obj = env.create_object()?;
+
+    obj.set_named_property("day", env.create_int32(self.day() as i32)?)?;
+    obj.set_named_property("month", env.create_int32(self.month() as i32)?)?;
+    obj.set_named_property("year", env.create_int32(self.year() as i32)?)?;
+    obj.set_named_property("hour", env.create_int32(self.hour() as i32)?)?;
+    obj.set_named_property("minute", env.create_int32(self.minute() as i32)?)?;
+    obj.set_named_property("second", env.create_int32(self.second() as i32)?)?;
+    obj.set_named_property("millisecond", env.create_int32(self.millisecond() as i32)?)?;
+
+    Ok(obj)
+  }
 }
 
 impl From<DateTime<rrule::Tz>> for RRuleDateTime {

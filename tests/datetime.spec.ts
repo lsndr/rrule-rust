@@ -1,4 +1,5 @@
 import { RRuleDateTime } from '../dist';
+import { DateTime } from 'luxon';
 
 test.each([new Date(873205200000), 873205200000])(
   'Can create an RRuleDateTime from a %s',
@@ -29,4 +30,15 @@ it('Can create a local RRuleDateTime', () => {
   expect(rruleDateTime.timestamp).toBe(873205200000);
   expect(rruleDateTime.timezone.isLocal).toBe(true);
   expect(rruleDateTime.timezone.name).toBe('Local');
+});
+
+it('Can create a Luxon DateTime from an RRuleDateTime', () => {
+  const timestamp = 873205200000;
+  const rruleDateTime = new RRuleDateTime(timestamp, 'US/Eastern');
+  const luxonDateTime = DateTime.fromObject(rruleDateTime.toObject(), {
+    zone: rruleDateTime.timezone.name,
+  });
+
+  expect(luxonDateTime.toMillis()).toBe(timestamp);
+  expect(luxonDateTime.toISO()).toBe('1997-09-02T09:00:00.000-04:00');
 });

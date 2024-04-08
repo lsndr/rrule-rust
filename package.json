@@ -42,7 +42,7 @@
     "@napi-rs/cli": "^2.15.1",
     "@semantic-release/git": "^10.0.1",
     "@types/jest": "^29.5.0",
-    "@types/node": "^18.15.5",
+    "@types/node": "^20.12.5",
     "@typescript-eslint/eslint-plugin": "^5.50.0",
     "@typescript-eslint/parser": "^5.50.0",
     "benny": "^3.7.1",

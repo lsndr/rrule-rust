@@ -228,7 +228,7 @@ impl RRuleDateTime {
 
   #[napi(ts_return_type = "Date")]
   pub fn to_utc_date(&self, env: Env) -> napi::Result<napi::JsDate> {
-    env.create_date(self.date_time.naive_utc().timestamp_millis() as f64)
+    env.create_date(self.date_time.naive_utc().and_utc().timestamp_millis() as f64)
   }
 }
 

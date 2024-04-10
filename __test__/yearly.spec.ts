@@ -14,7 +14,7 @@ test('Yearly in June and July for 10 occurrences', () => {
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970610T090000\nFREQ=yearly;COUNT=10;BYMONTH=6,7;BYMONTHDAY=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970610T090000\nRRULE:FREQ=YEARLY;COUNT=10;BYMONTH=6,7;BYMONTHDAY=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
   );
   expect(dates).toEqual([
     865947600000, 868539600000, 897483600000, 900075600000, 929019600000,
@@ -37,7 +37,7 @@ test('Every other year on January, February, and March for 10 occurrences', () =
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970310T090000\nFREQ=yearly;COUNT=10;INTERVAL=2;BYMONTH=1,2,3;BYMONTHDAY=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970310T090000\nRRULE:FREQ=YEARLY;COUNT=10;INTERVAL=2;BYMONTH=1,2,3;BYMONTHDAY=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
   );
   expect(dates).toEqual([
     858002400000, 915976800000, 918655200000, 921074400000, 979135200000,
@@ -60,7 +60,7 @@ test('Every 3rd year on the 1st, 100th and 200th day for 10 occurrences', () => 
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970101T090000\nFREQ=yearly;COUNT=10;INTERVAL=3;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYYEARDAY=1,100,200',
+    'DTSTART;TZID=US/Eastern:19970101T090000\nRRULE:FREQ=YEARLY;COUNT=10;INTERVAL=3;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYYEARDAY=1,100,200',
   );
   expect(dates).toEqual([
     852127200000, 860677200000, 869317200000, 946735200000, 955285200000,
@@ -84,7 +84,7 @@ test('Every 20th Monday of the year, limit 3', () => {
   );
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970512T090000\nFREQ=yearly;BYSETPOS=20;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
+    'DTSTART;TZID=US/Eastern:19970512T090000\nRRULE:FREQ=YEARLY;BYSETPOS=20;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
   );
   expect(dates).toEqual([864046800000, 895496400000, 926946000000]);
   expect(iteratorDates).toEqual(dates);
@@ -106,7 +106,7 @@ test('Monday of week number 20 (where the default start of the week is Monday), 
   );
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970512T090000\nFREQ=yearly;BYWEEKNO=20;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
+    'DTSTART;TZID=US/Eastern:19970512T090000\nRRULE:FREQ=YEARLY;BYWEEKNO=20;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
   );
   expect(dates).toEqual([863442000000, 894891600000, 926946000000]);
   expect(iteratorDates).toEqual(dates);
@@ -127,7 +127,7 @@ test('Every Thursday in March, limit 11', () => {
   );
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970313T090000\nFREQ=yearly;BYMONTH=3;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TH',
+    'DTSTART;TZID=US/Eastern:19970313T090000\nRRULE:FREQ=YEARLY;BYMONTH=3;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TH',
   );
   expect(dates).toEqual([
     858261600000, 858866400000, 859471200000, 889106400000, 889711200000,
@@ -142,7 +142,7 @@ test('Every Friday the 13th, limit 5', () => {
     .setByWeekday([Weekday.Friday])
     .setByMonthday([13]);
   const set = new RRuleSet(new RRuleDateTime(873205200000, 'US/Eastern'))
-    .addExdate(new RRuleDateTime(889797600000))
+    .addExdate(new RRuleDateTime(889797600000, 'UTC'))
     .addRrule(rrule);
 
   const asString = set.toString();
@@ -153,7 +153,9 @@ test('Every Friday the 13th, limit 5', () => {
 
   // TODO: rrule crate doesn't add exdate to string output, create a bug report
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=yearly;BYMONTHDAY=13;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\n' +
+      'RRULE:FREQ=YEARLY;BYMONTHDAY=13;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR\n' +
+      'EXDATE;VALUE=DATE-TIME:19980313T140000Z',
   );
   expect(dates).toEqual([
     887378400000, 910965600000, 934549200000, 971442000000, 987166800000,
@@ -178,7 +180,7 @@ test('Every four years, the first Tuesday after a Monday in November, forever (U
   );
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19961105T090000\nFREQ=yearly;INTERVAL=4;BYMONTH=11;BYMONTHDAY=2,3,4,5,6,7,8;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
+    'DTSTART;TZID=US/Eastern:19961105T090000\nRRULE:FREQ=YEARLY;INTERVAL=4;BYMONTH=11;BYMONTHDAY=2,3,4,5,6,7,8;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([847202400000, 973605600000, 1099404000000]);
   expect(iteratorDates).toEqual(dates);

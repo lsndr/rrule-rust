@@ -7,7 +7,7 @@ test('Should properly parse weekly recurrence', () => {
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
   );
 });
 
@@ -18,13 +18,19 @@ test('Should properly parse monthly recurrence', () => {
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970907T090000\nFREQ=monthly;COUNT=10;INTERVAL=2;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=-1SU,SU',
+    'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=MONTHLY;COUNT=10;INTERVAL=2;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=-1SU,SU',
   );
 });
 
 test('Should throw error on missing start date', () => {
-  expect(() => RRuleSet.parse('Invalid')).toThrowError(
+  expect(() => RRuleSet.parse('FREQ=monthly;COUNT=10;INTERVAL=2')).toThrowError(
     'RRule parsing error: Missing start date. There needs to be a unique start date which the iteration can start from.',
+  );
+});
+
+test('Should throw error on invalid rule set', () => {
+  expect(() => RRuleSet.parse('Invalid')).toThrowError(
+    'RRule parsing error: `Invalid` is a malformed property parameter. Parameter should be specified as `key=value`',
   );
 });
 
@@ -106,7 +112,7 @@ test('Should properly parse weekly individual recurrence rule', () => {
 
   const asString = rule.toString();
   expect(asString).toBe(
-    'FREQ=weekly;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYDAY=MO,WE,FR',
+    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYDAY=MO,WE,FR',
   );
 });
 
@@ -117,7 +123,7 @@ test('Should properly parse individual recurrence rule with RRULE prefix', () =>
 
   const asString = rule.toString();
   expect(asString).toBe(
-    'FREQ=weekly;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYDAY=MO,WE,FR',
+    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYDAY=MO,WE,FR',
   );
 });
 
@@ -131,7 +137,7 @@ test('Should properly parse monthly individual recurrence rule', () => {
   //expect(rule.byWeekday)
 
   const asString = rule.toString();
-  expect(asString).toBe('FREQ=monthly;COUNT=10;INTERVAL=2;BYDAY=SU,-1SU');
+  expect(asString).toBe('FREQ=MONTHLY;COUNT=10;INTERVAL=2;BYDAY=SU,-1SU');
 });
 
 test('Should throw error on invalid individual recurrence rule', () => {

@@ -12,7 +12,7 @@ test('Weekly for 10 occurrences', () => {
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;COUNT=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;COUNT=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
     873205200000, 873810000000, 874414800000, 875019600000, 875624400000,
@@ -34,7 +34,7 @@ test('Weekly until December 24, 1997', () => {
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;UNTIL=19971224T000000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
     873205200000, 873810000000, 874414800000, 875019600000, 875624400000,
@@ -60,7 +60,7 @@ test('Every other week - limit 10', () => {
   );
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
     873205200000, 874414800000, 875624400000, 876834000000, 878047200000,
@@ -84,7 +84,7 @@ test('Every other week on Monday, Wednesday and Friday until December 24, 1997, 
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=weekly;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
   );
   expect(dates).toEqual([
     // TODO: rrule crate does not include dtstart date (873205200000), create a bug report

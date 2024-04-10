@@ -15,7 +15,7 @@ test('Monthly on the 1st Friday for ten occurrences', () => {
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=monthly;COUNT=10;BYSETPOS=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYSETPOS=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
   );
   expect(dates).toEqual([
     873464400000, 875883600000, 878911200000, 881330400000, 883749600000,
@@ -38,7 +38,7 @@ test('Monthly on the 1st Friday until December 24, 1997', () => {
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=monthly;UNTIL=19971224T000000Z;BYSETPOS=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;UNTIL=19971224T000000Z;BYSETPOS=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
   );
   expect(dates).toEqual([
     873464400000, 875883600000, 878911200000, 881330400000,
@@ -61,7 +61,7 @@ test('Every other month on the 1st and last Sunday of the month for 10 occurrenc
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=monthly;COUNT=10;INTERVAL=2;BYSETPOS=-1,1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=SU',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;INTERVAL=2;BYSETPOS=-1,1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=SU',
   );
   expect(dates).toEqual([
     873637200000, 875451600000, 878479200000, 880898400000, 883922400000,
@@ -84,7 +84,7 @@ test('Monthly on the second to last Monday of the month for 6 months', () => {
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=monthly;COUNT=6;BYSETPOS=-2;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=6;BYSETPOS=-2;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
   );
   expect(dates).toEqual([
     874933200000, 877352400000, 879775200000, 882799200000, 885218400000,
@@ -106,7 +106,7 @@ test('Monthly on the third to the last day of the month, limit 6', () => {
   );
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=monthly;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
   );
   expect(dates).toEqual([
     875451600000, 878133600000, 880725600000, 883404000000, 886082400000,
@@ -128,7 +128,7 @@ test('Monthly on the 2nd and 15th of the month for 10 occurrences', () => {
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=monthly;COUNT=10;BYMONTHDAY=2,15;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYMONTHDAY=2,15;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
   );
   expect(dates).toEqual([
     873205200000, 874328400000, 875797200000, 876920400000, 878479200000,
@@ -150,7 +150,7 @@ test('Monthly on the first and last day of the month for 10 occurrences', () => 
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=monthly;COUNT=10;BYMONTHDAY=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYMONTHDAY=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
   );
   expect(dates).toEqual([
     875624400000, 875710800000, 878306400000, 878392800000, 880898400000,
@@ -173,7 +173,7 @@ test('Every 18 months on the 10th thru 15th of the month for 10 occurrences', ()
   const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=monthly;COUNT=10;INTERVAL=18;BYMONTHDAY=10,11,12,13,14,15;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;INTERVAL=18;BYMONTHDAY=10,11,12,13,14,15;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
   );
   expect(dates).toEqual([
     873896400000, 873982800000, 874069200000, 874155600000, 874242000000,
@@ -228,7 +228,7 @@ test('Every Tuesday, every other month, limit 18', () => {
   );
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=monthly;INTERVAL=2;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;INTERVAL=2;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
     873205200000, 873810000000, 874414800000, 875019600000, 875624400000,
@@ -251,7 +251,7 @@ test('Monthly on the second to last Monday of the month for 6 months', () => {
   const dates = set.all(8).map((d) => d.timestamp);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970922T090000\nFREQ=monthly;COUNT=6;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=-2MO',
+    'DTSTART;TZID=US/Eastern:19970922T090000\nRRULE:FREQ=MONTHLY;COUNT=6;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=-2MO',
   );
   expect(dates.map((d) => new Date(d).toISOString())).toEqual([
     '1997-09-22T13:00:00.000Z',

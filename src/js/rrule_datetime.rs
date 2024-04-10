@@ -1,12 +1,11 @@
-use napi_derive::napi;
-use std::str::FromStr;
-
 use super::RRuleTimezone;
 use chrono::DateTime;
 use chrono::Datelike;
 use chrono::TimeZone;
 use chrono::Timelike;
 use napi::bindgen_prelude::*;
+use napi_derive::napi;
+use std::str::FromStr;
 
 #[napi(js_name = "RRuleDateTime")]
 pub struct RRuleDateTime {
@@ -97,7 +96,7 @@ impl RRuleDateTime {
 
   #[napi(ts_return_type = "Date")]
   pub fn to_utc_date(&self, env: Env) -> napi::Result<napi::JsDate> {
-    env.create_date(self.date_time.naive_utc().timestamp_millis() as f64)
+    env.create_date(self.date_time.naive_utc().and_utc().timestamp_millis() as f64)
   }
 }
 

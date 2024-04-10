@@ -1,4 +1,4 @@
-use super::{n_weekday::NWeekday, Frequency, Month, RRuleDateTime, Weekday};
+use super::{Frequency, Month, NWeekday, RRuleDateTime, Weekday};
 use chrono::DateTime;
 use napi::{bindgen_prelude::Array, Either, Env};
 use napi_derive::napi;

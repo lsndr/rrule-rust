@@ -12,25 +12,6 @@ export const enum Frequency {
   Minutely = 5,
   Secondly = 6
 }
-export const enum Weekday {
-  Monday = 0,
-  Tuesday = 1,
-  Wednesday = 2,
-  Thursday = 3,
-  Friday = 4,
-  Saturday = 5,
-  Sunday = 6
-}
-export interface NWeekday {
-  /**
-   * If set, this represents the nth occurrence of the weekday.
-   * Otherwise it represents every occurrence of the weekday.
-   *
-   * A negative value represents nth occurrence from the end.
-   */
-  n?: number
-  weekday: Weekday
-}
 export const enum Month {
   January = 0,
   February = 1,
@@ -45,30 +26,25 @@ export const enum Month {
   November = 10,
   December = 11
 }
-export class RRuleTimezone {
-  constructor(tz: string)
+export interface NWeekday {
   /**
-  * The name of the timezone. If the timezone is local, it will return "Local".
-  */
-  get name(): string
-  get isLocal(): boolean
+   * If set, this represents the nth occurrence of the weekday.
+   * Otherwise it represents every occurrence of the weekday.
+   *
+   * A negative value represents nth occurrence from the end.
+   */
+  n?: number
+  weekday: Weekday
 }
-export class RRuleDateTime {
-  constructor(date: Date | number, timezone?: string | undefined | null)
-  get timestamp(): number
-  get timezone(): RRuleTimezone
-  get day(): number
-  get month(): number
-  get year(): number
-  get hour(): number
-  get minute(): number
-  get second(): number
-  get millisecond(): number
-  get toString(): string
-  toDate(): Date
-  toUtcDate(): Date
+export const enum Weekday {
+  Monday = 0,
+  Tuesday = 1,
+  Wednesday = 2,
+  Thursday = 3,
+  Friday = 4,
+  Saturday = 5,
+  Sunday = 6
 }
-export type JsRRule = RRule
 export class RRule {
   constructor(frequency: Frequency)
   static parse(str: string): RRule
@@ -101,7 +77,21 @@ export class RRule {
   setWeekstart(day: Weekday): this
   setUntil(dateTime: RRuleDateTime | Date): this
 }
-export type JsRRuleSet = RRuleSet
+export class RRuleDateTime {
+  constructor(date: Date | number, timezone?: string | undefined | null)
+  get timestamp(): number
+  get timezone(): RRuleTimezone
+  get day(): number
+  get month(): number
+  get year(): number
+  get hour(): number
+  get minute(): number
+  get second(): number
+  get millisecond(): number
+  get toString(): string
+  toDate(): Date
+  toUtcDate(): Date
+}
 export class RRuleSet {
   constructor(dtstart: RRuleDateTime | Date)
   static parse(str: string): RRuleSet
@@ -121,4 +111,12 @@ export class RRuleSet {
 }
 export class Occurrences {
   [Symbol.iterator](): Iterator<RRuleDateTime, void, void>
+}
+export class RRuleTimezone {
+  constructor(tz: string)
+  /**
+  * The name of the timezone. If the timezone is local, it will return "Local".
+  */
+  get name(): string
+  get isLocal(): boolean
 }

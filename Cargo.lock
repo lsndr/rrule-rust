@@ -389,6 +389,7 @@ name = "rrule-rust"
 version = "0.0.0"
 dependencies = [
  "chrono",
+ "chrono-tz",
  "napi",
  "napi-build",
  "napi-derive",

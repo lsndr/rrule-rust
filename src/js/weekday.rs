@@ -1,3 +1,5 @@
+use napi_derive::napi;
+
 #[napi(js_name = "Weekday")]
 pub enum Weekday {
   Monday,

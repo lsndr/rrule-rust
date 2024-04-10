@@ -1,8 +1,8 @@
+use super::{n_weekday::NWeekday, Frequency, Month, RRuleDateTime, Weekday};
 use chrono::DateTime;
 use napi::{bindgen_prelude::Array, Either, Env};
+use napi_derive::napi;
 use replace_with::replace_with_or_abort;
-
-use super::{n_weekday::NWeekday, Frequency, Month, RRuleDateTime, Weekday};
 
 #[napi(js_name = "RRule")]
 pub struct RRule {

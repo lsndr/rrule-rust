@@ -1,4 +1,5 @@
 use super::weekday::Weekday;
+use napi_derive::napi;
 
 #[napi(object, js_name = "NWeekday")]
 pub struct NWeekday {

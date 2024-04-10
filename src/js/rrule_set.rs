@@ -1,12 +1,12 @@
+use super::{RRule, RRuleDateTime};
 use chrono::DateTime;
 use napi::{
   bindgen_prelude::{Reference, SharedReference},
   iterator::Generator,
   Env,
 };
+use napi_derive::napi;
 use replace_with::replace_with_or_abort;
-
-use super::{RRule, RRuleDateTime};
 
 #[napi(js_name = "RRuleSet")]
 pub struct RRuleSet {

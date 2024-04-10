@@ -1,3 +1,5 @@
+use napi_derive::napi;
+
 #[napi(js_name = "Month")]
 pub enum Month {
   January,

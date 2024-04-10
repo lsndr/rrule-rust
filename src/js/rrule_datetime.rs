@@ -1,3 +1,4 @@
+use napi_derive::napi;
 use std::str::FromStr;
 
 use super::RRuleTimezone;

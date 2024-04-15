@@ -16,7 +16,7 @@ replace_with = "0.1.7"
 rrule = { version = "0.12.0", features = ["exrule"] }
 
 [build-dependencies]
-napi-build = "2.0.1"
+napi-build = "2.1.3"
 
 [profile.release]
 lto = true

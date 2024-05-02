@@ -82,7 +82,7 @@
     "version": "napi version",
     "benchmark": "ts-node ./benchmark/index.ts",
     "lint": "cargo fmt --all -- --check && eslint \"**/*.{js,ts,json}\" --max-warnings=0",
-    "lint:fix": "cargo fmt --all && yarn lint --fix",
+    "lint:fix": "cargo fmt --all && npm run lint --fix",
     "lint:fix-staged": "lint-staged"
   }
 }

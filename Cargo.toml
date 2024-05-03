@@ -8,7 +8,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 chrono = "0.4.24"
-chrono-tz = "0.8.5"
+chrono-tz = "0.9.0"
 # Default enable napi5 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
 napi = { version = "2.12.2", default-features = false, features = ["napi5"] }
 napi-derive = "2.12.2"

@@ -13,9 +13,7 @@ jobs:
         settings:
           - host: macos-latest
             target: x86_64-apple-darwin
-            build: |
-              npm run build -- --target x86_64-apple-darwin
-              strip -x *.node
+            build: npm run build -- --target x86_64-apple-darwin
           - host: windows-latest
             build: npm run build
             target: x86_64-pc-windows-msvc
@@ -27,65 +25,58 @@ jobs:
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
-            build: |-
-              set -e &&
-              npm run build -- --target x86_64-unknown-linux-gnu &&
-              strip *.node
+            build: npm run build -- --target x86_64-unknown-linux-gnu
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
-            build: set -e && npm run build && strip *.node
+            build: npm run build -- --target x86_64-unknown-linux-musl
           - host: macos-latest
             target: aarch64-apple-darwin
-            build: |
-              npm run build
-              strip -x *.node
+            build: npm run build -- --target aarch64-apple-darwin
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
-            build: |-
-              set -e &&
-              npm run build -- --target aarch64-unknown-linux-gnu &&
-              aarch64-unknown-linux-gnu-strip *.node
+            build: npm run build -- --target aarch64-unknown-linux-gnu
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
             setup: |
               sudo apt-get update
               sudo apt-get install gcc-arm-linux-gnueabihf -y
-            build: |
-              npm run build -- --target armv7-unknown-linux-gnueabihf
-              arm-linux-gnueabihf-strip *.node
+            build: npm run build -- --target armv7-unknown-linux-gnueabihf
+          - host: ubuntu-latest
+            target: armv7-unknown-linux-musleabihf
+            build: npm run build -- --target armv7-unknown-linux-musleabihf
           - host: ubuntu-latest
             target: aarch64-linux-android
-            build: |
-              npm run build -- --target aarch64-linux-android
-              ${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip *.node
+            build: npm run build -- --target aarch64-linux-android
           - host: ubuntu-latest
             target: armv7-linux-androideabi
-            build: |
-              npm run build -- --target armv7-linux-androideabi
-              ${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip *.node
+            build: npm run build -- --target armv7-linux-androideabi
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
             build: |-
               set -e &&
               rustup target add aarch64-unknown-linux-musl &&
-              npm run build -- --target aarch64-unknown-linux-musl &&
-              /aarch64-linux-musl-cross/bin/aarch64-linux-musl-strip *.node
+              npm run build -- --target aarch64-unknown-linux-musl
           - host: windows-latest
             target: aarch64-pc-windows-msvc
             build: npm run build -- --target aarch64-pc-windows-msvc
-    name: stable - ${{ matrix.settings.target }} - node@18
+          - host: ubuntu-latest
+            target: riscv64gc-unknown-linux-gnu
+            setup: |
+              sudo apt-get update
+              sudo apt-get install gcc-riscv64-linux-gnu -y
+            build: npm run build -- --target riscv64gc-unknown-linux-gnu
+    name: stable - ${{ matrix.settings.target }} - node@20
     runs-on: ${{ matrix.settings.host }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         if: ${{ !matrix.settings.docker }}
         with:
-          node-version: 18
-          check-latest: true
+          node-version: 20
           cache: npm
       - name: Install
         uses: dtolnay/rust-toolchain@stable
@@ -94,7 +85,7 @@ jobs:
           toolchain: stable
           targets: ${{ matrix.settings.target }}
       - name: Cache cargo
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry/index/
@@ -104,9 +95,9 @@ jobs:
             target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
       - uses: goto-bus-stop/setup-zig@v2
-        if: ${{ matrix.settings.target == 'armv7-unknown-linux-gnueabihf' }}
+        if: ${{ matrix.settings.target == 'armv7-unknown-linux-gnueabihf' || matrix.settings.target == 'armv7-unknown-linux-musleabihf' }}
         with:
-          version: 0.10.1
+          version: 0.12.0
       - name: Setup toolchain
         run: ${{ matrix.settings.setup }}
         if: ${{ matrix.settings.setup }}
@@ -119,11 +110,10 @@ jobs:
         if: matrix.settings.target != 'i686-pc-windows-msvc'
         run: npm ci
       - name: Setup node x86
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         if: matrix.settings.target == 'i686-pc-windows-msvc'
         with:
-          node-version: 18
-          check-latest: true
+          node-version: 20
           cache: npm
           architecture: x86
       - name: Build in docker
@@ -138,26 +128,26 @@ jobs:
         if: ${{ !matrix.settings.docker }}
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
           path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   build-freebsd:
-    runs-on: macos-12
+    runs-on: macos-13
     name: Build FreeBSD
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         id: build
-        uses: cross-platform-actions/action@v0.21.0
+        uses: cross-platform-actions/action@v0.24.0
         env:
           DEBUG: napi:*
           RUSTUP_IO_THREADS: 1
         with:
           operating_system: freebsd
           version: '13.2'
-          memory: 13G
+          memory: 8G
           cpu_count: 3
           environment_variables: 'DEBUG RUSTUP_IO_THREADS'
           shell: bash
@@ -169,7 +159,7 @@ jobs:
             echo "~~~~ rustc --version ~~~~"
             rustc --version
             echo "~~~~ node -v ~~~~"
-            node -v
+            node --version
             echo "~~~~ npm --version ~~~~"
             npm --version
             pwd
@@ -182,7 +172,7 @@ jobs:
             rm -rf node_modules
             rm -rf target
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bindings-freebsd
           path: ${{ env.APP_NAME }}.*.node
@@ -197,26 +187,30 @@ jobs:
         settings:
           - host: windows-latest
             target: x86_64-pc-windows-msvc
+            architecture: x64
+          - host: macos-latest
+            target: aarch64-apple-darwin
+            architecture: arm64
+          - host: macos-latest
+            target: x86_64-apple-darwin
+            architecture: x64
         node:
-          - '14'
           - '16'
           - '18'
+          - '20'
     runs-on: ${{ matrix.settings.host }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          check-latest: true
+          architecture: ${{ matrix.settings.architecture }}
           cache: npm
       - name: Install dependencies
-        run: | 
-          # Remove semantic-release because it's not compatible with Node 14
-          npm uninstall semantic-release @semantic-release/git conventional-changelog-conventionalcommits
-          npm ci
+        run: npm ci
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
           path: .
@@ -233,25 +227,21 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
           - '16'
           - '18'
+          - '20'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          check-latest: true
           cache: npm
       - name: Install dependencies
-        run: | 
-          # Remove semantic-release because it's not compatible with Node 14
-          npm uninstall semantic-release @semantic-release/git conventional-changelog-conventionalcommits
-          npm install
+        run: npm ci
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bindings-x86_64-unknown-linux-gnu
           path: .
@@ -268,25 +258,21 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
           - '16'
           - '18'
+          - '20'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          check-latest: true
           cache: npm
       - name: Install dependencies
-        run: |
-          # Remove semantic-release because it's not compatible with Node 14
-          npm uninstall semantic-release @semantic-release/git conventional-changelog-conventionalcommits
-          npm ci --libc "musl"
+        run: npm ci --libc "musl"
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bindings-x86_64-unknown-linux-musl
           path: .
@@ -303,14 +289,14 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
           - '16'
           - '18'
+          - '20'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bindings-aarch64-unknown-linux-gnu
           path: .
@@ -320,7 +306,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --cpu "arm64" --libc "glibc"
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
       - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
@@ -334,14 +320,14 @@ jobs:
             npm test
             ls -la
   test-linux-aarch64-musl-binding:
-    name: Test bindings on aarch64-unknown-linux-musl - node@${{ matrix.node }}
+    name: Test bindings on aarch64-unknown-linux-musl - node@lts
     needs:
       - build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bindings-aarch64-unknown-linux-musl
           path: .
@@ -351,7 +337,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --cpu "arm64" --libc "musl"
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: arm64
       - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
@@ -371,14 +357,14 @@ jobs:
       fail-fast: false
       matrix:
         node:
-          - '14'
           - '16'
           - '18'
+          - '20'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bindings-armv7-unknown-linux-gnueabihf
           path: .
@@ -388,7 +374,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --cpu "arm"
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: arm
       - run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
@@ -407,29 +393,28 @@ jobs:
       - build
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
-          check-latest: true
+          node-version: 20
           cache: npm
       - name: Install dependencies
         run: npm ci
       - name: Download macOS x64 artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bindings-x86_64-apple-darwin
           path: artifacts
       - name: Download macOS arm64 artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bindings-aarch64-apple-darwin
           path: artifacts
       - name: Combine binaries
         run: npm run universal
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bindings-universal-apple-darwin
           path: ${{ env.APP_NAME }}.*.node

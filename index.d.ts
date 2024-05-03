@@ -94,6 +94,7 @@ export class RRuleDateTime {
 }
 export class RRuleSet {
   constructor(dtstart: RRuleDateTime | Date)
+  setFromString(str: string): this
   static parse(str: string): RRuleSet
   toString(): string
   addRrule(jsRrule: RRule): this

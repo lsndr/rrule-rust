@@ -1,4 +1,4 @@
-import { Frequency, Weekday, RRule, RRuleSet } from '../';
+import { Frequency, Weekday, RRule, RRuleSet, RRuleDateTime } from '../';
 
 test('Should properly parse weekly recurrence', () => {
   const set = RRuleSet.parse(
@@ -167,5 +167,18 @@ test('Should throw error on invalid individual recurrence rule until', () => {
 test('Should throw error on invalid individual recurrence rule week start', () => {
   expect(() => RRule.parse('FREQ=DAILY;WKST=Invalid')).toThrowError(
     'RRule parsing error: `Invalid` is not a valid weekday start. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`.',
+  );
+});
+
+test('Should be able to parse rule set without dtstart', () => {
+  const set = new RRuleSet(
+    new RRuleDateTime(new Date('1997-09-02T09:00:00-04:00'), 'US/Eastern'),
+  );
+  set.setFromString(
+    'RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
+  );
+  const asString = set.toString();
+  expect(asString).toBe(
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
   );
 });

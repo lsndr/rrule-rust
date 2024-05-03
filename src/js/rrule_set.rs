@@ -22,6 +22,17 @@ impl RRuleSet {
     Ok(RRuleSet { rrule_set })
   }
 
+  #[napi]
+  pub fn set_from_string(&mut self, str: String) -> napi::Result<&Self> {
+    let cloned = self
+      .rrule_set
+      .clone()
+      .set_from_string(&str)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+    *self = RRuleSet { rrule_set: cloned };
+    Ok(self)
+  }
+
   #[napi(factory, ts_return_type = "RRuleSet")]
   pub fn parse(str: String) -> napi::Result<Self> {
     let rrule_set: rrule::RRuleSet = str

@@ -1,4 +1,4 @@
-import { RRule, RRuleDateTime, RRuleSet, Frequency, Weekday } from '../';
+import { RRule, RRuleDateTime, RRuleSet, Frequency, Weekday } from '../dist';
 import { takeN } from './utils';
 
 test('Monthly on the 1st Friday for ten occurrences', () => {

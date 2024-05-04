@@ -1,8 +1,8 @@
 {
   "name": "rrule-rust",
   "version": "0.0.0",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "keywords": [
     "rrule",
     "icalendar",
@@ -51,6 +51,7 @@
     "@typescript-eslint/parser": "^5.50.0",
     "benny": "^3.7.1",
     "conventional-changelog-conventionalcommits": "^7.0.2",
+    "cpx": "^1.5.0",
     "eslint": "^8.33.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
@@ -59,7 +60,9 @@
     "husky": "^9.0.11",
     "jest": "^29.5.0",
     "lint-staged": "^15.2.2",
+    "mkdirp": "^3.0.1",
     "prettier": "^2.8.3",
+    "rimraf": "^5.0.5",
     "rrule": "^2.7.2",
     "semantic-release": "^23.0.8",
     "ts-jest": "^29.0.5",
@@ -75,15 +78,16 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "napi build --platform --release --js-package-name @rrule-rust/lib",
-    "build:debug": "napi build --platform",
+    "prebuild": "rimraf ./dist && mkdirp ./dist",
+    "postbuild": "cpx ./*.node ./dist && rimraf ./*.node",
+    "build": "napi build --js dist/index.js --dts dist/index.d.ts --platform --release",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "jest",
     "universal": "napi universal",
     "version": "napi version",
     "benchmark": "ts-node ./benchmark/index.ts",
     "lint": "cargo fmt --all -- --check && eslint \"**/*.{js,ts,json}\" --max-warnings=0",
-    "lint:fix": "cargo fmt --all && npm run lint --fix",
+    "lint:fix": "cargo fmt --all && npm run lint -- --fix",
     "lint:fix-staged": "lint-staged",
     "prepare": "husky"
   }

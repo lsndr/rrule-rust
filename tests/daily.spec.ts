@@ -1,4 +1,11 @@
-import { RRule, RRuleDateTime, RRuleSet, Frequency, Month, Weekday } from '../';
+import {
+  RRule,
+  RRuleDateTime,
+  RRuleSet,
+  Frequency,
+  Month,
+  Weekday,
+} from '../dist';
 
 test('Daily for 10 occurrences', () => {
   const rrule = new RRule(Frequency.Daily).setCount(10);

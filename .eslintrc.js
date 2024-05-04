@@ -9,7 +9,7 @@ module.exports = {
     'plugin:eslint-comments/recommended',
   ],
   plugins: ['@typescript-eslint'],
-  ignorePatterns: ['node_modules', '/target', '/index.d.ts', '/index.js'],
+  ignorePatterns: ['node_modules', '/target', '/dist/**/*'],
   env: {
     node: true,
   },

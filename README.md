@@ -48,5 +48,5 @@ const asString = set.toString(); // DTSTART;TZID=US/Eastern:19970902T090000\nFRE
 You can run benchmarks using `npm run benchmark`
 
 ## License
-
+f
 `rrule-rust` is [MIT licensed](LICENSE.md).

@@ -51,7 +51,7 @@
     "@typescript-eslint/parser": "^5.50.0",
     "benny": "^3.7.1",
     "conventional-changelog-conventionalcommits": "^7.0.2",
-    "cpx": "^1.5.0",
+    "cpy-cli": "^5.0.0",
     "eslint": "^8.33.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
@@ -79,7 +79,7 @@
   "scripts": {
     "artifacts": "napi artifacts",
     "prebuild": "rimraf ./dist && mkdirp ./dist",
-    "postbuild": "cpx ./*.node ./dist && rimraf --glob ./*.node",
+    "postbuild": "cpy ./*.node ./dist && rimraf --glob ./*.node",
     "build": "napi build --js dist/index.js --dts dist/index.d.ts --platform --release",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "jest",
@@ -89,6 +89,6 @@
     "lint": "cargo fmt --all -- --check && eslint \"**/*.{js,ts,json}\" --max-warnings=0",
     "lint:fix": "cargo fmt --all && npm run lint -- --fix",
     "lint:fix-staged": "lint-staged",
-    "prepare": "husky"
+    "prepare": "husky && npm run build"
   }
 }

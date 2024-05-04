@@ -1,4 +1,4 @@
-import { Frequency, Weekday, RRule, RRuleSet, RRuleDateTime } from '../';
+import { Frequency, Weekday, RRule, RRuleSet, RRuleDateTime } from '../dist';
 
 test('Should properly parse weekly recurrence', () => {
   const set = RRuleSet.parse(

@@ -79,7 +79,7 @@
   "scripts": {
     "artifacts": "napi artifacts",
     "prebuild": "rimraf ./dist && mkdirp ./dist",
-    "postbuild": "cpx ./*.node ./dist && rimraf ./*.node",
+    "postbuild": "cpx ./*.node ./dist && rimraf --glob ./*.node",
     "build": "napi build --js dist/index.js --dts dist/index.d.ts --platform --release",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "jest",

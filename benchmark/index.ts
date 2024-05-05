@@ -1,6 +1,6 @@
 import b from 'benny';
 import * as node from 'rrule';
-import * as rust from '../';
+import * as rust from '../dist';
 
 b.suite(
   'UTC TZ',

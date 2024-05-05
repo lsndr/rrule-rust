@@ -44,4 +44,3 @@ it('Can create a Luxon DateTime from an RRuleDateTime', () => {
   expect(luxonDateTime.toMillis()).toBe(timestamp);
   expect(luxonDateTime.toISO()).toBe('1997-09-02T09:00:00.000-04:00');
 });
-

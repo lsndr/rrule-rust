@@ -84,7 +84,7 @@ impl RRuleDateTime {
     nanoseconds / 1_000_000
   }
 
-  #[napi(getter)]
+  #[napi(js_name = "toString")]
   pub fn to_string(&self) -> String {
     self.date_time.to_string()
   }

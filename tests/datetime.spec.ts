@@ -5,8 +5,9 @@ test.each([new Date(873205200000), 873205200000])(
   (input) => {
     const rruleDateTime = new RRuleDateTime(input, 'US/Eastern');
 
-    expect(rruleDateTime.toString()).toBe('1997-09-02 09:00:00 EDT');
     expect(rruleDateTime.toDate()).toEqual(new Date(873205200000));
+    expect(rruleDateTime.toString()).toBe('1997-09-02 09:00:00 EDT');
+    expect(rruleDateTime.toRFC3339()).toBe('1997-09-02T09:00:00-04:00');
     expect(rruleDateTime.timestamp).toBe(873205200000);
     expect(rruleDateTime.timezone.isLocal).toBe(false);
     expect(rruleDateTime.timezone.name).toBe('US/Eastern');

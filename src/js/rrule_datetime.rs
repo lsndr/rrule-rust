@@ -89,6 +89,11 @@ impl RRuleDateTime {
     self.date_time.to_string()
   }
 
+  #[napi(js_name = "toRFC3339")]
+  pub fn to_rfc3339(&self) -> String {
+    self.date_time.to_rfc3339()
+  }
+
   #[napi(ts_return_type = "Date")]
   pub fn to_date(&self, env: Env) -> napi::Result<napi::JsDate> {
     env.create_date(self.date_time.timestamp_millis() as f64)

@@ -1,4 +1,4 @@
-import { Frequency, Weekday, RRule, RRuleSet, RRuleDateTime } from '../dist';
+import { Frequency, Weekday, RRule, RRuleSet } from '../dist';
 
 test('Should properly parse weekly recurrence', () => {
   const set = RRuleSet.parse(
@@ -100,9 +100,7 @@ test('Should properly parse weekly individual recurrence rule', () => {
   );
   expect(rule.frequency).toBe(Frequency.Weekly);
   expect(rule.interval).toBe(2);
-  expect(rule.until?.timestamp).toBe(
-    new Date('1997-12-24T00:00:00Z').getTime(),
-  );
+  expect(rule.until).toBe(882921600000);
   expect(rule.weekstart).toBe(Weekday.Sunday);
   expect(rule.byWeekday).toEqual([
     { weekday: Weekday.Monday },
@@ -171,9 +169,7 @@ test('Should throw error on invalid individual recurrence rule week start', () =
 });
 
 test('Should be able to parse rule set without dtstart', () => {
-  const set = new RRuleSet(
-    new RRuleDateTime(new Date('1997-09-02T09:00:00-04:00'), 'US/Eastern'),
-  );
+  const set = new RRuleSet(873205200000, 'US/Eastern');
   set.setFromString(
     'RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
   );

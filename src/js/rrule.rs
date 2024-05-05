@@ -1,5 +1,5 @@
-use super::{Frequency, Month, NWeekday, RRuleDateTime, Weekday};
-use chrono::DateTime;
+use super::{Frequency, Month, NWeekday, Weekday};
+use chrono::{DateTime, TimeZone};
 use napi::{bindgen_prelude::Array, Either, Env};
 use napi_derive::napi;
 use replace_with::replace_with_or_abort;
@@ -105,9 +105,9 @@ impl RRule {
   }
 
   #[napi(getter)]
-  pub fn until(&self) -> napi::Result<Option<RRuleDateTime>> {
+  pub fn until(&self) -> napi::Result<Option<i64>> {
     Ok(match self.rrule.get_until() {
-      Some(until) => Some(RRuleDateTime::new_with_date_time(until.clone())),
+      Some(until) => Some(until.timestamp_millis()),
       None => None,
     })
   }
@@ -247,12 +247,10 @@ impl RRule {
   }
 
   #[napi]
-  pub fn set_until(
-    &mut self,
-    date_time: napi::Either<&RRuleDateTime, napi::JsDate>,
-  ) -> napi::Result<&Self> {
-    let date_time = RRuleDateTime::from(date_time);
-    replace_with_or_abort(&mut self.rrule, |self_| self_.until(date_time.into()));
+  pub fn set_until(&mut self, timestamp: i64) -> napi::Result<&Self> {
+    replace_with_or_abort(&mut self.rrule, |self_| {
+      self_.until(rrule::Tz::UTC.timestamp_millis_opt(timestamp).unwrap())
+    });
 
     Ok(self)
   }

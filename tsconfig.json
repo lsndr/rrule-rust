@@ -1,16 +1,20 @@
 {
   "compilerOptions": {
+    "target": "es2021",
     "module": "commonjs",
     "declaration": true,
+    "allowJs": true,
+    "strict": true,
+    "outDir": "./dist",
+    "skipLibCheck": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2017",
+    "resolveJsonModule": true,
     "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "incremental": true,
-    "removeComments": true,
+    "removeComments": false,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "noFallthroughCasesInSwitch": true,
@@ -18,7 +22,6 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "strict": true
+    "noUnusedParameters": true
   }
 }

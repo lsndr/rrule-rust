@@ -5,6 +5,7 @@ version = "0.0.0"
 
 [lib]
 crate-type = ["cdylib"]
+path = "lib/lib.rs"
 
 [dependencies]
 chrono = "0.4.24"

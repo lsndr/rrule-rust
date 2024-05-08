@@ -75,22 +75,22 @@ export class RRule {
   setByWeekno(weekNumbers: ReadonlyArray<number>): this
   setByYearday(days: ReadonlyArray<number>): this
   setWeekstart(day: Weekday): this
-  setUntil(timestamp: number): this
+  setUntil(datetime: number, tzid: string): this
 }
 export class RRuleSet {
   constructor(dtstart: number, tzid: string)
-  setFromString(str: string): this
-  static parse(str: string): RRuleSet
-  toString(): string
-  addRrule(jsRrule: RRule): this
-  addExrule(jsRrule: RRule): this
-  addExdate(timestamp: number): this
-  addRdate(timestamp: number): this
   get dtstart(): number
-  getRrules(): RRule[]
-  getExrules(): RRule[]
-  getExdates(): number[]
-  getRdates(): number[]
+  get rrules(): RRule[]
+  get exrules(): RRule[]
+  get exdates(): number[]
+  get rdates(): number[]
+  static parse(str: string): RRuleSet
+  setFromString(str: string): this
+  addRrule(rrule: RRule): this
+  addExrule(rrule: RRule): this
+  addExdate(datetime: number): this
+  addRdate(datetime: number): this
   all(limit?: number | undefined | null): number[]
-  between(after: number, before: number, inclusive?: boolean | undefined | null): number[]
+  between(afterDatetime: number, beforeDatetime: number, inclusive?: boolean | undefined | null): number[]
+  toString(): string
 }

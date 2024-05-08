@@ -4,6 +4,26 @@ import * as lib from './lib';
 export class RRuleSet {
   public rust: lib.RRuleSet;
 
+  get dtstart() {
+    return this.rust.dtstart;
+  }
+
+  get rrules() {
+    return this.rust.rrules.map((rrule) => RRule.fromRust(rrule));
+  }
+
+  get exrules() {
+    return this.rust.exrules.map((rrule) => RRule.fromRust(rrule));
+  }
+
+  get exdates() {
+    return this.rust.exdates;
+  }
+
+  get rdates() {
+    return this.rust.rdates;
+  }
+
   constructor(dtstart: number, tzid: string) {
     const set = new lib.RRuleSet(dtstart, tzid);
 
@@ -55,26 +75,6 @@ export class RRuleSet {
     this.rust.addRdate(timestamp);
 
     return this;
-  }
-
-  get dtstart() {
-    return this.rust.dtstart;
-  }
-
-  getRrules() {
-    return this.rust.getRrules().map((rrule) => RRule.fromRust(rrule));
-  }
-
-  getExrules() {
-    return this.rust.getExrules().map((rrule) => RRule.fromRust(rrule));
-  }
-
-  getExdates() {
-    return this.rust.getExdates();
-  }
-
-  getRdates() {
-    return this.rust.getRdates();
   }
 
   all(limit?: number) {

@@ -8,7 +8,7 @@ b.suite(
     const rrule = new rust.RRule(rust.Frequency.Daily)
       .setCount(30)
       .setInterval(1);
-    const set = new rust.RRuleSet(1679428740000, 'UTC').addRrule(rrule);
+    const set = new rust.RRuleSet(20230221235900, 'UTC').addRrule(rrule);
 
     set.all();
   }),
@@ -34,9 +34,10 @@ b.suite(
     const rrule = new rust.RRule(rust.Frequency.Daily)
       .setCount(30)
       .setInterval(1);
-    const set = new rust.RRuleSet(1679428740000, 'Pacific/Kiritimati').addRrule(
-      rrule,
-    );
+    const set = new rust.RRuleSet(
+      20230221235900,
+      'Pacific/Kiritimati',
+    ).addRrule(rrule);
 
     set.all();
   }),

@@ -72,7 +72,7 @@
     "typescript": "^5.4.5"
   },
   "lint-staged": {
-    "**/*.{js,ts,json}": "eslint --fix --max-warnings=0",
+    "**/*.{js,ts,json}": "eslint --fix --max-warnings=0 --no-warn-ignored",
     "**/*.rs": "rustfmt"
   },
   "engines": {

@@ -153,7 +153,7 @@ export class RRule {
   }
 
   setUntil(timestamp: number): this {
-    this.rust.setUntil(timestamp);
+    this.rust.setUntil(timestamp, 'UTC');
 
     return this;
   }

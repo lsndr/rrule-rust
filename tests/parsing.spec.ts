@@ -169,7 +169,7 @@ test('Should throw error on invalid individual recurrence rule week start', () =
 });
 
 test('Should be able to parse rule set without dtstart', () => {
-  const set = new RRuleSet(873205200000, 'US/Eastern');
+  const set = new RRuleSet(19970902090000, 'US/Eastern');
   set.setFromString(
     'RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
   );

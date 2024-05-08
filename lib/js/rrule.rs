@@ -1,5 +1,5 @@
 use super::{Frequency, Month, NWeekday, Weekday};
-use chrono::{DateTime, TimeZone};
+use chrono::DateTime;
 use napi::{bindgen_prelude::Array, Either, Env};
 use napi_derive::napi;
 use replace_with::replace_with_or_abort;
@@ -247,10 +247,11 @@ impl RRule {
   }
 
   #[napi]
-  pub fn set_until(&mut self, timestamp: i64) -> napi::Result<&Self> {
-    replace_with_or_abort(&mut self.rrule, |self_| {
-      self_.until(rrule::Tz::UTC.timestamp_millis_opt(timestamp).unwrap())
-    });
+  pub fn set_until(&mut self, datetime: i64, tzid: String) -> napi::Result<&Self> {
+    let datetime = super::DateTime::new(datetime, &tzid)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+
+    replace_with_or_abort(&mut self.rrule, |self_| self_.until(datetime.into()));
 
     Ok(self)
   }

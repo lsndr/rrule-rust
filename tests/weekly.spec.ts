@@ -2,7 +2,7 @@ import { RRule, RRuleSet, Frequency, Weekday } from '../src';
 
 test('Weekly for 10 occurrences', () => {
   const rrule = new RRule(Frequency.Weekly).setCount(10);
-  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -11,14 +11,15 @@ test('Weekly for 10 occurrences', () => {
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;COUNT=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
-    873205200000, 873810000000, 874414800000, 875019600000, 875624400000,
-    876229200000, 876834000000, 877438800000, 878047200000, 878652000000,
+    19970902090000, 19970909090000, 19970916090000, 19970923090000,
+    19970930090000, 19971007090000, 19971014090000, 19971021090000,
+    19971028090000, 19971104090000,
   ]);
 });
 
 test('Weekly until December 24, 1997', () => {
-  const rrule = new RRule(Frequency.Weekly).setUntil(882921600000);
-  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+  const rrule = new RRule(Frequency.Weekly).setUntil(19971224000000);
+  const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -27,10 +28,11 @@ test('Weekly until December 24, 1997', () => {
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
-    873205200000, 873810000000, 874414800000, 875019600000, 875624400000,
-    876229200000, 876834000000, 877438800000, 878047200000, 878652000000,
-    879256800000, 879861600000, 880466400000, 881071200000, 881676000000,
-    882280800000, 882885600000,
+    19970902090000, 19970909090000, 19970916090000, 19970923090000,
+    19970930090000, 19971007090000, 19971014090000, 19971021090000,
+    19971028090000, 19971104090000, 19971111090000, 19971118090000,
+    19971125090000, 19971202090000, 19971209090000, 19971216090000,
+    19971223090000,
   ]);
 });
 
@@ -38,7 +40,7 @@ test('Every other week - limit 10', () => {
   const rrule = new RRule(Frequency.Weekly)
     .setInterval(2)
     .setWeekstart(Weekday.Sunday);
-  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all(10);
@@ -47,18 +49,19 @@ test('Every other week - limit 10', () => {
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
-    873205200000, 874414800000, 875624400000, 876834000000, 878047200000,
-    879256800000, 880466400000, 881676000000, 882885600000, 884095200000,
+    19970902090000, 19970916090000, 19970930090000, 19971014090000,
+    19971028090000, 19971111090000, 19971125090000, 19971209090000,
+    19971223090000, 19980106090000,
   ]);
 });
 
 test('Every other week on Monday, Wednesday and Friday until December 24, 1997, but starting on Tuesday, September 2, 1997', () => {
   const rrule = new RRule(Frequency.Weekly)
     .setInterval(2)
-    .setUntil(882921600000)
+    .setUntil(19971224000000)
     .setWeekstart(Weekday.Sunday)
     .setByWeekday([Weekday.Monday, Weekday.Wednesday, Weekday.Friday]);
-  const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+  const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
@@ -68,11 +71,12 @@ test('Every other week on Monday, Wednesday and Friday until December 24, 1997, 
   );
   expect(dates).toEqual([
     // TODO: rrule crate does not include dtstart date (873205200000), create a bug report
-    873291600000,
-    873464400000, 874328400000, 874501200000, 874674000000, 875538000000,
-    875710800000, 875883600000, 876747600000, 876920400000, 877093200000,
-    877960800000, 878133600000, 878306400000, 879170400000, 879343200000,
-    879516000000, 880380000000, 880552800000, 880725600000, 881589600000,
-    881762400000, 881935200000, 882799200000,
+    19970903090000,
+    19970905090000, 19970915090000, 19970917090000, 19970919090000,
+    19970929090000, 19971001090000, 19971003090000, 19971013090000,
+    19971015090000, 19971017090000, 19971027090000, 19971029090000,
+    19971031090000, 19971110090000, 19971112090000, 19971114090000,
+    19971124090000, 19971126090000, 19971128090000, 19971208090000,
+    19971210090000, 19971212090000, 19971222090000,
   ]);
 });

@@ -44,10 +44,7 @@ test('Daily for 10 occurrences between 873550800000 and 873723600000 exclusively
 });
 
 test('Daily until September 7, 1997', () => {
-  const rrule = new RRule(Frequency.Daily).setUntil(
-    19970906090000,
-    'US/Eastern',
-  );
+  const rrule = new RRule(Frequency.Daily).setUntil(19970906090000);
   const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);
 
   const dates = set.all();
@@ -98,7 +95,7 @@ test('Every Monday in January, for 3 years', () => {
   const rrule = new RRule(Frequency.Daily)
     .setByMonth([Month.January])
     .setByWeekday([Weekday.Monday])
-    .setUntil(20000131140000, 'US/Eastern');
+    .setUntil(20000131140000);
   const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
@@ -119,8 +116,9 @@ test('Every Monday in January, for 3 years except Jan 31 2000', () => {
   const rrule = new RRule(Frequency.Daily)
     .setByMonth([Month.January])
     .setByWeekday([Weekday.Monday])
-    .setUntil(20000131140000, 'US/Eastern');
-  const set = new RRuleSet(19970902090000, 'US/Eastern')
+    .setUntil(20000131140000);
+
+  const set = new RRuleSet(19970902090000, 'Asia/Tbilisi')
     .addRrule(rrule)
     .addExdate(20000131090000);
 
@@ -131,7 +129,7 @@ test('Every Monday in January, for 3 years except Jan 31 2000', () => {
     20000103090000, 20000110090000, 20000117090000, 20000124090000,
   ]);
   expect(set.rrules.map((rrule) => rrule.toString())).toEqual([
-    'FREQ=DAILY;UNTIL=20000131T190000Z;BYMONTH=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
+    'FREQ=DAILY;UNTIL=20000131T100000Z;BYMONTH=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
   ]);
   expect(set.exrules.map((rrule) => rrule.toString())).toEqual([]);
 });

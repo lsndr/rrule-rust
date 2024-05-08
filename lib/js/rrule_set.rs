@@ -1,4 +1,5 @@
 use super::RRule;
+use chrono::{Datelike, Timelike};
 use napi::bindgen_prelude::Array;
 use napi::Env;
 use napi_derive::napi;
@@ -101,8 +102,25 @@ impl RRuleSet {
 
   #[napi]
   pub fn add_rrule(&mut self, rrule: &RRule) -> napi::Result<&Self> {
-    let dt_start = self.rrule_set.get_dt_start().clone();
-    let rrule = rrule.validate(dt_start)?;
+    let dtstart = *self.rrule_set.get_dt_start();
+
+    let rrule = {
+      let mut rrule = rrule.unvalidated();
+
+      if let Some(until) = rrule.get_until() {
+        let datetime = self
+          .convert_to_timezone(until, dtstart.timezone())
+          .with_timezone(&rrule::Tz::UTC);
+
+        rrule = rrule.until(datetime);
+      }
+
+      rrule
+    };
+
+    let rrule = rrule
+      .validate(dtstart)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
     replace_with_or_abort(&mut self.rrule_set, |self_| self_.rrule(rrule));
 
@@ -111,7 +129,25 @@ impl RRuleSet {
 
   #[napi]
   pub fn add_exrule(&mut self, rrule: &RRule) -> napi::Result<&Self> {
-    let rrule = rrule.validate(*self.rrule_set.get_dt_start())?;
+    let dtstart = *self.rrule_set.get_dt_start();
+
+    let rrule = {
+      let mut rrule = rrule.unvalidated();
+
+      if let Some(until) = rrule.get_until() {
+        let datetime = self
+          .convert_to_timezone(until, dtstart.timezone())
+          .with_timezone(&rrule::Tz::UTC);
+
+        rrule = rrule.until(datetime);
+      }
+
+      rrule
+    };
+
+    let rrule = rrule
+      .validate(dtstart)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
     replace_with_or_abort(&mut self.rrule_set, |self_| self_.exrule(rrule));
 
@@ -221,6 +257,24 @@ impl RRuleSet {
   #[napi]
   pub fn to_string(&self) -> napi::Result<String> {
     Ok(self.rrule_set.to_string())
+  }
+
+  fn convert_to_timezone<Tz: chrono::TimeZone>(
+    &self,
+    datetime: &chrono::DateTime<rrule::Tz>,
+    timezone: Tz,
+  ) -> chrono::DateTime<Tz> {
+    timezone
+      .with_ymd_and_hms(
+        datetime.year(),
+        datetime.month(),
+        datetime.day(),
+        datetime.hour(),
+        datetime.minute(),
+        datetime.second(),
+      )
+      .single()
+      .unwrap()
   }
 }
 

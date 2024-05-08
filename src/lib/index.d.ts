@@ -75,7 +75,7 @@ export class RRule {
   setByWeekno(weekNumbers: ReadonlyArray<number>): this
   setByYearday(days: ReadonlyArray<number>): this
   setWeekstart(day: Weekday): this
-  setUntil(datetime: number, tzid: string): this
+  setUntil(datetime: number): this
 }
 export class RRuleSet {
   constructor(dtstart: number, tzid: string)

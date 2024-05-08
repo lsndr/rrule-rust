@@ -152,8 +152,8 @@ export class RRule {
     return this;
   }
 
-  setUntil(datetime: number, tzid: string): this {
-    this.rust.setUntil(datetime, tzid);
+  setUntil(datetime: number): this {
+    this.rust.setUntil(datetime);
 
     return this;
   }

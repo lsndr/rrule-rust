@@ -1,5 +1,5 @@
 use super::{Frequency, Month, NWeekday, Weekday};
-use chrono::DateTime;
+use chrono::{DateTime, Local};
 use napi::{bindgen_prelude::Array, Either, Env};
 use napi_derive::napi;
 use replace_with::replace_with_or_abort;
@@ -247,26 +247,19 @@ impl RRule {
   }
 
   #[napi]
-  pub fn set_until(&mut self, datetime: i64, tzid: String) -> napi::Result<&Self> {
-    let datetime = super::DateTime::new(datetime, &tzid)
-      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+  pub fn set_until(&mut self, datetime: i64) -> napi::Result<&Self> {
+    let datetime =
+      super::DateTime::new_with_timezone(datetime, rrule::Tz::Local(Local::now().timezone()))
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
     let datetime: DateTime<rrule::Tz> = datetime.into();
 
-    replace_with_or_abort(&mut self.rrule, |self_| {
-      self_.until(datetime.with_timezone(&rrule::Tz::UTC))
-    });
+    replace_with_or_abort(&mut self.rrule, |self_| self_.until(datetime));
 
     Ok(self)
   }
 
-  pub fn validate(&self, dt_start: DateTime<rrule::Tz>) -> napi::Result<rrule::RRule> {
-    return Ok(
-      self
-        .rrule
-        .clone()
-        .validate(dt_start)
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?,
-    );
+  pub fn unvalidated(&self) -> rrule::RRule<rrule::Unvalidated> {
+    self.rrule.clone()
   }
 }
 

@@ -22,7 +22,7 @@ test('Monthly on the 1st Friday for ten occurrences', () => {
 
 test('Monthly on the 1st Friday until December 24, 1997', () => {
   const rrule = new RRule(Frequency.Monthly)
-    .setUntil(19971224000000, 'US/Eastern')
+    .setUntil(19971224000000)
     .setByWeekday([Weekday.Friday])
     .setBySetpos([1]);
   const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);

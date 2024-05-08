@@ -107,7 +107,7 @@ impl RRule {
   #[napi(getter)]
   pub fn until(&self) -> napi::Result<Option<i64>> {
     Ok(match self.rrule.get_until() {
-      Some(until) => Some(until.timestamp_millis()),
+      Some(until) => Some(super::DateTime::from(until.clone()).numeric()),
       None => None,
     })
   }

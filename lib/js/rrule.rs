@@ -250,8 +250,11 @@ impl RRule {
   pub fn set_until(&mut self, datetime: i64, tzid: String) -> napi::Result<&Self> {
     let datetime = super::DateTime::new(datetime, &tzid)
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+    let datetime: DateTime<rrule::Tz> = datetime.into();
 
-    replace_with_or_abort(&mut self.rrule, |self_| self_.until(datetime.into()));
+    replace_with_or_abort(&mut self.rrule, |self_| {
+      self_.until(datetime.with_timezone(&rrule::Tz::UTC))
+    });
 
     Ok(self)
   }

@@ -44,14 +44,17 @@ test('Daily for 10 occurrences between 873550800000 and 873723600000 exclusively
 });
 
 test('Daily until September 7, 1997', () => {
-  const rrule = new RRule(Frequency.Daily).setUntil(19970907000000);
+  const rrule = new RRule(Frequency.Daily).setUntil(
+    19970906090000,
+    'US/Eastern',
+  );
   const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);
 
   const dates = set.all();
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;UNTIL=19970907T000000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;UNTIL=19970906T130000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
   );
   expect(dates).toEqual([
     19970902090000, 19970903090000, 19970904090000, 19970905090000,
@@ -95,14 +98,14 @@ test('Every Monday in January, for 3 years', () => {
   const rrule = new RRule(Frequency.Daily)
     .setByMonth([Month.January])
     .setByWeekday([Weekday.Monday])
-    .setUntil(20000131140000);
+    .setUntil(20000131140000, 'US/Eastern');
   const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;UNTIL=20000131T140000Z;BYMONTH=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;UNTIL=20000131T190000Z;BYMONTH=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
   );
   expect(dates).toEqual([
     19980105090000, 19980112090000, 19980119090000, 19980126090000,
@@ -116,7 +119,7 @@ test('Every Monday in January, for 3 years except Jan 31 2000', () => {
   const rrule = new RRule(Frequency.Daily)
     .setByMonth([Month.January])
     .setByWeekday([Weekday.Monday])
-    .setUntil(20000131140000);
+    .setUntil(20000131140000, 'US/Eastern');
   const set = new RRuleSet(19970902090000, 'US/Eastern')
     .addRrule(rrule)
     .addExdate(20000131090000);
@@ -128,7 +131,7 @@ test('Every Monday in January, for 3 years except Jan 31 2000', () => {
     20000103090000, 20000110090000, 20000117090000, 20000124090000,
   ]);
   expect(set.rrules.map((rrule) => rrule.toString())).toEqual([
-    'FREQ=DAILY;UNTIL=20000131T140000Z;BYMONTH=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
+    'FREQ=DAILY;UNTIL=20000131T190000Z;BYMONTH=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
   ]);
   expect(set.exrules.map((rrule) => rrule.toString())).toEqual([]);
 });

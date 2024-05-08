@@ -22,7 +22,7 @@ test('Monthly on the 1st Friday for ten occurrences', () => {
 
 test('Monthly on the 1st Friday until December 24, 1997', () => {
   const rrule = new RRule(Frequency.Monthly)
-    .setUntil(19971224000000)
+    .setUntil(19971224000000, 'US/Eastern')
     .setByWeekday([Weekday.Friday])
     .setBySetpos([1]);
   const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);
@@ -31,7 +31,7 @@ test('Monthly on the 1st Friday until December 24, 1997', () => {
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;UNTIL=19971224T000000Z;BYSETPOS=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;UNTIL=19971224T050000Z;BYSETPOS=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
   );
   expect(dates).toEqual([
     19970905090000, 19971003090000, 19971107090000, 19971205090000,

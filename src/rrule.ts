@@ -152,8 +152,8 @@ export class RRule {
     return this;
   }
 
-  setUntil(timestamp: number): this {
-    this.rust.setUntil(timestamp, 'UTC');
+  setUntil(datetime: number, tzid: string): this {
+    this.rust.setUntil(datetime, tzid);
 
     return this;
   }

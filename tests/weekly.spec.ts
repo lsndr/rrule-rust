@@ -18,14 +18,17 @@ test('Weekly for 10 occurrences', () => {
 });
 
 test('Weekly until December 24, 1997', () => {
-  const rrule = new RRule(Frequency.Weekly).setUntil(19971224000000);
+  const rrule = new RRule(Frequency.Weekly).setUntil(
+    19971224000000,
+    'US/Eastern',
+  );
   const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);
 
   const asString = set.toString();
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T050000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
     19970902090000, 19970909090000, 19970916090000, 19970923090000,
@@ -58,7 +61,7 @@ test('Every other week - limit 10', () => {
 test('Every other week on Monday, Wednesday and Friday until December 24, 1997, but starting on Tuesday, September 2, 1997', () => {
   const rrule = new RRule(Frequency.Weekly)
     .setInterval(2)
-    .setUntil(19971224000000)
+    .setUntil(19971224000000, 'US/Eastern')
     .setWeekstart(Weekday.Sunday)
     .setByWeekday([Weekday.Monday, Weekday.Wednesday, Weekday.Friday]);
   const set = new RRuleSet(19970902090000, 'US/Eastern').addRrule(rrule);
@@ -67,7 +70,7 @@ test('Every other week on Monday, Wednesday and Friday until December 24, 1997, 
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T050000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
   );
   expect(dates).toEqual([
     // TODO: rrule crate does not include dtstart date (873205200000), create a bug report

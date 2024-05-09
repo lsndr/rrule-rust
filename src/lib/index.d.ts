@@ -47,6 +47,7 @@ export const enum Weekday {
 }
 export class RRule {
   constructor(frequency: Frequency)
+  static create(frequency?: Frequency | undefined | null, interval?: number | undefined | null, count?: number | undefined | null, byWeekday?: (readonly (NWeekday | Weekday)[]) | undefined | null, byHour?: (readonly number[]) | undefined | null, byMinute?: (readonly number[]) | undefined | null, bySecond?: (readonly number[]) | undefined | null, byMonthday?: (readonly number[]) | undefined | null, bySetpos?: (readonly number[]) | undefined | null, byMonth?: (readonly number[]) | undefined | null, byWeekno?: (readonly number[]) | undefined | null, byYearday?: (readonly number[]) | undefined | null, weekstart?: Weekday | undefined | null, until?: number | undefined | null): RRule
   static parse(str: string): RRule
   get frequency(): Frequency
   get interval(): number
@@ -65,26 +66,29 @@ export class RRule {
   toString(): string
   setInterval(interval: number): this
   setCount(count: number): this
-  setByWeekday(weekdays: ReadonlyArray<NWeekday | Weekday>): this
-  setByHour(hours: ReadonlyArray<number>): this
-  setByMinute(minutes: ReadonlyArray<number>): this
-  setBySecond(seconds: ReadonlyArray<number>): this
-  setByMonthday(days: ReadonlyArray<number>): this
-  setBySetpos(poses: ReadonlyArray<number>): this
-  setByMonth(months: ReadonlyArray<Month>): this
-  setByWeekno(weekNumbers: ReadonlyArray<number>): this
-  setByYearday(days: ReadonlyArray<number>): this
+  setByWeekday(weekdays: readonly (NWeekday | Weekday)[]): this
+  setByHour(hours: readonly number[]): this
+  setByMinute(minutes: readonly number[]): this
+  setBySecond(seconds: readonly number[]): this
+  setByMonthday(days: readonly number[]): this
+  setBySetpos(poses: readonly number[]): this
+  setByMonth(months: readonly Month[]): this
+  setByWeekno(weekNumbers: readonly number[]): this
+  setByYearday(days: readonly number[]): this
   setWeekstart(day: Weekday): this
   setUntil(datetime: number): this
 }
 export class RRuleSet {
   constructor(dtstart: number, tzid: string)
+  static create(dtstart: number, tzid: string, rrules?: (readonly RRule[]) | undefined | null, exrules?: (readonly RRule[]) | undefined | null, exdates?: (readonly number[]) | undefined | null, rdates?: (readonly number[]) | undefined | null): RRuleSet
+  get tzid(): string
   get dtstart(): number
   get rrules(): RRule[]
   get exrules(): RRule[]
   get exdates(): number[]
   get rdates(): number[]
   static parse(str: string): RRuleSet
+  setDtstart(str: string): this
   setFromString(str: string): this
   addRrule(rrule: RRule): this
   addExrule(rrule: RRule): this

@@ -211,6 +211,6 @@ test('Monthly on the second to last Monday of the month for 6 months', () => {
 
 test('Errors on invalid by-weekday', () => {
   expect(() =>
-    new RRule(Frequency.Monthly).setByWeekday(['invalid' as any]),
+    new RRule(Frequency.Monthly).setByWeekday(['invalid' as any]).toString(),
   ).toThrow('Value is non of these types `NWeekday`, `Weekday`');
 });

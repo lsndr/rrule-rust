@@ -5,16 +5,17 @@ pub struct DateTime {
 }
 
 impl DateTime {
-  pub fn new(numeric_datetime: i64, tzid: &str) -> Result<Self, String> {
-    let timezone: chrono_tz::Tz = match tzid.parse() {
-      Ok(tz) => tz,
-      Err(_) => return Err(format!("Invalid timezone: {}", &tzid)),
-    };
+  pub fn new(numeric_datetime: i64, tzid: &str) -> napi::Result<Self> {
+    let timezone: chrono_tz::Tz = tzid.parse().map_err(|_| {
+      napi::Error::new(
+        napi::Status::GenericFailure,
+        format!("Invalid timezone: {}", tzid),
+      )
+    })?;
 
     Self::new_with_timezone(numeric_datetime, rrule::Tz::Tz(timezone))
   }
-
-  pub fn new_with_timezone(numeric_datetime: i64, timezone: rrule::Tz) -> Result<Self, String> {
+  pub fn new_with_timezone(numeric_datetime: i64, timezone: rrule::Tz) -> napi::Result<Self> {
     let year = (numeric_datetime / 10000000000) as i32;
     let month = ((numeric_datetime / 100000000) % 100) as u32;
     let day = ((numeric_datetime / 1000000) % 100) as u32;
@@ -22,13 +23,15 @@ impl DateTime {
     let minute = ((numeric_datetime / 100) % 100) as u32;
     let second = (numeric_datetime % 100) as u32;
 
-    match timezone
+    let datetime = match timezone
       .with_ymd_and_hms(year, month, day, hour, minute, second)
       .single()
     {
       Some(datetime) => Ok(Self { datetime }),
-      None => Err("Invalid date".to_string()),
-    }
+      None => Err(format!("Invalid date: {}", numeric_datetime)),
+    };
+
+    Ok(datetime.map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?)
   }
 
   pub fn timestamp_millis(&self) -> i64 {

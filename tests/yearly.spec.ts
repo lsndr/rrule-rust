@@ -120,10 +120,10 @@ test('Every Friday the 13th, limit 5', () => {
   const asString = set.toString();
   const dates = set.all(5);
 
-  // TODO: rrule crate doesn't add exdate to string output, create a bug report
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\n' +
       'RRULE:FREQ=YEARLY;BYMONTHDAY=13;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR\n' +
+      // TODO: it should not contain Z in the end. Create a bug report.
       'EXDATE;VALUE=DATE-TIME:19980313T090000Z',
   );
   expect(dates).toEqual([

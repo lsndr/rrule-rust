@@ -120,6 +120,8 @@ test('Every Friday the 13th, limit 5', () => {
   const asString = set.toString();
   const dates = set.all(5);
 
+  console.log(Intl.DateTimeFormat().resolvedOptions().timeZone);
+
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\n' +
       'RRULE:FREQ=YEARLY;BYMONTHDAY=13;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR\n' +

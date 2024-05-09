@@ -85,7 +85,7 @@
     "postbuild:lib": "cpy ./*.node ./src/lib && rimraf --glob ./*.node",
     "prebuild": "rimraf ./dist && npm run build:lib",
     "build": "tsc -p ./tsconfig.build.json",
-    "postbuild": "cpy ./src/lib/*.node ./dist/lib --flat",
+    "postbuild": "cpy ./src/lib/* ./dist/lib --flat",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "cross-env-shell TZ=Europe/Moscow jest",
     "universal": "napi universal",

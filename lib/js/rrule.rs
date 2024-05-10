@@ -151,10 +151,10 @@ impl RRule {
   pub fn until(&self) -> napi::Result<Option<i64>> {
     Ok(match self.rrule.get_until() {
       Some(until) => {
-        let until = (*until).with_timezone(&rrule::Tz::Local(Local::now().timezone()));
-        let datetime = super::DateTime::from(until);
+        let datetime = super::DateTime::from(*until);
+        let datetime: i64 = datetime.into();
 
-        Some(datetime.numeric())
+        Some(datetime)
       }
       None => None,
     })
@@ -296,9 +296,9 @@ impl RRule {
 
   #[napi]
   pub fn set_until(&mut self, datetime: i64) -> napi::Result<&Self> {
-    let datetime =
-      super::DateTime::new_with_timezone(datetime, rrule::Tz::Local(Local::now().timezone()))?;
-    let datetime: DateTime<rrule::Tz> = datetime.into();
+    let datetime = super::DateTime::from(datetime);
+    let datetime: DateTime<rrule::Tz> =
+      datetime.to_rrule_datetime(&rrule::Tz::Local(Local::now().timezone()))?;
 
     replace_with_or_abort(&mut self.rrule, |self_| self_.until(datetime));
 

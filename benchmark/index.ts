@@ -11,7 +11,7 @@ function suite(tzid: string) {
         interval: 1,
       });
       const set = new rust.RRuleSet({
-        dtstart: 20230221235900,
+        dtstart: 202302212359000,
         tzid,
         rrules: [rrule],
       });

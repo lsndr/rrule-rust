@@ -1,63 +1,116 @@
-use chrono::{Datelike, TimeZone, Timelike};
+use chrono::Datelike;
+use chrono::TimeZone;
+use chrono::Timelike;
 
 pub struct DateTime {
-  datetime: chrono::DateTime<rrule::Tz>,
+  year: u32,
+  month: u32,
+  day: u32,
+  hour: u32,
+  minute: u32,
+  second: u32,
+  utc: bool,
 }
 
 impl DateTime {
-  pub fn new(numeric_datetime: i64, tzid: &str) -> napi::Result<Self> {
-    let timezone: chrono_tz::Tz = tzid.parse().map_err(|_| {
-      napi::Error::new(
-        napi::Status::GenericFailure,
-        format!("Invalid timezone: {}", tzid),
-      )
-    })?;
-
-    Self::new_with_timezone(numeric_datetime, rrule::Tz::Tz(timezone))
-  }
-  pub fn new_with_timezone(numeric_datetime: i64, timezone: rrule::Tz) -> napi::Result<Self> {
-    let year = (numeric_datetime / 10000000000) as i32;
-    let month = ((numeric_datetime / 100000000) % 100) as u32;
-    let day = ((numeric_datetime / 1000000) % 100) as u32;
-    let hour = ((numeric_datetime / 10000) % 100) as u32;
-    let minute = ((numeric_datetime / 100) % 100) as u32;
-    let second = (numeric_datetime % 100) as u32;
-
-    let datetime = match timezone
-      .with_ymd_and_hms(year, month, day, hour, minute, second)
-      .single()
-    {
-      Some(datetime) => Ok(Self { datetime }),
-      None => Err(format!("Invalid date: {}", numeric_datetime)),
+  pub fn to_rrule_datetime(
+    &self,
+    timezone: &rrule::Tz,
+  ) -> napi::Result<chrono::DateTime<rrule::Tz>> {
+    let timezone = match self.utc {
+      true => &rrule::Tz::UTC,
+      false => &timezone,
     };
 
-    Ok(datetime.map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?)
-  }
-
-  pub fn timestamp_millis(&self) -> i64 {
-    self.datetime.timestamp_millis()
-  }
-
-  pub fn numeric(&self) -> i64 {
-    let year = self.datetime.year() as i64;
-    let month = self.datetime.month() as i64;
-    let day = self.datetime.day() as i64;
-    let hour = self.datetime.hour() as i64;
-    let minute = self.datetime.minute() as i64;
-    let second = self.datetime.second() as i64;
-
-    year * 10000000000 + month * 100000000 + day * 1000000 + hour * 10000 + minute * 100 + second
+    match timezone
+      .with_ymd_and_hms(
+        self.year as i32,
+        self.month,
+        self.day,
+        self.hour,
+        self.minute,
+        self.second,
+      )
+      .single()
+    {
+      Some(datetime) => Ok(datetime),
+      None => Err(napi::Error::new(
+        napi::Status::GenericFailure,
+        format!(
+          "Invalid datetime: {}-{}-{} {}:{}:{} {}",
+          self.year,
+          self.month,
+          self.day,
+          self.hour,
+          self.minute,
+          self.second,
+          if self.utc { "UTC" } else { "Local" }
+        ),
+      )),
+    }
   }
 }
 
-impl Into<chrono::DateTime<rrule::Tz>> for DateTime {
-  fn into(self) -> chrono::DateTime<rrule::Tz> {
-    self.datetime
+impl From<i64> for DateTime {
+  fn from(numeric: i64) -> Self {
+    let year = (numeric / 100000000000) as u32;
+    let month = ((numeric / 1000000000) % 100) as u32;
+    let day = ((numeric / 10000000) % 100) as u32;
+    let hour = ((numeric / 100000) % 100) as u32;
+    let minute = ((numeric / 1000) % 100) as u32;
+    let second = ((numeric / 10) % 100) as u32;
+    let utc = (numeric % 10) == 1;
+
+    DateTime {
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second,
+      utc,
+    }
   }
 }
 
 impl From<chrono::DateTime<rrule::Tz>> for DateTime {
-  fn from(datetime: chrono::DateTime<rrule::Tz>) -> DateTime {
-    DateTime { datetime }
+  fn from(datetime: chrono::DateTime<rrule::Tz>) -> Self {
+    let year = datetime.year() as u32;
+    let month = datetime.month();
+    let day = datetime.day();
+    let hour = datetime.hour();
+    let minute = datetime.minute();
+    let second = datetime.second();
+    let utc = datetime.timezone() == rrule::Tz::UTC;
+
+    DateTime {
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second,
+      utc,
+    }
+  }
+}
+
+impl Into<i64> for DateTime {
+  fn into(self) -> i64 {
+    let year = self.year as i64;
+    let month = self.month as i64;
+    let day = self.day as i64;
+    let hour = self.hour as i64;
+    let minute = self.minute as i64;
+    let second = self.second as i64;
+    let utc = if self.utc { 1 } else { 0 };
+
+    year * 100000000000
+      + month * 1000000000
+      + day * 10000000
+      + hour * 100000
+      + minute * 1000
+      + second * 10
+      + utc
   }
 }

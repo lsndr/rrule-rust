@@ -13,8 +13,14 @@ pub struct RRuleSet {
 impl RRuleSet {
   #[napi(constructor)]
   pub fn new(dtstart: i64, tzid: String) -> napi::Result<Self> {
-    let datetime = super::DateTime::new(dtstart, &tzid)?;
-    let rrule_set = rrule::RRuleSet::new(datetime.into());
+    let timezone: chrono_tz::Tz = tzid
+      .parse()
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+    let datetime = super::DateTime::from(dtstart);
+    let datetime = datetime
+      .to_rrule_datetime(&rrule::Tz::Tz(timezone))?
+      .with_timezone(&rrule::Tz::Tz(timezone));
+    let rrule_set = rrule::RRuleSet::new(datetime);
 
     Ok(RRuleSet { rrule_set })
   }
@@ -65,8 +71,9 @@ impl RRuleSet {
   #[napi(getter)]
   pub fn dtstart(&self) -> napi::Result<i64> {
     let dtstart = *self.rrule_set.get_dt_start();
+    let dtstart: i64 = super::DateTime::from(dtstart).into();
 
-    Ok(super::DateTime::from(dtstart).numeric())
+    Ok(dtstart)
   }
 
   #[napi(getter, ts_return_type = "RRule[]")]
@@ -99,7 +106,7 @@ impl RRuleSet {
     let dates = self.rrule_set.get_exdate();
 
     for date in dates.iter() {
-      let datetime: i64 = super::DateTime::from(*date).numeric();
+      let datetime: i64 = super::DateTime::from(*date).into();
 
       arr.insert(datetime).unwrap();
     }
@@ -113,7 +120,8 @@ impl RRuleSet {
     let dates = self.rrule_set.get_rdate();
 
     for date in dates.iter() {
-      let datetime: i64 = super::DateTime::from(*date).numeric();
+      let datetime: i64 = super::DateTime::from(*date).into();
+
       arr.insert(datetime).unwrap();
     }
 
@@ -178,9 +186,9 @@ impl RRuleSet {
   #[napi]
   pub fn add_exdate(&mut self, datetime: i64) -> napi::Result<&Self> {
     let timezone = self.rrule_set.get_dt_start().timezone();
-    let datetime = super::DateTime::new_with_timezone(datetime, timezone)?;
+    let datetime = super::DateTime::from(datetime).to_rrule_datetime(&timezone)?;
 
-    replace_with_or_abort(&mut self.rrule_set, |self_| self_.exdate(datetime.into()));
+    replace_with_or_abort(&mut self.rrule_set, |self_| self_.exdate(datetime));
 
     Ok(self)
   }
@@ -188,7 +196,7 @@ impl RRuleSet {
   #[napi]
   pub fn add_rdate(&mut self, datetime: i64) -> napi::Result<&Self> {
     let timezone = self.rrule_set.get_dt_start().timezone();
-    let datetime = super::DateTime::new_with_timezone(datetime, timezone)?;
+    let datetime = super::DateTime::from(datetime).to_rrule_datetime(&timezone)?;
 
     replace_with_or_abort(&mut self.rrule_set, |self_| self_.rdate(datetime.into()));
 
@@ -225,7 +233,7 @@ impl RRuleSet {
     let mut left = limit.unwrap_or(-1);
 
     for date in self.rrule_set.into_iter() {
-      let datetime: i64 = super::DateTime::from(date).numeric();
+      let datetime: i64 = super::DateTime::from(date).into();
 
       arr.insert(datetime).unwrap();
 
@@ -249,10 +257,12 @@ impl RRuleSet {
   ) -> napi::Result<Array> {
     let mut arr = env.create_array(0).unwrap();
     let timezone = self.rrule_set.get_dt_start().timezone();
-    let after_timestamp =
-      super::DateTime::new_with_timezone(after_datetime, timezone)?.timestamp_millis();
-    let before_timestamp =
-      super::DateTime::new_with_timezone(before_datetime, timezone)?.timestamp_millis();
+    let after_timestamp = super::DateTime::from(after_datetime)
+      .to_rrule_datetime(&timezone)?
+      .timestamp_millis();
+    let before_timestamp = super::DateTime::from(before_datetime)
+      .to_rrule_datetime(&timezone)?
+      .timestamp_millis();
 
     for date in self.rrule_set.into_iter() {
       let date_timestamp = date.timestamp_millis();
@@ -260,7 +270,8 @@ impl RRuleSet {
       let is_before = self.is_before(date_timestamp, before_timestamp, inclusive);
 
       if is_after && is_before {
-        let datetime: i64 = super::DateTime::from(date).numeric();
+        let datetime: i64 = super::DateTime::from(date).into();
+
         arr.insert(datetime).unwrap();
       } else if !is_before {
         break;

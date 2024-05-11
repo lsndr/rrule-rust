@@ -1,10 +1,11 @@
+import { DateTime } from './datetime';
 import { RRule as Rust, Frequency, NWeekday, Month, Weekday } from './lib';
 
 export interface RRuleLike {
   readonly frequency: Frequency;
   readonly interval: number;
   readonly count?: number;
-  readonly until?: number;
+  readonly until?: DateTime;
   readonly byWeekday: readonly (NWeekday | Weekday)[];
   readonly byHour: readonly number[];
   readonly byMinute: readonly number[];
@@ -23,7 +24,7 @@ export class RRule {
 
   public readonly frequency: Frequency;
   public readonly interval: number;
-  public readonly until?: number;
+  public readonly until?: DateTime;
   public readonly count?: number;
   public readonly byWeekday: readonly (NWeekday | Weekday)[];
   public readonly byHour: readonly number[];
@@ -83,7 +84,7 @@ export class RRule {
     const rrule = new this({
       frequency: rust.frequency,
       interval: rust.interval,
-      until: rust.until === null ? undefined : rust.until,
+      until: rust.until === null ? undefined : DateTime.fromNumeric(rust.until),
       count: rust.count === null ? undefined : rust.count,
       byWeekday: rust.byWeekday,
       byHour: rust.byHour,
@@ -154,7 +155,7 @@ export class RRule {
     return new RRule({ ...this.toObject(), weekstart: day });
   }
 
-  setUntil(datetime: number): RRule {
+  setUntil(datetime: DateTime): RRule {
     return new RRule({ ...this.toObject(), until: datetime });
   }
 
@@ -181,7 +182,7 @@ export class RRule {
         this.byWeekno,
         this.byYearday,
         this.weekstart,
-        this.until,
+        this.until?.toNumeric(),
       );
     }
 

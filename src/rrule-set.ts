@@ -3,36 +3,36 @@ import { RRuleSet as Rust } from './lib';
 import { DateTime } from './datetime';
 
 export interface RRuleSetLike {
-  readonly dtstart: number;
+  readonly dtstart: DateTime;
   readonly tzid: string;
   readonly rrules: readonly RRule[];
   readonly exrules: readonly RRule[];
-  readonly exdates: readonly number[];
-  readonly rdates: readonly number[];
+  readonly exdates: readonly DateTime[];
+  readonly rdates: readonly DateTime[];
 }
 
 export class RRuleSet {
   private rust?: Rust;
 
-  public readonly dtstart: number;
+  public readonly dtstart: DateTime;
   public readonly tzid: string;
   public readonly rrules: readonly RRule[];
   public readonly exrules: readonly RRule[];
-  public readonly exdates: readonly number[];
-  public readonly rdates: readonly number[];
+  public readonly exdates: readonly DateTime[];
+  public readonly rdates: readonly DateTime[];
 
-  constructor(dtstart: number, tzid: string);
+  constructor(dtstart: DateTime, tzid: string);
   constructor(options: Partial<RRuleSetLike>);
-  constructor(setOrDtstart?: number | Partial<RRuleSetLike>, tzid?: string) {
-    if (typeof setOrDtstart === 'object' && setOrDtstart !== null) {
-      this.dtstart = setOrDtstart?.dtstart ?? new DateTime().toNumeric();
+  constructor(setOrDtstart?: DateTime | Partial<RRuleSetLike>, tzid?: string) {
+    if (!(setOrDtstart instanceof DateTime)) {
+      this.dtstart = setOrDtstart?.dtstart ?? DateTime.now();
       this.tzid = setOrDtstart?.tzid ?? 'UTC';
 
       this.rrules = setOrDtstart?.rrules ?? [];
       this.exrules = setOrDtstart?.exrules ?? [];
       this.exdates = setOrDtstart?.exdates ?? [];
       this.rdates = setOrDtstart?.rdates ?? [];
-    } else if (typeof setOrDtstart === 'number' && typeof tzid === 'string') {
+    } else if (setOrDtstart instanceof DateTime && typeof tzid === 'string') {
       this.dtstart = setOrDtstart;
       this.tzid = tzid;
 
@@ -56,12 +56,12 @@ export class RRuleSet {
    */
   static fromRust(rust: Rust): RRuleSet {
     const set = new RRuleSet({
-      dtstart: rust.dtstart,
+      dtstart: DateTime.fromNumeric(rust.dtstart),
       tzid: rust.tzid,
       rrules: rust.rrules.map((rrule) => RRule.fromRust(rrule)),
       exrules: rust.exrules.map((rrule) => RRule.fromRust(rrule)),
-      exdates: rust.exdates,
-      rdates: rust.rdates,
+      exdates: rust.exdates.map((datetime) => DateTime.fromNumeric(datetime)),
+      rdates: rust.rdates.map((datetime) => DateTime.fromNumeric(datetime)),
     });
 
     set.rust = rust;
@@ -69,7 +69,7 @@ export class RRuleSet {
     return set;
   }
 
-  setDtstart(dtstart: number): RRuleSet {
+  setDtstart(dtstart: DateTime): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       dtstart: dtstart,
@@ -111,40 +111,44 @@ export class RRuleSet {
     });
   }
 
-  addExdate(datetime: number): RRuleSet {
+  addExdate(datetime: DateTime): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       exdates: [...this.exdates, datetime],
     });
   }
 
-  setExdates(datetimes: readonly number[]): RRuleSet {
+  setExdates(datetimes: readonly DateTime[]): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       exdates: datetimes,
     });
   }
 
-  addRdate(datetime: number): RRuleSet {
+  addRdate(datetime: DateTime): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       rdates: [...this.rdates, datetime],
     });
   }
 
-  setRdates(datetimes: readonly number[]): RRuleSet {
+  setRdates(datetimes: readonly DateTime[]): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       rdates: datetimes,
     });
   }
 
-  all(limit?: number) {
-    return this.toRust().all(limit);
+  all(limit?: number): DateTime[] {
+    return this.toRust()
+      .all(limit)
+      .map((datetime) => DateTime.fromNumeric(datetime));
   }
 
-  between(after: number, before: number, inclusive?: boolean) {
-    return this.toRust().between(after, before, inclusive);
+  between(after: DateTime, before: DateTime, inclusive?: boolean): DateTime[] {
+    return this.toRust()
+      .between(after.toNumeric(), before.toNumeric(), inclusive)
+      .map((datetime) => DateTime.fromNumeric(datetime));
   }
 
   setFromString(str: string): RRuleSet {
@@ -157,12 +161,12 @@ export class RRuleSet {
   public toRust(): Rust {
     if (!this.rust) {
       this.rust = Rust.create(
-        this.dtstart,
+        this.dtstart.toNumeric(),
         this.tzid,
         this.rrules.map((rrule) => rrule.toRust()),
         this.exrules.map((rrule) => rrule.toRust()),
-        this.exdates,
-        this.rdates,
+        this.exdates.map((datetime) => datetime.toNumeric()),
+        this.rdates.map((datetime) => datetime.toNumeric()),
       );
     }
 

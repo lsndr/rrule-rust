@@ -173,10 +173,6 @@ export class RRuleSet implements Iterable<DateTime> {
     return this.rust;
   }
 
-  occurrencesaa(): string {
-    return this.toRust().toString();
-  }
-
   toString(): string {
     return this.toRust().toString();
   }

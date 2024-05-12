@@ -43,6 +43,30 @@ export class DateTime implements DateTimeLike {
     this.numeric = numeric;
   }
 
+  public toDate(): Date {
+    if (this.utc) {
+      return new Date(
+        Date.UTC(
+          this.year,
+          this.month - 1,
+          this.day,
+          this.hour,
+          this.minute,
+          this.second,
+        ),
+      );
+    } else {
+      return new Date(
+        this.year,
+        this.month - 1,
+        this.day,
+        this.hour,
+        this.minute,
+        this.second,
+      );
+    }
+  }
+
   public toObject(): DateTimeLike {
     return {
       year: this.year,
@@ -69,7 +93,7 @@ export class DateTime implements DateTimeLike {
     });
   }
 
-  public static fromDate(
+  public static create(
     year: number,
     month: number,
     day: number,
@@ -91,7 +115,7 @@ export class DateTime implements DateTimeLike {
   }
 
   public static fromObject(object: DateTimeLike): DateTime {
-    return DateTime.fromDate(
+    return DateTime.create(
       object.year,
       object.month,
       object.day,

@@ -22,7 +22,7 @@ See [test folder](https://github.com/lsndr/rrule-rust/tree/master/tests) to find
 
 
 ```typescript
-import { RRule, RRuleSet, Frequency } from 'rrule-rust';
+import { RRule, RRuleSet, Frequency, DateTime } from 'rrule-rust';
 
 const rrule = new RRule({
   frequency: Frequency.Daily,

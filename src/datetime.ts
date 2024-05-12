@@ -11,31 +11,31 @@ export interface DateTimeLike {
 export class DateTime implements DateTimeLike {
   private readonly numeric: number;
 
-  get year(): number {
+  public get year(): number {
     return Math.floor(this.numeric / 100000000000);
   }
 
-  get month(): number {
+  public get month(): number {
     return Math.floor((this.numeric / 1000000000) % 100);
   }
 
-  get day(): number {
+  public get day(): number {
     return Math.floor((this.numeric / 10000000) % 100);
   }
 
-  get hour(): number {
+  public get hour(): number {
     return Math.floor((this.numeric / 100000) % 100);
   }
 
-  get minute(): number {
+  public get minute(): number {
     return Math.floor((this.numeric / 1000) % 100);
   }
 
-  get second(): number {
+  public get second(): number {
     return Math.floor((this.numeric / 10) % 100);
   }
 
-  get utc(): boolean {
+  public get utc(): boolean {
     return this.numeric % 10 == 1;
   }
 

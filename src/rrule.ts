@@ -71,7 +71,7 @@ export class RRule {
     }
   }
 
-  static parse(str: string): RRule {
+  public static parse(str: string): RRule {
     const rust = Rust.parse(str);
 
     return this.fromRust(rust);
@@ -80,7 +80,7 @@ export class RRule {
   /**
    * @internal
    */
-  static fromRust(rust: Rust) {
+  public static fromRust(rust: Rust) {
     const rrule = new this({
       frequency: rust.frequency,
       interval: rust.interval,
@@ -103,63 +103,63 @@ export class RRule {
     return rrule;
   }
 
-  setFrequency(frequency: Frequency): RRule {
+  public setFrequency(frequency: Frequency): RRule {
     return new RRule({ ...this.toObject(), frequency });
   }
 
-  setInterval(interval: number): RRule {
+  public setInterval(interval: number): RRule {
     return new RRule({ ...this.toObject(), interval });
   }
 
-  setCount(count: number): RRule {
+  public setCount(count: number): RRule {
     return new RRule({ ...this.toObject(), count });
   }
 
-  setByWeekday(weekdays: readonly (NWeekday | Weekday)[]): RRule {
+  public setByWeekday(weekdays: readonly (NWeekday | Weekday)[]): RRule {
     return new RRule({ ...this.toObject(), byWeekday: weekdays });
   }
 
-  setByHour(hours: readonly number[]): RRule {
+  public setByHour(hours: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), byHour: hours });
   }
 
-  setByMinute(minutes: readonly number[]): RRule {
+  public setByMinute(minutes: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), byMinute: minutes });
   }
 
-  setBySecond(seconds: readonly number[]): RRule {
+  public setBySecond(seconds: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), bySecond: seconds });
   }
 
-  setByMonthday(days: readonly number[]): RRule {
+  public setByMonthday(days: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), byMonthday: days });
   }
 
-  setBySetpos(poses: readonly number[]): RRule {
+  public setBySetpos(poses: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), bySetpos: poses });
   }
 
-  setByMonth(months: readonly Month[]): RRule {
+  public setByMonth(months: readonly Month[]): RRule {
     return new RRule({ ...this.toObject(), byMonth: months });
   }
 
-  setByWeekno(weekNumbers: readonly number[]): RRule {
+  public setByWeekno(weekNumbers: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), byWeekno: weekNumbers });
   }
 
-  setByYearday(days: readonly number[]): RRule {
+  public setByYearday(days: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), byYearday: days });
   }
 
-  setWeekstart(day: Weekday): RRule {
+  public setWeekstart(day: Weekday): RRule {
     return new RRule({ ...this.toObject(), weekstart: day });
   }
 
-  setUntil(datetime: DateTime): RRule {
+  public setUntil(datetime: DateTime): RRule {
     return new RRule({ ...this.toObject(), until: datetime });
   }
 
-  toString(): string {
+  public toString(): string {
     return this.toRust().toString();
   }
 
@@ -189,7 +189,7 @@ export class RRule {
     return this.rust;
   }
 
-  toObject(): RRuleLike {
+  public toObject(): RRuleLike {
     return {
       frequency: this.frequency,
       interval: this.interval,

@@ -45,7 +45,7 @@ export class RRuleSet implements Iterable<DateTime> {
     }
   }
 
-  static parse(str: string) {
+  public static parse(str: string) {
     const rust = Rust.parse(str);
 
     return this.fromRust(rust);
@@ -54,7 +54,7 @@ export class RRuleSet implements Iterable<DateTime> {
   /**
    * @internal
    */
-  static fromRust(rust: Rust): RRuleSet {
+  public static fromRust(rust: Rust): RRuleSet {
     const set = new RRuleSet({
       dtstart: DateTime.fromNumeric(rust.dtstart),
       tzid: rust.tzid,
@@ -69,89 +69,93 @@ export class RRuleSet implements Iterable<DateTime> {
     return set;
   }
 
-  setDtstart(dtstart: DateTime): RRuleSet {
+  public setDtstart(dtstart: DateTime): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       dtstart: dtstart,
     });
   }
 
-  setTzid(tzid: string): RRuleSet {
+  public setTzid(tzid: string): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       tzid: tzid,
     });
   }
 
-  addRrule(rrule: RRule): RRuleSet {
+  public addRrule(rrule: RRule): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       rrules: [...this.rrules, rrule],
     });
   }
 
-  setRrules(rrules: readonly RRule[]): RRuleSet {
+  public setRrules(rrules: readonly RRule[]): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       rrules: rrules,
     });
   }
 
-  addExrule(rrule: RRule): RRuleSet {
+  public addExrule(rrule: RRule): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       exrules: [...this.exrules, rrule],
     });
   }
 
-  setExrules(rrules: readonly RRule[]): RRuleSet {
+  public setExrules(rrules: readonly RRule[]): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       exrules: rrules,
     });
   }
 
-  addExdate(datetime: DateTime): RRuleSet {
+  public addExdate(datetime: DateTime): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       exdates: [...this.exdates, datetime],
     });
   }
 
-  setExdates(datetimes: readonly DateTime[]): RRuleSet {
+  public setExdates(datetimes: readonly DateTime[]): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       exdates: datetimes,
     });
   }
 
-  addRdate(datetime: DateTime): RRuleSet {
+  public addRdate(datetime: DateTime): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       rdates: [...this.rdates, datetime],
     });
   }
 
-  setRdates(datetimes: readonly DateTime[]): RRuleSet {
+  public setRdates(datetimes: readonly DateTime[]): RRuleSet {
     return new RRuleSet({
       ...this.toObject(),
       rdates: datetimes,
     });
   }
 
-  all(limit?: number): DateTime[] {
+  public all(limit?: number): DateTime[] {
     return this.toRust()
       .all(limit)
       .map((datetime) => DateTime.fromNumeric(datetime));
   }
 
-  between(after: DateTime, before: DateTime, inclusive?: boolean): DateTime[] {
+  public between(
+    after: DateTime,
+    before: DateTime,
+    inclusive?: boolean,
+  ): DateTime[] {
     return this.toRust()
       .between(after.toNumeric(), before.toNumeric(), inclusive)
       .map((datetime) => DateTime.fromNumeric(datetime));
   }
 
-  setFromString(str: string): RRuleSet {
+  public setFromString(str: string): RRuleSet {
     return RRuleSet.fromRust(this.toRust().setFromString(str));
   }
 
@@ -173,11 +177,11 @@ export class RRuleSet implements Iterable<DateTime> {
     return this.rust;
   }
 
-  toString(): string {
+  public toString(): string {
     return this.toRust().toString();
   }
 
-  toObject(): RRuleSetLike {
+  public toObject(): RRuleSetLike {
     return {
       dtstart: this.dtstart,
       tzid: this.tzid,

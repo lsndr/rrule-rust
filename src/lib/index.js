@@ -310,10 +310,11 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { Frequency, Month, RRule, RRuleSet, Weekday } = nativeBinding
+const { Frequency, Month, RRule, RRuleSet, RRuleSetIter, Weekday } = nativeBinding
 
 module.exports.Frequency = Frequency
 module.exports.Month = Month
 module.exports.RRule = RRule
 module.exports.RRuleSet = RRuleSet
+module.exports.RRuleSetIter = RRuleSetIter
 module.exports.Weekday = Weekday

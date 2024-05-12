@@ -11,7 +11,7 @@ export interface RRuleSetLike {
   readonly rdates: readonly DateTime[];
 }
 
-export class RRuleSet {
+export class RRuleSet implements Iterable<DateTime> {
   private rust?: Rust;
 
   public readonly dtstart: DateTime;
@@ -173,6 +173,10 @@ export class RRuleSet {
     return this.rust;
   }
 
+  occurrencesaa(): string {
+    return this.toRust().toString();
+  }
+
   toString(): string {
     return this.toRust().toString();
   }
@@ -185,6 +189,25 @@ export class RRuleSet {
       exrules: this.exrules,
       exdates: this.exdates,
       rdates: this.rdates,
+    };
+  }
+
+  public [Symbol.iterator]() {
+    const iter = this.toRust().iter()[Symbol.iterator]();
+
+    return {
+      next: () => {
+        const result = iter.next();
+
+        if (result.done) {
+          return result;
+        }
+
+        return {
+          done: false,
+          value: DateTime.fromNumeric(result.value),
+        };
+      },
     };
   }
 }

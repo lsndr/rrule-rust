@@ -25,6 +25,7 @@ test('Weekly for 10 occurrences', () => {
     DateTime.fromDate(1997, 10, 28, 9, 0, 0, false),
     DateTime.fromDate(1997, 11, 4, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Weekly until December 24, 1997', () => {
@@ -61,6 +62,7 @@ test('Weekly until December 24, 1997', () => {
     DateTime.fromDate(1997, 12, 16, 9, 0, 0, false),
     DateTime.fromDate(1997, 12, 23, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every other week - limit 10', () => {
@@ -136,4 +138,5 @@ test('Every other week on Monday, Wednesday and Friday until December 24, 1997, 
     DateTime.fromDate(1997, 12, 12, 9, 0, 0, false),
     DateTime.fromDate(1997, 12, 22, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });

@@ -25,6 +25,7 @@ test('Daily for 10 occurrences', () => {
     DateTime.fromDate(1997, 9, 10, 9, 0, 0, false),
     DateTime.fromDate(1997, 9, 11, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Daily for 10 occurrences between 873550800000 and 873723600000 inclusively', () => {
@@ -93,6 +94,7 @@ test('Daily until September 6, 1997', () => {
     DateTime.fromDate(1997, 9, 5, 9, 0, 0, false),
     DateTime.fromDate(1997, 9, 6, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every other day', () => {
@@ -116,6 +118,7 @@ test('Every other day', () => {
     DateTime.fromDate(1997, 9, 10, 9, 0, 0, false),
     DateTime.fromDate(1997, 9, 12, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every 10 days, 5 occurrences', () => {
@@ -138,6 +141,7 @@ test('Every 10 days, 5 occurrences', () => {
     DateTime.fromDate(1997, 10, 2, 9, 0, 0, false),
     DateTime.fromDate(1997, 10, 12, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every Monday in January, for 3 years', () => {
@@ -171,6 +175,7 @@ test('Every Monday in January, for 3 years', () => {
     DateTime.fromDate(2000, 1, 24, 9, 0, 0, false),
     DateTime.fromDate(2000, 1, 31, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every Monday in January, for 3 years except Jan 31 2000', () => {
@@ -186,7 +191,9 @@ test('Every Monday in January, for 3 years except Jan 31 2000', () => {
     .addRrule(rrule)
     .addExdate(DateTime.fromDate(2000, 1, 31, 9, 0, 0, false));
 
-  expect(set.all()).toEqual([
+  const dates = set.all();
+
+  expect(dates).toEqual([
     DateTime.fromDate(1998, 1, 5, 9, 0, 0, false),
     DateTime.fromDate(1998, 1, 12, 9, 0, 0, false),
     DateTime.fromDate(1998, 1, 19, 9, 0, 0, false),
@@ -204,4 +211,5 @@ test('Every Monday in January, for 3 years except Jan 31 2000', () => {
     'FREQ=DAILY;UNTIL=20000131T140000;BYMONTH=1;BYDAY=MO',
   ]);
   expect(set.exrules).toEqual([]);
+  expect([...set]).toEqual(dates);
 });

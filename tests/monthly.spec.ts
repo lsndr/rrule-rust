@@ -28,6 +28,7 @@ test('Monthly on the 1st Friday for 10 occurrences', () => {
     DateTime.fromDate(1998, 5, 1, 9, 0, 0, false),
     DateTime.fromDate(1998, 6, 5, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Monthly on the 1st Friday until December 24, 1997', () => {
@@ -52,6 +53,7 @@ test('Monthly on the 1st Friday until December 24, 1997', () => {
     DateTime.fromDate(1997, 11, 7, 9, 0, 0, false),
     DateTime.fromDate(1997, 12, 5, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every other month on the 1st and last Sunday of the month for 10 occurrences', () => {
@@ -83,6 +85,7 @@ test('Every other month on the 1st and last Sunday of the month for 10 occurrenc
     DateTime.fromDate(1998, 5, 3, 9, 0, 0, false),
     DateTime.fromDate(1998, 5, 31, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Monthly on the second to last Monday of the month for 6 months', () => {
@@ -109,6 +112,7 @@ test('Monthly on the second to last Monday of the month for 6 months', () => {
     DateTime.fromDate(1998, 1, 19, 9, 0, 0, false),
     DateTime.fromDate(1998, 2, 16, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Monthly on the third to the last day of the month, limit 6', () => {
@@ -161,6 +165,7 @@ test('Monthly on the 2nd and 15th of the month for 10 occurrences', () => {
     DateTime.fromDate(1998, 1, 2, 9, 0, 0, false),
     DateTime.fromDate(1998, 1, 15, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Monthly on the first and last day of the month for 10 occurrences', () => {
@@ -190,6 +195,7 @@ test('Monthly on the first and last day of the month for 10 occurrences', () => 
     DateTime.fromDate(1998, 1, 31, 9, 0, 0, false),
     DateTime.fromDate(1998, 2, 1, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every 18 months on the 10th thru 15th of the month for 10 occurrences', () => {
@@ -220,6 +226,7 @@ test('Every 18 months on the 10th thru 15th of the month for 10 occurrences', ()
     DateTime.fromDate(1999, 3, 12, 9, 0, 0, false),
     DateTime.fromDate(1999, 3, 13, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Monthly 5 times with two rdates and one exdate', () => {
@@ -233,12 +240,14 @@ test('Monthly 5 times with two rdates and one exdate', () => {
     .addRdate(DateTime.fromDate(2012, 7, 2, 2, 30, 0, false))
     .addExdate(DateTime.fromDate(2012, 6, 1, 2, 30, 0, false));
 
+  const dates = set.all();
+
   expect(set.rdates).toEqual([
     DateTime.fromDate(2012, 7, 1, 2, 30, 0, false),
     DateTime.fromDate(2012, 7, 2, 2, 30, 0, false),
   ]);
   expect(set.exdates).toEqual([DateTime.fromDate(2012, 6, 1, 2, 30, 0, false)]);
-  expect(set.all()).toEqual([
+  expect(dates).toEqual([
     DateTime.fromDate(2012, 2, 1, 2, 30, 0, true),
     DateTime.fromDate(2012, 3, 1, 2, 30, 0, true),
     DateTime.fromDate(2012, 4, 1, 2, 30, 0, true),
@@ -246,6 +255,7 @@ test('Monthly 5 times with two rdates and one exdate', () => {
     DateTime.fromDate(2012, 7, 1, 2, 30, 0, true),
     DateTime.fromDate(2012, 7, 2, 2, 30, 0, true),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every Tuesday, every other month, limit 18', () => {
@@ -308,6 +318,7 @@ test('Monthly on the second to last Monday of the month for 6 months 1', () => {
     DateTime.fromDate(1998, 1, 19, 9, 0, 0, false),
     DateTime.fromDate(1998, 2, 16, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Errors on invalid by-weekday', () => {

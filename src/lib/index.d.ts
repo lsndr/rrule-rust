@@ -97,4 +97,8 @@ export class RRuleSet {
   all(limit?: number | undefined | null): number[]
   between(afterDatetime: number, beforeDatetime: number, inclusive?: boolean | undefined | null): number[]
   toString(): string
+  iter(): RRuleSetIter
+}
+export class RRuleSetIter {
+  [Symbol.iterator](): Iterator<number, void, void>
 }

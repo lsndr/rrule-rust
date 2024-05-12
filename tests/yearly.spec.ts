@@ -27,6 +27,7 @@ test('Yearly in June and July for 10 occurrences', () => {
     DateTime.fromDate(2001, 6, 10, 9, 0, 0, false),
     DateTime.fromDate(2001, 7, 10, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every other year on January, February, and March for 10 occurrences', () => {
@@ -57,6 +58,7 @@ test('Every other year on January, February, and March for 10 occurrences', () =
     DateTime.fromDate(2003, 2, 10, 9, 0, 0, false),
     DateTime.fromDate(2003, 3, 10, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every 3rd year on the 1st, 100th and 200th day for 10 occurrences', () => {
@@ -87,6 +89,7 @@ test('Every 3rd year on the 1st, 100th and 200th day for 10 occurrences', () => 
     DateTime.fromDate(2003, 7, 19, 9, 0, 0, false),
     DateTime.fromDate(2006, 1, 1, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every 20th Monday of the year, limit 3', () => {

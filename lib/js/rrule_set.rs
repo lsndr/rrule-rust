@@ -1,5 +1,6 @@
 use super::RRule;
-use napi::bindgen_prelude::Array;
+use napi::bindgen_prelude::{Array, Reference, SharedReference};
+use napi::iterator::Generator;
 use napi::Env;
 use napi_derive::napi;
 use replace_with::replace_with_or_abort;
@@ -284,6 +285,32 @@ impl RRuleSet {
   #[napi]
   pub fn to_string(&self) -> napi::Result<String> {
     Ok(self.rrule_set.to_string())
+  }
+
+  #[napi]
+  pub fn iter(&self, this: Reference<RRuleSet>, env: Env) -> napi::Result<RRuleSetIter> {
+    let iter = this.share_with(env, |set| Ok(set.rrule_set.into_iter()))?;
+    Ok(RRuleSetIter { iter })
+  }
+}
+
+#[napi(iterator)]
+pub struct RRuleSetIter {
+  iter: SharedReference<RRuleSet, rrule::RRuleSetIter<'static>>,
+}
+
+#[napi]
+impl Generator for RRuleSetIter {
+  type Yield = i64;
+  type Next = ();
+  type Return = ();
+
+  fn next(&mut self, _next: Option<Self::Next>) -> Option<Self::Yield> {
+    self.iter.next().map(|date| {
+      let datetime: i64 = super::DateTime::from(date).into();
+
+      datetime
+    })
   }
 }
 

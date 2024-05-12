@@ -87,7 +87,7 @@
     "build": "tsc -p ./tsconfig.build.json",
     "postbuild": "cpy ./src/lib/* ./dist/lib --flat",
     "prepublishOnly": "napi prepublish -t npm",
-    "test": "cross-env-shell TZ=Europe/Moscow jest",
+    "test": "cross-env TZ=Europe/Moscow jest",
     "universal": "napi universal",
     "version": "napi version",
     "benchmark": "ts-node ./benchmark/index.ts",

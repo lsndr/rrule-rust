@@ -45,6 +45,9 @@ export class RRuleSet implements Iterable<DateTime> {
     }
   }
 
+  /**
+   * Parses a string into an RRuleSet.
+   */
   public static parse(str: string) {
     const rust = Rust.parse(str);
 
@@ -139,12 +142,24 @@ export class RRuleSet implements Iterable<DateTime> {
     });
   }
 
+  /**
+   * Returns all the occurrences of the rrule.
+   *
+   * @param limit - The maximum number of occurrences to return.
+   */
   public all(limit?: number): DateTime[] {
     return this.toRust()
       .all(limit)
       .map((datetime) => DateTime.fromNumeric(datetime));
   }
 
+  /**
+   * Returns all the occurrences of the rrule between after and before.
+   *
+   * @param after - The lower bound date.
+   * @param before - The upper bound date.
+   * @param inclusive - Whether to include after and before in the list of occurrences.
+   */
   public between(
     after: DateTime,
     before: DateTime,
@@ -155,6 +170,11 @@ export class RRuleSet implements Iterable<DateTime> {
       .map((datetime) => DateTime.fromNumeric(datetime));
   }
 
+  /**
+   * Sets the RRuleSet from a string.
+   *
+   * @param str - The string to parse.
+   */
   public setFromString(str: string): RRuleSet {
     return RRuleSet.fromRust(this.toRust().setFromString(str));
   }
@@ -181,6 +201,9 @@ export class RRuleSet implements Iterable<DateTime> {
     return this.toRust().toString();
   }
 
+  /**
+   * Converts the RRuleSet to a plain object.
+   */
   public toObject(): RRuleSetLike {
     return {
       dtstart: this.dtstart,

@@ -5,9 +5,15 @@ export interface DateTimeLike {
   readonly hour: number;
   readonly minute: number;
   readonly second: number;
+  /**
+   * Whether the date and time is in UTC.
+   */
   readonly utc: boolean;
 }
 
+/**
+ * Represents a date and time. Either local or UTC.
+ */
 export class DateTime implements DateTimeLike {
   private readonly numeric: number;
 
@@ -43,6 +49,11 @@ export class DateTime implements DateTimeLike {
     this.numeric = numeric;
   }
 
+  /**
+   * Converts DateTime into Date object:
+   * - If DateTime is UTC, returns a Date object created from UTC time.
+   * - If DateTime is local, returns a Date object with local time.
+   */
   public toDate(): Date {
     if (this.utc) {
       return new Date(
@@ -67,6 +78,9 @@ export class DateTime implements DateTimeLike {
     }
   }
 
+  /**
+   * Converts DateTime into a plain object.
+   */
   public toObject(): DateTimeLike {
     return {
       year: this.year,
@@ -79,6 +93,9 @@ export class DateTime implements DateTimeLike {
     };
   }
 
+  /**
+   * Returns a new DateTime object representing the current date and time.
+   */
   public static now(): DateTime {
     const now = new Date();
 
@@ -93,6 +110,9 @@ export class DateTime implements DateTimeLike {
     });
   }
 
+  /**
+   * Creates a new DateTime object from the given date and time components.
+   */
   public static create(
     year: number,
     month: number,
@@ -114,6 +134,9 @@ export class DateTime implements DateTimeLike {
     return new DateTime(numeric);
   }
 
+  /**
+   * Creates a new DateTime object from the given plain object.
+   */
   public static fromObject(object: DateTimeLike): DateTime {
     return DateTime.create(
       object.year,

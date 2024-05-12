@@ -71,6 +71,9 @@ export class RRule {
     }
   }
 
+  /**
+   * Parses a string into an RRule.
+   */
   public static parse(str: string): RRule {
     const rust = Rust.parse(str);
 

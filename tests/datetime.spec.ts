@@ -1,17 +1,11 @@
 import { DateTime } from '../src';
 
 describe(DateTime, () => {
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  describe('now', () => {
-    test('create object with current date and time', () => {
-      jest.useFakeTimers();
-      jest.setSystemTime(0);
-
-      const now = DateTime.now();
+  describe('fromDate', () => {
+    test('should create date time with local zone', () => {
       const date = new Date();
+
+      const now = DateTime.fromDate(date);
 
       expect(now.year).toBe(date.getFullYear());
       expect(now.month).toBe(date.getMonth() + 1);
@@ -20,6 +14,20 @@ describe(DateTime, () => {
       expect(now.minute).toBe(date.getMinutes());
       expect(now.second).toBe(date.getSeconds());
       expect(now.utc).toBe(false);
+    });
+
+    test('should create date time with utc zone', () => {
+      const date = new Date();
+
+      const now = DateTime.fromDate(date, { utc: true });
+
+      expect(now.year).toBe(date.getUTCFullYear());
+      expect(now.month).toBe(date.getUTCMonth() + 1);
+      expect(now.day).toBe(date.getUTCDate());
+      expect(now.hour).toBe(date.getUTCHours());
+      expect(now.minute).toBe(date.getUTCMinutes());
+      expect(now.second).toBe(date.getUTCSeconds());
+      expect(now.utc).toBe(true);
     });
   });
 
@@ -43,7 +51,7 @@ describe(DateTime, () => {
         second: 22,
         utc: true,
       },
-    ])('create object from %j', (input) => {
+    ])('should create object from %j', (input) => {
       const datetime = DateTime.create(
         input.year,
         input.month,
@@ -117,7 +125,7 @@ describe(DateTime, () => {
         second: 22,
         utc: true,
       },
-    ])('convert %j to plain object', (input) => {
+    ])('should convert %j to plain object', (input) => {
       const datetime = DateTime.create(
         input.year,
         input.month,
@@ -151,7 +159,7 @@ describe(DateTime, () => {
         minute: 1,
         second: 22,
       },
-    ])('convert local date %j to Date object', (input) => {
+    ])('should convert local date %j to Date object', (input) => {
       const datetime = DateTime.create(
         input.year,
         input.month,
@@ -192,7 +200,7 @@ describe(DateTime, () => {
         minute: 1,
         second: 22,
       },
-    ])('convert utc date %j to Date object', (input) => {
+    ])('should convert utc date %j to Date object', (input) => {
       const datetime = DateTime.create(
         input.year,
         input.month,

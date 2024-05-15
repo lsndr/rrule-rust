@@ -25,7 +25,8 @@ export class RRuleSet implements Iterable<DateTime> {
   constructor(options: Partial<RRuleSetLike>);
   constructor(setOrDtstart?: DateTime | Partial<RRuleSetLike>, tzid?: string) {
     if (!(setOrDtstart instanceof DateTime)) {
-      this.dtstart = setOrDtstart?.dtstart ?? DateTime.now();
+      this.dtstart =
+        setOrDtstart?.dtstart ?? DateTime.fromDate(new Date(), { utc: true });
       this.tzid = setOrDtstart?.tzid ?? 'UTC';
 
       this.rrules = setOrDtstart?.rrules ?? [];

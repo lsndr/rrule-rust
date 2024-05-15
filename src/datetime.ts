@@ -94,23 +94,6 @@ export class DateTime implements DateTimeLike {
   }
 
   /**
-   * Returns a new DateTime object representing the current date and time.
-   */
-  public static now(): DateTime {
-    const now = new Date();
-
-    return DateTime.fromObject({
-      year: now.getFullYear(),
-      month: now.getMonth() + 1,
-      day: now.getDate(),
-      hour: now.getHours(),
-      minute: now.getMinutes(),
-      second: now.getSeconds(),
-      utc: false,
-    });
-  }
-
-  /**
    * Creates a new DateTime object from the given date and time components.
    */
   public static create(
@@ -147,6 +130,33 @@ export class DateTime implements DateTimeLike {
       object.second,
       object.utc,
     );
+  }
+
+  /**
+   * Creates a new DateTime object from the given plain object. If options.utc is true, then it will use `getUTC*` methods.
+   */
+  public static fromDate(date: Date, options?: { utc?: boolean }): DateTime {
+    if (options?.utc) {
+      return DateTime.create(
+        date.getUTCFullYear(),
+        date.getUTCMonth() + 1,
+        date.getUTCDate(),
+        date.getUTCHours(),
+        date.getUTCMinutes(),
+        date.getUTCSeconds(),
+        true,
+      );
+    } else {
+      return DateTime.create(
+        date.getFullYear(),
+        date.getMonth() + 1,
+        date.getDate(),
+        date.getHours(),
+        date.getMinutes(),
+        date.getSeconds(),
+        false,
+      );
+    }
   }
 
   /** @internal */

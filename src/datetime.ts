@@ -64,6 +64,24 @@ export class DateTime implements DateTimeLike {
   }
 
   /**
+   * Converts DateTime into ISO 8601 string:
+   * - `YYYYMMDDTHHMMSSZ` for UTC
+   * - `YYYYMMDDTHHMMSS` for local
+   */
+  public toString(): string {
+    const year = this.year.toString().padStart(4, '0');
+    const month = this.month.toString().padStart(2, '0');
+    const day = this.day.toString().padStart(2, '0');
+    const hour = this.hour.toString().padStart(2, '0');
+    const minute = this.minute.toString().padStart(2, '0');
+    const second = this.second.toString().padStart(2, '0');
+
+    return `${year}${month}${day}T${hour}${minute}${second}${
+      this.utc ? 'Z' : ''
+    }`;
+  }
+
+  /**
    * Creates a new DateTime object from the given date and time components.
    */
   public static create(
@@ -103,6 +121,38 @@ export class DateTime implements DateTimeLike {
       object.second,
       !!options?.utc,
     );
+  }
+
+  /**
+   * Creates a new DateTime object from provided string representation of a date according to RFC 5545.
+   */
+  public static fromString(str: string): DateTime {
+    const typeError = new TypeError('Invalid date time string');
+
+    if (str.length > 16 || str.length < 15) {
+      throw typeError;
+    }
+
+    const year = parseInt(str.slice(0, 4));
+    const month = parseInt(str.slice(4, 6));
+    const day = parseInt(str.slice(6, 8));
+    const hour = parseInt(str.slice(9, 11));
+    const minute = parseInt(str.slice(11, 13));
+    const second = parseInt(str.slice(13, 15));
+    const utc = str.endsWith('Z');
+
+    if (
+      isNaN(year) ||
+      isNaN(month) ||
+      isNaN(day) ||
+      isNaN(hour) ||
+      isNaN(minute) ||
+      isNaN(second)
+    ) {
+      throw typeError;
+    }
+
+    return DateTime.create(year, month, day, hour, minute, second, utc);
   }
 
   /** @internal */

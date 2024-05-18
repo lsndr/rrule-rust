@@ -50,35 +50,6 @@ export class DateTime implements DateTimeLike {
   }
 
   /**
-   * Converts DateTime into Date object:
-   * - If DateTime is UTC, returns a Date object created from UTC time.
-   * - If DateTime is local, returns a Date object with local time.
-   */
-  public toDate(): Date {
-    if (this.utc) {
-      return new Date(
-        Date.UTC(
-          this.year,
-          this.month - 1,
-          this.day,
-          this.hour,
-          this.minute,
-          this.second,
-        ),
-      );
-    } else {
-      return new Date(
-        this.year,
-        this.month - 1,
-        this.day,
-        this.hour,
-        this.minute,
-        this.second,
-      );
-    }
-  }
-
-  /**
    * Converts DateTime into a plain object.
    */
   public toObject(): DateTimeLike {
@@ -132,33 +103,6 @@ export class DateTime implements DateTimeLike {
       object.second,
       !!options?.utc,
     );
-  }
-
-  /**
-   * Creates a new DateTime object from the given plain object. If options.utc is true, then it will use `getUTC*` methods.
-   */
-  public static fromDate(date: Date, options?: { utc?: boolean }): DateTime {
-    if (options?.utc) {
-      return DateTime.create(
-        date.getUTCFullYear(),
-        date.getUTCMonth() + 1,
-        date.getUTCDate(),
-        date.getUTCHours(),
-        date.getUTCMinutes(),
-        date.getUTCSeconds(),
-        true,
-      );
-    } else {
-      return DateTime.create(
-        date.getFullYear(),
-        date.getMonth() + 1,
-        date.getDate(),
-        date.getHours(),
-        date.getMinutes(),
-        date.getSeconds(),
-        false,
-      );
-    }
   }
 
   /** @internal */

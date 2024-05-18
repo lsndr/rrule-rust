@@ -64,7 +64,7 @@
     "lint-staged": "^15.2.2",
     "luxon": "^3.4.4",
     "mkdirp": "^3.0.1",
-    "prettier": "^2.8.3",
+    "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "rrule": "^2.7.2",
     "semantic-release": "^23.0.8",

@@ -1,4 +1,4 @@
-import { Frequency, Weekday, RRule, RRuleSet, RRuleDateTime } from '../dist';
+import { Frequency, Weekday, RRule, RRuleSet, DateTime } from '../src';
 
 test('Should properly parse weekly recurrence', () => {
   const set = RRuleSet.parse(
@@ -98,11 +98,10 @@ test('Should properly parse weekly individual recurrence rule', () => {
   const rule = RRule.parse(
     'FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
   );
+
   expect(rule.frequency).toBe(Frequency.Weekly);
   expect(rule.interval).toBe(2);
-  expect(rule.until?.timestamp).toBe(
-    new Date('1997-12-24T00:00:00Z').getTime(),
-  );
+  expect(rule.until).toEqual(DateTime.create(1997, 12, 24, 0, 0, 0, true));
   expect(rule.weekstart).toBe(Weekday.Sunday);
   expect(rule.byWeekday).toEqual([
     { weekday: Weekday.Monday },
@@ -172,13 +171,13 @@ test('Should throw error on invalid individual recurrence rule week start', () =
 
 test('Should be able to parse rule set without dtstart', () => {
   const set = new RRuleSet(
-    new RRuleDateTime(new Date('1997-09-02T09:00:00-04:00'), 'US/Eastern'),
-  );
-  set.setFromString(
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
+  ).setFromString(
     'RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
   );
-  const asString = set.toString();
-  expect(asString).toBe(
+
+  expect(set.toString()).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
   );
 });

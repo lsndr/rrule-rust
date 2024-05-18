@@ -14,7 +14,7 @@
 
 ## Quick Start
 
-See [test folder](https://github.com/lsndr/rrule-rust/tree/master/__test__) to find more use cases
+See [test folder](https://github.com/lsndr/rrule-rust/tree/master/tests) to find more use cases
 
 ```
   npm i rrule-rust 
@@ -22,28 +22,35 @@ See [test folder](https://github.com/lsndr/rrule-rust/tree/master/__test__) to f
 
 
 ```typescript
-import { RRule, RRuleSet, Frequency } from 'rrule-rust';
+import { RRule, RRuleSet, Frequency, DateTime } from 'rrule-rust';
 
-const rrule = new RRule(Frequency.Daily).setCount(5);
-const set = new RRuleSet(873205200000, 'US/Eastern').addRrule(rrule);
+const rrule = new RRule({
+  frequency: Frequency.Daily,
+  count: 5
+});
+const set = new RRuleSet({
+  dtstart: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+  tzid: 'US/Eastern',
+  rrules: [rrule]
+});
 
-const dates = set.all(); // [ 873205200000, 873291600000, 873378000000, 873464400000, 873550800000 ]
+const dates = set.all(); // [ DateTime, DateTime, DateTime, DateTime, DateTime ]
 const asString = set.toString(); // DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=daily;COUNT=5;BYHOUR=9;BYMINUTE=0;BYSECOND=0
 ```
 
-## Perfomance
+## Performance
 
 ```
-  Host: MacBook Pro, 13-inch, 2018
-  OS: macOS 13.2 (22D49)
-  Processor: 2,3 GHz Quad-Core Intel Core i5
-  Memory: 16 GB 2133 MHz LPDDR3
+  Host: MacBook Pro, 14-inch, 2023
+  OS: macOS 14.4.1 (23E224)
+  Processor: Apple M3 Pro
+  Memory: 36 GB LPDDR5
 ```
 
-|          | rrule        | rrule-rust   |              |
-| -------- | ------------ | ------------ | ------------ |
-| UTC TZ   | 8 128 ops/s  | 42 343 ops/s | ~5x faster   |
-| Other TZ | 68 ops/s     | 40 549 ops/s | ~600x faster |
+|          | rrule          | rrule-rust    |              |
+| -------- | -------------- | ------------- | ------------ |
+| UTC TZ   | 15 904 ops/s   | 108 538 ops/s | ~6x faster   |
+| Other TZ | 260 ops/s      | 106 034 ops/s | ~400x faster |
 
 You can run benchmarks using `npm run benchmark`
 

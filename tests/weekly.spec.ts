@@ -1,48 +1,68 @@
-import { RRule, RRuleDateTime, RRuleSet, Frequency, Weekday } from '../dist';
-import { takeN } from './utils';
+import { RRule, RRuleSet, Frequency, Weekday, DateTime } from '../src';
 
 test('Weekly for 10 occurrences', () => {
   const rrule = new RRule(Frequency.Weekly).setCount(10);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all().map((d) => d.timestamp);
-  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
+  const dates = set.all();
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;COUNT=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
-    873205200000, 873810000000, 874414800000, 875019600000, 875624400000,
-    876229200000, 876834000000, 877438800000, 878047200000, 878652000000,
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    DateTime.create(1997, 9, 9, 9, 0, 0, false),
+    DateTime.create(1997, 9, 16, 9, 0, 0, false),
+    DateTime.create(1997, 9, 23, 9, 0, 0, false),
+    DateTime.create(1997, 9, 30, 9, 0, 0, false),
+    DateTime.create(1997, 10, 7, 9, 0, 0, false),
+    DateTime.create(1997, 10, 14, 9, 0, 0, false),
+    DateTime.create(1997, 10, 21, 9, 0, 0, false),
+    DateTime.create(1997, 10, 28, 9, 0, 0, false),
+    DateTime.create(1997, 11, 4, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
+  expect([...set]).toEqual(dates);
 });
 
 test('Weekly until December 24, 1997', () => {
   const rrule = new RRule(Frequency.Weekly).setUntil(
-    new RRuleDateTime(882921600000, 'UTC'),
+    DateTime.create(1997, 12, 24, 0, 0, 0, false),
   );
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all().map((d) => d.timestamp);
-  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
+  const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T050000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
-    873205200000, 873810000000, 874414800000, 875019600000, 875624400000,
-    876229200000, 876834000000, 877438800000, 878047200000, 878652000000,
-    879256800000, 879861600000, 880466400000, 881071200000, 881676000000,
-    882280800000, 882885600000,
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    DateTime.create(1997, 9, 9, 9, 0, 0, false),
+    DateTime.create(1997, 9, 16, 9, 0, 0, false),
+    DateTime.create(1997, 9, 23, 9, 0, 0, false),
+    DateTime.create(1997, 9, 30, 9, 0, 0, false),
+    DateTime.create(1997, 10, 7, 9, 0, 0, false),
+    DateTime.create(1997, 10, 14, 9, 0, 0, false),
+    DateTime.create(1997, 10, 21, 9, 0, 0, false),
+    DateTime.create(1997, 10, 28, 9, 0, 0, false),
+    DateTime.create(1997, 11, 4, 9, 0, 0, false),
+    DateTime.create(1997, 11, 11, 9, 0, 0, false),
+    DateTime.create(1997, 11, 18, 9, 0, 0, false),
+    DateTime.create(1997, 11, 25, 9, 0, 0, false),
+    DateTime.create(1997, 12, 2, 9, 0, 0, false),
+    DateTime.create(1997, 12, 9, 9, 0, 0, false),
+    DateTime.create(1997, 12, 16, 9, 0, 0, false),
+    DateTime.create(1997, 12, 23, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every other week - limit 10', () => {
@@ -50,50 +70,73 @@ test('Every other week - limit 10', () => {
     .setInterval(2)
     .setWeekstart(Weekday.Sunday);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all(10).map((d) => d.timestamp);
-  const iteratorDates = Array.from(takeN(set.occurrences(), 10)).map(
-    (d) => d.timestamp,
-  );
+  const dates = set.all(10);
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
-    873205200000, 874414800000, 875624400000, 876834000000, 878047200000,
-    879256800000, 880466400000, 881676000000, 882885600000, 884095200000,
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    DateTime.create(1997, 9, 16, 9, 0, 0, false),
+    DateTime.create(1997, 9, 30, 9, 0, 0, false),
+    DateTime.create(1997, 10, 14, 9, 0, 0, false),
+    DateTime.create(1997, 10, 28, 9, 0, 0, false),
+    DateTime.create(1997, 11, 11, 9, 0, 0, false),
+    DateTime.create(1997, 11, 25, 9, 0, 0, false),
+    DateTime.create(1997, 12, 9, 9, 0, 0, false),
+    DateTime.create(1997, 12, 23, 9, 0, 0, false),
+    DateTime.create(1998, 1, 6, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
 });
 
 test('Every other week on Monday, Wednesday and Friday until December 24, 1997, but starting on Tuesday, September 2, 1997', () => {
   const rrule = new RRule(Frequency.Weekly)
     .setInterval(2)
-    .setUntil(new RRuleDateTime(882921600000, 'UTC'))
+    .setUntil(DateTime.create(1997, 12, 24, 0, 0, 0, false))
     .setWeekstart(Weekday.Sunday)
     .setByWeekday([Weekday.Monday, Weekday.Wednesday, Weekday.Friday]);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all().map((d) => d.timestamp);
-  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
+  const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T050000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
   );
   expect(dates).toEqual([
     // TODO: rrule crate does not include dtstart date (873205200000), create a bug report
-    873291600000,
-    873464400000, 874328400000, 874501200000, 874674000000, 875538000000,
-    875710800000, 875883600000, 876747600000, 876920400000, 877093200000,
-    877960800000, 878133600000, 878306400000, 879170400000, 879343200000,
-    879516000000, 880380000000, 880552800000, 880725600000, 881589600000,
-    881762400000, 881935200000, 882799200000,
+    DateTime.create(1997, 9, 3, 9, 0, 0, false),
+    DateTime.create(1997, 9, 5, 9, 0, 0, false),
+    DateTime.create(1997, 9, 15, 9, 0, 0, false),
+    DateTime.create(1997, 9, 17, 9, 0, 0, false),
+    DateTime.create(1997, 9, 19, 9, 0, 0, false),
+    DateTime.create(1997, 9, 29, 9, 0, 0, false),
+    DateTime.create(1997, 10, 1, 9, 0, 0, false),
+    DateTime.create(1997, 10, 3, 9, 0, 0, false),
+    DateTime.create(1997, 10, 13, 9, 0, 0, false),
+    DateTime.create(1997, 10, 15, 9, 0, 0, false),
+    DateTime.create(1997, 10, 17, 9, 0, 0, false),
+    DateTime.create(1997, 10, 27, 9, 0, 0, false),
+    DateTime.create(1997, 10, 29, 9, 0, 0, false),
+    DateTime.create(1997, 10, 31, 9, 0, 0, false),
+    DateTime.create(1997, 11, 10, 9, 0, 0, false),
+    DateTime.create(1997, 11, 12, 9, 0, 0, false),
+    DateTime.create(1997, 11, 14, 9, 0, 0, false),
+    DateTime.create(1997, 11, 24, 9, 0, 0, false),
+    DateTime.create(1997, 11, 26, 9, 0, 0, false),
+    DateTime.create(1997, 11, 28, 9, 0, 0, false),
+    DateTime.create(1997, 12, 8, 9, 0, 0, false),
+    DateTime.create(1997, 12, 10, 9, 0, 0, false),
+    DateTime.create(1997, 12, 12, 9, 0, 0, false),
+    DateTime.create(1997, 12, 22, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
+  expect([...set]).toEqual(dates);
 });

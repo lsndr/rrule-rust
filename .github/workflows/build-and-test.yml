@@ -13,61 +13,61 @@ jobs:
         settings:
           - host: macos-latest
             target: x86_64-apple-darwin
-            build: npm run build -- --target x86_64-apple-darwin
+            build: npm run build:lib -- --target x86_64-apple-darwin
           - host: windows-latest
-            build: npm run build
+            build: npm run build:lib
             target: x86_64-pc-windows-msvc
           - host: windows-latest
             build: |
-              npm run build -- --target i686-pc-windows-msvc
+              npm run build:lib -- --target i686-pc-windows-msvc
               npm test
             target: i686-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
-            build: npm run build -- --target x86_64-unknown-linux-gnu
+            build: npm run build:lib -- --target x86_64-unknown-linux-gnu
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
-            build: npm run build -- --target x86_64-unknown-linux-musl
+            build: npm run build:lib -- --target x86_64-unknown-linux-musl
           - host: macos-latest
             target: aarch64-apple-darwin
-            build: npm run build -- --target aarch64-apple-darwin
+            build: npm run build:lib -- --target aarch64-apple-darwin
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
-            build: npm run build -- --target aarch64-unknown-linux-gnu
+            build: npm run build:lib -- --target aarch64-unknown-linux-gnu
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
             setup: |
               sudo apt-get update
               sudo apt-get install gcc-arm-linux-gnueabihf -y
-            build: npm run build -- --target armv7-unknown-linux-gnueabihf
+            build: npm run build:lib -- --target armv7-unknown-linux-gnueabihf
           - host: ubuntu-latest
             target: armv7-unknown-linux-musleabihf
-            build: npm run build -- --target armv7-unknown-linux-musleabihf
+            build: npm run build:lib -- --target armv7-unknown-linux-musleabihf
           - host: ubuntu-latest
             target: aarch64-linux-android
-            build: npm run build -- --target aarch64-linux-android
+            build: npm run build:lib -- --target aarch64-linux-android
           - host: ubuntu-latest
             target: armv7-linux-androideabi
-            build: npm run build -- --target armv7-linux-androideabi
+            build: npm run build:lib -- --target armv7-linux-androideabi
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
             build: |-
               set -e &&
               rustup target add aarch64-unknown-linux-musl &&
-              npm run build -- --target aarch64-unknown-linux-musl
+              npm run build:lib -- --target aarch64-unknown-linux-musl
           - host: windows-latest
             target: aarch64-pc-windows-msvc
-            build: npm run build -- --target aarch64-pc-windows-msvc
+            build: npm run build:lib -- --target aarch64-pc-windows-msvc
           - host: ubuntu-latest
             target: riscv64gc-unknown-linux-gnu
             setup: |
               sudo apt-get update
               sudo apt-get install gcc-riscv64-linux-gnu -y
-            build: npm run build -- --target riscv64gc-unknown-linux-gnu
+            build: npm run build:lib -- --target riscv64gc-unknown-linux-gnu
     name: stable - ${{ matrix.settings.target }} - node@20
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -131,7 +131,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: dist/${{ env.APP_NAME }}.*.node
+          path: src/lib/${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   build-freebsd:
     runs-on: macos-13
@@ -168,14 +168,14 @@ jobs:
             env
             freebsd-version
             npm ci
-            npm run build
+            npm run build:lib
             rm -rf node_modules
             rm -rf target
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: bindings-freebsd
-          path: dist/${{ env.APP_NAME }}.*.node
+          path: src/lib/${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   test-macOS-windows-binding:
     name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
@@ -210,12 +210,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Remove binary
-        run: npx rimraf --glob ./dist/*.node
+        run: npx rimraf --glob ./src/lib/*.node
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: dist
+          path: src/lib
       - name: List packages
         run: ls -R .
         shell: bash
@@ -243,12 +243,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Remove binary
-        run: npx rimraf --glob ./dist/*.node
+        run: npx rimraf --glob ./src/lib/*.node
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: bindings-x86_64-unknown-linux-gnu
-          path: dist
+          path: src/lib
       - name: List packages
         run: ls -R .
         shell: bash
@@ -276,12 +276,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --libc "musl"
       - name: Remove binary
-        run: npx rimraf --glob ./dist/*.node
+        run: npx rimraf --glob ./src/lib/*.node
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: bindings-x86_64-unknown-linux-musl
-          path: dist
+          path: src/lib
       - name: List packages
         run: ls -R .
         shell: bash
@@ -304,12 +304,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --cpu "arm64" --libc "glibc"
       - name: Remove binary
-        run: npx rimraf --glob ./dist/*.node
+        run: npx rimraf --glob ./src/lib/*.node
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: bindings-aarch64-unknown-linux-gnu
-          path: dist
+          path: src/lib
       - name: List packages
         run: ls -R .
         shell: bash
@@ -337,12 +337,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --cpu "arm64" --libc "musl"
       - name: Remove binary
-        run: npx rimraf --glob ./dist/*.node
+        run: npx rimraf --glob ./src/lib/*.node
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: bindings-aarch64-unknown-linux-musl
-          path: dist
+          path: src/lib
       - name: List packages
         run: ls -R .
         shell: bash
@@ -376,12 +376,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --cpu "arm"
       - name: Remove binary
-        run: npx rimraf --glob ./dist/*.node
+        run: npx rimraf --glob ./src/lib/*.node
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           name: bindings-armv7-unknown-linux-gnueabihf
-          path: dist
+          path: src/lib
       - name: List packages
         run: ls -R .
         shell: bash
@@ -429,5 +429,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bindings-universal-apple-darwin
-          path: dist/${{ env.APP_NAME }}.*.node
+          path: src/lib/${{ env.APP_NAME }}.*.node
           if-no-files-found: error

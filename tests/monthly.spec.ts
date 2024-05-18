@@ -1,49 +1,59 @@
-import { RRule, RRuleDateTime, RRuleSet, Frequency, Weekday } from '../dist';
-import { takeN } from './utils';
+import { RRule, RRuleSet, Frequency, Weekday, DateTime } from '../src';
 
-test('Monthly on the 1st Friday for ten occurrences', () => {
+test('Monthly on the 1st Friday for 10 occurrences', () => {
   const rrule = new RRule(Frequency.Monthly)
     .setCount(10)
     .setByWeekday([Weekday.Friday])
     .setBySetpos([1]);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all().map((d) => d.timestamp);
-  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
+  const dates = set.all();
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYSETPOS=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
   );
   expect(dates).toEqual([
-    873464400000, 875883600000, 878911200000, 881330400000, 883749600000,
-    886773600000, 889192800000, 891612000000, 894027600000, 897051600000,
+    DateTime.create(1997, 9, 5, 9, 0, 0, false),
+    DateTime.create(1997, 10, 3, 9, 0, 0, false),
+    DateTime.create(1997, 11, 7, 9, 0, 0, false),
+    DateTime.create(1997, 12, 5, 9, 0, 0, false),
+    DateTime.create(1998, 1, 2, 9, 0, 0, false),
+    DateTime.create(1998, 2, 6, 9, 0, 0, false),
+    DateTime.create(1998, 3, 6, 9, 0, 0, false),
+    DateTime.create(1998, 4, 3, 9, 0, 0, false),
+    DateTime.create(1998, 5, 1, 9, 0, 0, false),
+    DateTime.create(1998, 6, 5, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
+  expect([...set]).toEqual(dates);
 });
 
 test('Monthly on the 1st Friday until December 24, 1997', () => {
   const rrule = new RRule(Frequency.Monthly)
-    .setUntil(new RRuleDateTime(882921600000, 'UTC'))
+    .setUntil(DateTime.create(1997, 12, 24, 0, 0, 0, false))
     .setByWeekday([Weekday.Friday])
     .setBySetpos([1]);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all().map((d) => d.timestamp);
-  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
+  const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;UNTIL=19971224T000000Z;BYSETPOS=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;UNTIL=19971224T050000Z;BYSETPOS=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
   );
   expect(dates).toEqual([
-    873464400000, 875883600000, 878911200000, 881330400000,
+    DateTime.create(1997, 9, 5, 9, 0, 0, false),
+    DateTime.create(1997, 10, 3, 9, 0, 0, false),
+    DateTime.create(1997, 11, 7, 9, 0, 0, false),
+    DateTime.create(1997, 12, 5, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every other month on the 1st and last Sunday of the month for 10 occurrences', () => {
@@ -53,21 +63,29 @@ test('Every other month on the 1st and last Sunday of the month for 10 occurrenc
     .setByWeekday([Weekday.Sunday, Weekday.Sunday])
     .setBySetpos([1, -1]);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all().map((d) => d.timestamp);
-  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
+  const dates = set.all();
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;INTERVAL=2;BYSETPOS=-1,1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=SU',
   );
   expect(dates).toEqual([
-    873637200000, 875451600000, 878479200000, 880898400000, 883922400000,
-    885736800000, 888760800000, 891180000000, 894200400000, 896619600000,
+    DateTime.create(1997, 9, 7, 9, 0, 0, false),
+    DateTime.create(1997, 9, 28, 9, 0, 0, false),
+    DateTime.create(1997, 11, 2, 9, 0, 0, false),
+    DateTime.create(1997, 11, 30, 9, 0, 0, false),
+    DateTime.create(1998, 1, 4, 9, 0, 0, false),
+    DateTime.create(1998, 1, 25, 9, 0, 0, false),
+    DateTime.create(1998, 3, 1, 9, 0, 0, false),
+    DateTime.create(1998, 3, 29, 9, 0, 0, false),
+    DateTime.create(1998, 5, 3, 9, 0, 0, false),
+    DateTime.create(1998, 5, 31, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
+  expect([...set]).toEqual(dates);
 });
 
 test('Monthly on the second to last Monday of the month for 6 months', () => {
@@ -76,43 +94,48 @@ test('Monthly on the second to last Monday of the month for 6 months', () => {
     .setByWeekday([Weekday.Monday])
     .setBySetpos([-2]);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all().map((d) => d.timestamp);
-  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
+  const dates = set.all();
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=6;BYSETPOS=-2;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
   );
   expect(dates).toEqual([
-    874933200000, 877352400000, 879775200000, 882799200000, 885218400000,
-    887637600000,
+    DateTime.create(1997, 9, 22, 9, 0, 0, false),
+    DateTime.create(1997, 10, 20, 9, 0, 0, false),
+    DateTime.create(1997, 11, 17, 9, 0, 0, false),
+    DateTime.create(1997, 12, 22, 9, 0, 0, false),
+    DateTime.create(1998, 1, 19, 9, 0, 0, false),
+    DateTime.create(1998, 2, 16, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
+  expect([...set]).toEqual(dates);
 });
 
 test('Monthly on the third to the last day of the month, limit 6', () => {
   const rrule = new RRule(Frequency.Monthly).setByMonthday([-3]);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all(6).map((d) => d.timestamp);
-  const iteratorDates = Array.from(takeN(set.occurrences(), 6)).map(
-    (d) => d.timestamp,
-  );
+  const dates = set.all(6);
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
   );
   expect(dates).toEqual([
-    875451600000, 878133600000, 880725600000, 883404000000, 886082400000,
-    888501600000,
+    DateTime.create(1997, 9, 28, 9, 0, 0, false),
+    DateTime.create(1997, 10, 29, 9, 0, 0, false),
+    DateTime.create(1997, 11, 28, 9, 0, 0, false),
+    DateTime.create(1997, 12, 29, 9, 0, 0, false),
+    DateTime.create(1998, 1, 29, 9, 0, 0, false),
+    DateTime.create(1998, 2, 26, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
 });
 
 test('Monthly on the 2nd and 15th of the month for 10 occurrences', () => {
@@ -120,21 +143,29 @@ test('Monthly on the 2nd and 15th of the month for 10 occurrences', () => {
     .setCount(10)
     .setByMonthday([2, 15]);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all().map((d) => d.timestamp);
-  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
+  const dates = set.all();
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYMONTHDAY=2,15;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
   );
   expect(dates).toEqual([
-    873205200000, 874328400000, 875797200000, 876920400000, 878479200000,
-    879602400000, 881071200000, 882194400000, 883749600000, 884872800000,
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    DateTime.create(1997, 9, 15, 9, 0, 0, false),
+    DateTime.create(1997, 10, 2, 9, 0, 0, false),
+    DateTime.create(1997, 10, 15, 9, 0, 0, false),
+    DateTime.create(1997, 11, 2, 9, 0, 0, false),
+    DateTime.create(1997, 11, 15, 9, 0, 0, false),
+    DateTime.create(1997, 12, 2, 9, 0, 0, false),
+    DateTime.create(1997, 12, 15, 9, 0, 0, false),
+    DateTime.create(1998, 1, 2, 9, 0, 0, false),
+    DateTime.create(1998, 1, 15, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
+  expect([...set]).toEqual(dates);
 });
 
 test('Monthly on the first and last day of the month for 10 occurrences', () => {
@@ -142,21 +173,29 @@ test('Monthly on the first and last day of the month for 10 occurrences', () => 
     .setCount(10)
     .setByMonthday([1, -1]);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all().map((d) => d.timestamp);
-  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
+  const dates = set.all();
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYMONTHDAY=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
   );
   expect(dates).toEqual([
-    875624400000, 875710800000, 878306400000, 878392800000, 880898400000,
-    880984800000, 883576800000, 883663200000, 886255200000, 886341600000,
+    DateTime.create(1997, 9, 30, 9, 0, 0, false),
+    DateTime.create(1997, 10, 1, 9, 0, 0, false),
+    DateTime.create(1997, 10, 31, 9, 0, 0, false),
+    DateTime.create(1997, 11, 1, 9, 0, 0, false),
+    DateTime.create(1997, 11, 30, 9, 0, 0, false),
+    DateTime.create(1997, 12, 1, 9, 0, 0, false),
+    DateTime.create(1997, 12, 31, 9, 0, 0, false),
+    DateTime.create(1998, 1, 1, 9, 0, 0, false),
+    DateTime.create(1998, 1, 31, 9, 0, 0, false),
+    DateTime.create(1998, 2, 1, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every 18 months on the 10th thru 15th of the month for 10 occurrences', () => {
@@ -165,52 +204,55 @@ test('Every 18 months on the 10th thru 15th of the month for 10 occurrences', ()
     .setInterval(18)
     .setByMonthday([10, 11, 12, 13, 14, 15]);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all().map((d) => d.timestamp);
-  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
+  const dates = set.all();
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;INTERVAL=18;BYMONTHDAY=10,11,12,13,14,15;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
   );
   expect(dates).toEqual([
-    873896400000, 873982800000, 874069200000, 874155600000, 874242000000,
-    874328400000, 921074400000, 921160800000, 921247200000, 921333600000,
+    DateTime.create(1997, 9, 10, 9, 0, 0, false),
+    DateTime.create(1997, 9, 11, 9, 0, 0, false),
+    DateTime.create(1997, 9, 12, 9, 0, 0, false),
+    DateTime.create(1997, 9, 13, 9, 0, 0, false),
+    DateTime.create(1997, 9, 14, 9, 0, 0, false),
+    DateTime.create(1997, 9, 15, 9, 0, 0, false),
+    DateTime.create(1999, 3, 10, 9, 0, 0, false),
+    DateTime.create(1999, 3, 11, 9, 0, 0, false),
+    DateTime.create(1999, 3, 12, 9, 0, 0, false),
+    DateTime.create(1999, 3, 13, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
+  expect([...set]).toEqual(dates);
 });
 
 test('Monthly 5 times with two rdates and one exdate', () => {
   const rrule = new RRule(Frequency.Monthly).setCount(5);
-  const set = new RRuleSet(
-    new RRuleDateTime(new Date('2012-02-01T02:30:00Z'), 'UTC'),
-  )
+  const set = new RRuleSet(DateTime.create(2012, 2, 1, 2, 30, 0, false), 'UTC')
     .addRrule(rrule)
-    .addRdate(new Date('2012-07-01T02:30:00Z'))
-    .addRdate(new Date('2012-07-02T02:30:00Z'))
-    .addExdate(new Date('2012-06-01T02:30:00Z'));
+    .addRdate(DateTime.create(2012, 7, 1, 2, 30, 0, false))
+    .addRdate(DateTime.create(2012, 7, 2, 2, 30, 0, false))
+    .addExdate(DateTime.create(2012, 6, 1, 2, 30, 0, false));
 
-  const dates = set.all().map((d) => d.timestamp);
-  const iteratorDates = Array.from(set.occurrences()).map((d) => d.timestamp);
+  const dates = set.all();
 
-  expect(set.getRdates().map((d) => d.toDate().toISOString())).toEqual([
-    '2012-07-01T02:30:00.000Z',
-    '2012-07-02T02:30:00.000Z',
+  expect(set.rdates).toEqual([
+    DateTime.create(2012, 7, 1, 2, 30, 0, false),
+    DateTime.create(2012, 7, 2, 2, 30, 0, false),
   ]);
-  expect(set.getExdates().map((d) => d.toDate().toISOString())).toEqual([
-    '2012-06-01T02:30:00.000Z',
+  expect(set.exdates).toEqual([DateTime.create(2012, 6, 1, 2, 30, 0, false)]);
+  expect(dates).toEqual([
+    DateTime.create(2012, 2, 1, 2, 30, 0, true),
+    DateTime.create(2012, 3, 1, 2, 30, 0, true),
+    DateTime.create(2012, 4, 1, 2, 30, 0, true),
+    DateTime.create(2012, 5, 1, 2, 30, 0, true),
+    DateTime.create(2012, 7, 1, 2, 30, 0, true),
+    DateTime.create(2012, 7, 2, 2, 30, 0, true),
   ]);
-  expect(dates.map((d) => new Date(d).toISOString())).toEqual([
-    '2012-02-01T02:30:00.000Z',
-    '2012-03-01T02:30:00.000Z',
-    '2012-04-01T02:30:00.000Z',
-    '2012-05-01T02:30:00.000Z',
-    '2012-07-01T02:30:00.000Z',
-    '2012-07-02T02:30:00.000Z',
-  ]);
-  expect(iteratorDates).toEqual(dates);
+  expect([...set]).toEqual(dates);
 });
 
 test('Every Tuesday, every other month, limit 18', () => {
@@ -218,53 +260,66 @@ test('Every Tuesday, every other month, limit 18', () => {
     .setInterval(2)
     .setByWeekday([Weekday.Tuesday]);
   const set = new RRuleSet(
-    new RRuleDateTime(873205200000, 'US/Eastern'),
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all(18).map((d) => d.timestamp);
-  const iteratorDates = Array.from(takeN(set.occurrences(), 18)).map(
-    (d) => d.timestamp,
-  );
+  const dates = set.all(18);
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;INTERVAL=2;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
-    873205200000, 873810000000, 874414800000, 875019600000, 875624400000,
-    878652000000, 879256800000, 879861600000, 880466400000, 884095200000,
-    884700000000, 885304800000, 885909600000, 888933600000, 889538400000,
-    890143200000, 890748000000, 891352800000,
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    DateTime.create(1997, 9, 9, 9, 0, 0, false),
+    DateTime.create(1997, 9, 16, 9, 0, 0, false),
+    DateTime.create(1997, 9, 23, 9, 0, 0, false),
+    DateTime.create(1997, 9, 30, 9, 0, 0, false),
+    DateTime.create(1997, 11, 4, 9, 0, 0, false),
+    DateTime.create(1997, 11, 11, 9, 0, 0, false),
+    DateTime.create(1997, 11, 18, 9, 0, 0, false),
+    DateTime.create(1997, 11, 25, 9, 0, 0, false),
+    DateTime.create(1998, 1, 6, 9, 0, 0, false),
+    DateTime.create(1998, 1, 13, 9, 0, 0, false),
+    DateTime.create(1998, 1, 20, 9, 0, 0, false),
+    DateTime.create(1998, 1, 27, 9, 0, 0, false),
+    DateTime.create(1998, 3, 3, 9, 0, 0, false),
+    DateTime.create(1998, 3, 10, 9, 0, 0, false),
+    DateTime.create(1998, 3, 17, 9, 0, 0, false),
+    DateTime.create(1998, 3, 24, 9, 0, 0, false),
+    DateTime.create(1998, 3, 31, 9, 0, 0, false),
   ]);
-  expect(iteratorDates).toEqual(dates);
 });
 
-test('Monthly on the second to last Monday of the month for 6 months', () => {
+test('Monthly on the second to last Monday of the month for 6 months 1', () => {
   const rrule = new RRule(Frequency.Monthly)
     .setByWeekday([{ weekday: Weekday.Monday, n: -2 }])
     .setCount(6);
   const set = new RRuleSet(
-    new RRuleDateTime(new Date('1997-09-22T09:00:00-04:00'), 'US/Eastern'),
+    DateTime.create(1997, 9, 22, 9, 0, 0, false),
+    'US/Eastern',
   ).addRrule(rrule);
 
   const asString = set.toString();
-  const dates = set.all(8).map((d) => d.timestamp);
+  const dates = set.all(8);
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970922T090000\nRRULE:FREQ=MONTHLY;COUNT=6;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=-2MO',
   );
-  expect(dates.map((d) => new Date(d).toISOString())).toEqual([
-    '1997-09-22T13:00:00.000Z',
-    '1997-10-20T13:00:00.000Z',
-    '1997-11-17T14:00:00.000Z',
-    '1997-12-22T14:00:00.000Z',
-    '1998-01-19T14:00:00.000Z',
-    '1998-02-16T14:00:00.000Z',
+  expect(dates).toEqual([
+    DateTime.create(1997, 9, 22, 9, 0, 0, false),
+    DateTime.create(1997, 10, 20, 9, 0, 0, false),
+    DateTime.create(1997, 11, 17, 9, 0, 0, false),
+    DateTime.create(1997, 12, 22, 9, 0, 0, false),
+    DateTime.create(1998, 1, 19, 9, 0, 0, false),
+    DateTime.create(1998, 2, 16, 9, 0, 0, false),
   ]);
+  expect([...set]).toEqual(dates);
 });
 
 test('Errors on invalid by-weekday', () => {
   expect(() =>
-    new RRule(Frequency.Monthly).setByWeekday(['invalid' as any]),
-  ).toThrowError('Value is non of these types `NWeekday`, `Weekday`');
+    new RRule(Frequency.Monthly).setByWeekday(['invalid' as any]).toString(),
+  ).toThrow('Value is non of these types `NWeekday`, `Weekday`');
 });

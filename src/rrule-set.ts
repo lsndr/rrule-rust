@@ -12,6 +12,7 @@ export interface RRuleSetLike {
 }
 
 export class RRuleSet implements Iterable<DateTime> {
+  /** @internal */
   private rust?: Rust;
 
   public readonly dtstart: DateTime;

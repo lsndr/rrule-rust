@@ -81,8 +81,7 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build:lib": "napi build --js src/lib/index.js --dts src/lib/index.d.ts --platform --release",
-    "postbuild:lib": "cpy ./*.node ./src/lib && rimraf --glob ./*.node",
+    "build:lib": "napi build --no-const-enum --platform --release src/lib",
     "prebuild": "rimraf ./dist && npm run build:lib",
     "build": "tsc -p ./tsconfig.build.json",
     "postbuild": "cpy ./src/lib/* ./dist/lib --flat",

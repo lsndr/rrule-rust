@@ -1,7 +1,14 @@
 /* eslint-disable import/no-default-export -- Required by jest */
-import { Config } from 'jest';
+import type { JestConfigWithTsJest } from 'ts-jest';
 
 export default {
-  preset: 'ts-jest',
   testEnvironment: 'node',
-} satisfies Config;
+  transform: {
+    '^.+\\.[tj]s?$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.test.json',
+      },
+    ],
+  },
+} satisfies JestConfigWithTsJest;

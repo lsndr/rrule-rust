@@ -11,15 +11,7 @@ function suite(tzid: string) {
         interval: 1,
       });
       const set = new rust.RRuleSet({
-        dtstart: rust.DateTime.fromObject({
-          year: 2023,
-          month: 2,
-          day: 21,
-          hour: 23,
-          minute: 59,
-          second: 0,
-          utc: false,
-        }),
+        dtstart: rust.DateTime.create(2023, 2, 21, 23, 59, 0, false),
         tzid,
         rrules: [rrule],
       });

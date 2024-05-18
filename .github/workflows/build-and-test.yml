@@ -424,7 +424,7 @@ jobs:
           name: bindings-aarch64-apple-darwin
           path: artifacts
       - name: Combine binaries
-        run: npm run universal
+        run: npm run universal -- --dist src/lib
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

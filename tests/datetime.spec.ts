@@ -1,4 +1,5 @@
 import { DateTime } from '../src';
+import * as luxon from 'luxon';
 
 describe(DateTime, () => {
   describe('fromDate', () => {
@@ -77,6 +78,15 @@ describe(DateTime, () => {
       {
         year: 1997,
         month: 9,
+        day: 7,
+        hour: 4,
+        minute: 0,
+        second: 0,
+        utc: undefined,
+      },
+      {
+        year: 1997,
+        month: 9,
         day: 3,
         hour: 9,
         minute: 0,
@@ -93,7 +103,7 @@ describe(DateTime, () => {
         utc: true,
       },
     ])('should create datetime from %j', (input) => {
-      const datetime = DateTime.fromObject(input);
+      const datetime = DateTime.fromObject(input, { utc: input.utc });
 
       expect(datetime.year).toBe(input.year);
       expect(datetime.month).toBe(input.month);
@@ -101,7 +111,7 @@ describe(DateTime, () => {
       expect(datetime.hour).toBe(input.hour);
       expect(datetime.minute).toBe(input.minute);
       expect(datetime.second).toBe(input.second);
-      expect(datetime.utc).toBe(input.utc);
+      expect(datetime.utc).toBe(!!input.utc);
     });
   });
 
@@ -137,10 +147,30 @@ describe(DateTime, () => {
       );
       const object = datetime.toObject();
 
-      expect(object).toEqual(input);
+      expect(object).toEqual({
+        year: input.year,
+        month: input.month,
+        day: input.day,
+        hour: input.hour,
+        minute: input.minute,
+        second: input.second,
+      });
+    });
+
+    test("should be be compatible with Luxon's DateTime.fromObject", () => {
+      const datetime = DateTime.create(1997, 9, 3, 9, 4, 7, false);
+      const object = datetime.toObject();
+
+      const luxonDateTime = luxon.DateTime.fromObject(object);
+
+      expect(luxonDateTime.year).toBe(object.year);
+      expect(luxonDateTime.month).toBe(object.month);
+      expect(luxonDateTime.day).toBe(object.day);
+      expect(luxonDateTime.hour).toBe(object.hour);
+      expect(luxonDateTime.minute).toBe(object.minute);
+      expect(luxonDateTime.second).toBe(object.second);
     });
   });
-
   describe('toDate', () => {
     test.each([
       {

@@ -5,10 +5,10 @@ export interface DateTimeLike {
   readonly hour: number;
   readonly minute: number;
   readonly second: number;
-  /**
-   * Whether the date and time is in UTC.
-   */
-  readonly utc: boolean;
+}
+
+export interface FromObjectOptions {
+  utc?: boolean;
 }
 
 /**
@@ -89,7 +89,6 @@ export class DateTime implements DateTimeLike {
       hour: this.hour,
       minute: this.minute,
       second: this.second,
-      utc: this.utc,
     };
   }
 
@@ -120,7 +119,10 @@ export class DateTime implements DateTimeLike {
   /**
    * Creates a new DateTime object from the given plain object.
    */
-  public static fromObject(object: DateTimeLike): DateTime {
+  public static fromObject(
+    object: DateTimeLike,
+    options?: FromObjectOptions,
+  ): DateTime {
     return DateTime.create(
       object.year,
       object.month,
@@ -128,7 +130,7 @@ export class DateTime implements DateTimeLike {
       object.hour,
       object.minute,
       object.second,
-      object.utc,
+      !!options?.utc,
     );
   }
 

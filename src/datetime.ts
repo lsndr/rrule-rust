@@ -106,6 +106,34 @@ export class DateTime implements DateTimeLike {
   }
 
   /**
+   * This method is shorthand for `DateTime.create` with `utc` set to `false`.
+   */
+  public static local(
+    year: number,
+    month: number,
+    day: number,
+    hour: number,
+    minute: number,
+    second: number,
+  ): DateTime {
+    return DateTime.create(year, month, day, hour, minute, second, false);
+  }
+
+  /**
+   * This method is shorthand for `DateTime.create` with `utc` set to `true`.
+   */
+  public static utc(
+    year: number,
+    month: number,
+    day: number,
+    hour: number,
+    minute: number,
+    second: number,
+  ): DateTime {
+    return DateTime.create(year, month, day, hour, minute, second, true);
+  }
+
+  /**
    * Creates a new DateTime object from the given plain object.
    */
   public static fromObject(

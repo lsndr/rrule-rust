@@ -1,5 +1,51 @@
 import { DateTime } from './datetime';
-import { RRule as Rust, Frequency, NWeekday, Month, Weekday } from './lib';
+import { RRule as Rust } from './lib';
+
+export interface NWeekday {
+  /**
+   * If set, this represents the nth occurrence of the weekday.
+   * Otherwise it represents every occurrence of the weekday.
+   *
+   * A negative value represents nth occurrence from the end.
+   */
+  n?: number;
+  weekday: Weekday;
+}
+
+export enum Frequency {
+  Yearly = 0,
+  Monthly = 1,
+  Weekly = 2,
+  Daily = 3,
+  Hourly = 4,
+  Minutely = 5,
+  Secondly = 6,
+}
+
+export enum Month {
+  January = 0,
+  February = 1,
+  March = 2,
+  April = 3,
+  May = 4,
+  June = 5,
+  July = 6,
+  August = 7,
+  September = 8,
+  October = 9,
+  November = 10,
+  December = 11,
+}
+
+export enum Weekday {
+  Monday = 0,
+  Tuesday = 1,
+  Wednesday = 2,
+  Thursday = 3,
+  Friday = 4,
+  Saturday = 5,
+  Sunday = 6,
+}
 
 export interface RRuleLike {
   readonly frequency: Frequency;

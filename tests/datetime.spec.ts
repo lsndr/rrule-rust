@@ -43,6 +43,22 @@ describe(DateTime, () => {
     });
   });
 
+  describe('utc', () => {
+    test('should create utc object from', () => {
+      const datetime = DateTime.utc(2005, 9, 4, 9, 1, 2);
+
+      expect(datetime.utc).toBeTruthy();
+    });
+  });
+
+  describe('local', () => {
+    test('should create local object from', () => {
+      const datetime = DateTime.local(2005, 9, 4, 9, 1, 2);
+
+      expect(datetime.utc).toBeFalsy();
+    });
+  });
+
   describe('fromObject', () => {
     test.each([
       {

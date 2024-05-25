@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use napi_derive::napi;
 
 #[napi(js_name = "Month")]
@@ -14,6 +16,28 @@ pub enum Month {
   October,
   November,
   December,
+}
+
+impl FromStr for Month {
+  type Err = String;
+
+  fn from_str(month: &str) -> Result<Self, Self::Err> {
+    match month {
+      "1" => Ok(Month::January),
+      "2" => Ok(Month::February),
+      "3" => Ok(Month::March),
+      "4" => Ok(Month::April),
+      "5" => Ok(Month::May),
+      "6" => Ok(Month::June),
+      "7" => Ok(Month::July),
+      "8" => Ok(Month::August),
+      "9" => Ok(Month::September),
+      "10" => Ok(Month::October),
+      "11" => Ok(Month::November),
+      "12" => Ok(Month::December),
+      _ => Err(format!("Unknown month number: {}", month)),
+    }
+  }
 }
 
 impl From<&u8> for Month {

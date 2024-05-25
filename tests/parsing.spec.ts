@@ -140,32 +140,30 @@ test('Should properly parse monthly individual recurrence rule', () => {
 });
 
 test('Should throw error on invalid individual recurrence rule', () => {
-  expect(() => RRule.parse('Invalid')).toThrowError(
-    'RRule parsing error: `Invalid` is a malformed property parameter. Parameter should be specified as `key=value',
-  );
+  expect(() => RRule.parse('Invalid')).toThrowError('Invalid rrule value');
 });
 
 test('Should throw error on invalid individual recurrence rule frequency', () => {
   expect(() => RRule.parse('FREQ=Invalid')).toThrowError(
-    'RRule parsing error: `INVALID` is not a valid frequency.',
+    'Invalid frequency: Invalid',
   );
 });
 
 test('Should throw error on invalid individual recurrence rule interval', () => {
   expect(() => RRule.parse('FREQ=DAILY;INTERVAL=Invalid')).toThrowError(
-    'RRule parsing error: `Invalid` is not a valid INTERVAL value.',
+    'Invalid interval: Invalid',
   );
 });
 
 test('Should throw error on invalid individual recurrence rule until', () => {
   expect(() => RRule.parse('FREQ=DAILY;UNTIL=Invalid')).toThrowError(
-    'RRule parsing error: `Invalid` is not a valid datetime format for `UNTIL`.',
+    'Invalid datetime string: Invalid',
   );
 });
 
 test('Should throw error on invalid individual recurrence rule week start', () => {
   expect(() => RRule.parse('FREQ=DAILY;WKST=Invalid')).toThrowError(
-    'RRule parsing error: `Invalid` is not a valid weekday start. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`.',
+    'Invalid weekday: Invalid',
   );
 });
 

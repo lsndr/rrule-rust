@@ -1,6 +1,10 @@
+use std::str::FromStr;
+
 use chrono::Datelike;
 use chrono::TimeZone;
 use chrono::Timelike;
+
+use super::month;
 
 pub struct DateTime {
   year: u32,
@@ -112,5 +116,67 @@ impl Into<i64> for DateTime {
       + minute * 1000
       + second * 10
       + utc
+  }
+}
+
+impl FromStr for DateTime {
+  type Err = String;
+
+  fn from_str(str: &str) -> Result<Self, Self::Err> {
+    if str.len() > 16 || str.len() < 15 {
+      return Err(format!("Invalid datetime string: {}", str));
+    }
+
+    let year = str
+      .get(0..4)
+      .ok_or(format!("Can not extract year from: {}", str))?;
+    let year: u32 = year
+      .parse()
+      .map_err(|_| format!("Invalid year: {}", year))?;
+
+    let month = str
+      .get(4..6)
+      .ok_or(format!("Can not extract month from: {}", str))?;
+    let month: u32 = month
+      .parse()
+      .map_err(|_| format!("Invalid month: {}", month))?;
+
+    let day = str
+      .get(6..8)
+      .ok_or(format!("Can not extract day from: {}", str))?;
+    let day: u32 = day.parse().map_err(|_| format!("Invalid day: {}", day))?;
+
+    let hour = str
+      .get(9..11)
+      .ok_or(format!("Can not extract hour from: {}", str))?;
+    let hour: u32 = hour
+      .parse()
+      .map_err(|_| format!("Invalid hour: {}", hour))?;
+
+    let minute = str
+      .get(11..13)
+      .ok_or(format!("Can not extract minute from: {}", str))?;
+    let minute: u32 = minute
+      .parse()
+      .map_err(|_| format!("Invalid minute: {}", minute))?;
+
+    let second = str
+      .get(13..15)
+      .ok_or(format!("Can not extract second from: {}", str))?;
+    let second: u32 = second
+      .parse()
+      .map_err(|_| format!("Invalid second: {}", second))?;
+
+    let utc = str.get(15..16).unwrap_or("").to_uppercase() == "Z";
+
+    Ok(DateTime {
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second,
+      utc,
+    })
   }
 }

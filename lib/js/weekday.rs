@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use napi_derive::napi;
 
 #[napi(js_name = "Weekday")]
@@ -35,6 +37,23 @@ impl Into<rrule::Weekday> for Weekday {
       Weekday::Friday => rrule::Weekday::Fri,
       Weekday::Saturday => rrule::Weekday::Sat,
       Weekday::Sunday => rrule::Weekday::Sun,
+    }
+  }
+}
+
+impl FromStr for Weekday {
+  type Err = String;
+
+  fn from_str(str: &str) -> Result<Self, Self::Err> {
+    match &*str.to_uppercase() {
+      "MO" => Ok(Weekday::Monday),
+      "TU" => Ok(Weekday::Tuesday),
+      "WE" => Ok(Weekday::Wednesday),
+      "TH" => Ok(Weekday::Thursday),
+      "FR" => Ok(Weekday::Friday),
+      "SA" => Ok(Weekday::Saturday),
+      "SU" => Ok(Weekday::Sunday),
+      _ => Err(format!("Invalid weekday: {}", str)),
     }
   }
 }

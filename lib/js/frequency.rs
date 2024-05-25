@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use napi_derive::napi;
 
 #[napi(js_name = "Frequency")]
@@ -35,6 +37,23 @@ impl Into<rrule::Frequency> for Frequency {
       Frequency::Secondly => rrule::Frequency::Secondly,
       Frequency::Weekly => rrule::Frequency::Weekly,
       Frequency::Yearly => rrule::Frequency::Yearly,
+    }
+  }
+}
+
+impl FromStr for Frequency {
+  type Err = String;
+
+  fn from_str(str: &str) -> Result<Self, Self::Err> {
+    match &*str.to_uppercase() {
+      "DAILY" => Ok(Frequency::Daily),
+      "HOURLY" => Ok(Frequency::Hourly),
+      "MINUTELY" => Ok(Frequency::Minutely),
+      "MONTHLY" => Ok(Frequency::Monthly),
+      "SECONDLY" => Ok(Frequency::Secondly),
+      "WEEKLY" => Ok(Frequency::Weekly),
+      "YEARLY" => Ok(Frequency::Yearly),
+      _ => Err(format!("Invalid frequency: {}", str)),
     }
   }
 }

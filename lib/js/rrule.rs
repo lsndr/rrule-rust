@@ -88,13 +88,15 @@ impl RRule {
   }
 
   #[napi(getter, ts_return_type = "NWeekday[]")]
-  pub fn by_weekday(&self) -> Vec<NWeekday> {
-    return self
-      .rrule
-      .get_by_weekday()
-      .iter()
-      .map(|nday| NWeekday::from(*nday))
-      .collect();
+  pub fn by_weekday(&self) -> napi::Result<Vec<NWeekday>> {
+    Ok(
+      self
+        .rrule
+        .get_by_weekday()
+        .iter()
+        .map(|nday| NWeekday::from(*nday))
+        .collect(),
+    )
   }
 
   #[napi(getter)]
@@ -123,15 +125,11 @@ impl RRule {
   }
 
   #[napi(getter, ts_return_type = "Month[]")]
-  pub fn by_month(&self, env: Env) -> napi::Result<Array> {
+  pub fn by_month(&self) -> napi::Result<Vec<Month>> {
     let months = self.rrule.get_by_month();
-    let mut arr = env.create_array(0)?;
+    let months = months.iter().map(|month| Month::from(month)).collect();
 
-    for month in months.iter() {
-      arr.insert(Month::from(month))?;
-    }
-
-    Ok(arr)
+    Ok(months)
   }
 
   #[napi(getter)]
@@ -164,7 +162,7 @@ impl RRule {
 
   #[napi]
   pub fn to_string(&self) -> napi::Result<String> {
-    Ok(self.rrule.to_string())
+    Ok(self.into())
   }
 
   #[napi]

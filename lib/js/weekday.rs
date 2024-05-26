@@ -3,6 +3,7 @@ use std::str::FromStr;
 use napi_derive::napi;
 
 #[napi(js_name = "Weekday")]
+#[derive(PartialEq)]
 pub enum Weekday {
   Monday,
   Tuesday,
@@ -37,6 +38,34 @@ impl Into<rrule::Weekday> for Weekday {
       Weekday::Friday => rrule::Weekday::Fri,
       Weekday::Saturday => rrule::Weekday::Sat,
       Weekday::Sunday => rrule::Weekday::Sun,
+    }
+  }
+}
+
+impl Into<String> for Weekday {
+  fn into(self) -> String {
+    match self {
+      Weekday::Monday => "MO".to_string(),
+      Weekday::Tuesday => "TU".to_string(),
+      Weekday::Wednesday => "WE".to_string(),
+      Weekday::Thursday => "TH".to_string(),
+      Weekday::Friday => "FR".to_string(),
+      Weekday::Saturday => "SA".to_string(),
+      Weekday::Sunday => "SU".to_string(),
+    }
+  }
+}
+
+impl Into<String> for &Weekday {
+  fn into(self) -> String {
+    match self {
+      Weekday::Monday => "MO".to_string(),
+      Weekday::Tuesday => "TU".to_string(),
+      Weekday::Wednesday => "WE".to_string(),
+      Weekday::Thursday => "TH".to_string(),
+      Weekday::Friday => "FR".to_string(),
+      Weekday::Saturday => "SA".to_string(),
+      Weekday::Sunday => "SU".to_string(),
     }
   }
 }

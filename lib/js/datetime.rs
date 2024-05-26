@@ -55,6 +55,21 @@ impl DateTime {
   }
 }
 
+impl Into<String> for DateTime {
+  fn into(self) -> String {
+    format!(
+      "{:04}{:02}{:02}T{:02}{:02}{:02}{}",
+      self.year,
+      self.month,
+      self.day,
+      self.hour,
+      self.minute,
+      self.second,
+      if self.utc { "Z" } else { "" }
+    )
+  }
+}
+
 impl From<i64> for DateTime {
   fn from(numeric: i64) -> Self {
     let year = (numeric / 100000000000) as u32;

@@ -1,14 +1,14 @@
 use napi::Error;
 use std::{any::type_name, str::FromStr};
 
-pub trait ToVec<'a, T>
+pub trait ToVec<T>
 where
   T: FromStr,
 {
   fn to_vec(&self) -> Result<Vec<T>, Error>;
 }
 
-impl<'a, T> ToVec<'a, T> for &str
+impl<T> ToVec<T> for &str
 where
   T: FromStr,
 {

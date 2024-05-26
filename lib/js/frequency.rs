@@ -41,6 +41,20 @@ impl Into<rrule::Frequency> for Frequency {
   }
 }
 
+impl Into<String> for Frequency {
+  fn into(self) -> String {
+    match self {
+      Frequency::Yearly => "YEARLY".to_string(),
+      Frequency::Monthly => "MONTHLY".to_string(),
+      Frequency::Weekly => "WEEKLY".to_string(),
+      Frequency::Daily => "DAILY".to_string(),
+      Frequency::Hourly => "HOURLY".to_string(),
+      Frequency::Minutely => "MINUTELY".to_string(),
+      Frequency::Secondly => "SECONDLY".to_string(),
+    }
+  }
+}
+
 impl FromStr for Frequency {
   type Err = String;
 

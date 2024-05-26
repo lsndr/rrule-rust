@@ -111,7 +111,7 @@ test('Should properly parse weekly individual recurrence rule', () => {
 
   const asString = rule.toString();
   expect(asString).toBe(
-    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYDAY=MO,WE,FR',
+    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYDAY=MO,WE,FR',
   );
 });
 
@@ -122,7 +122,7 @@ test('Should properly parse individual recurrence rule with RRULE prefix', () =>
 
   const asString = rule.toString();
   expect(asString).toBe(
-    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYDAY=MO,WE,FR',
+    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYDAY=MO,WE,FR',
   );
 });
 
@@ -136,7 +136,7 @@ test('Should properly parse monthly individual recurrence rule', () => {
   //expect(rule.byWeekday)
 
   const asString = rule.toString();
-  expect(asString).toBe('FREQ=MONTHLY;COUNT=10;INTERVAL=2;BYDAY=SU,-1SU');
+  expect(asString).toBe('FREQ=MONTHLY;COUNT=10;INTERVAL=2;BYDAY=1SU,-1SU');
 });
 
 test('Should throw error on invalid individual recurrence rule', () => {

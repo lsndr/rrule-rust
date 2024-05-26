@@ -18,6 +18,25 @@ pub enum Month {
   December,
 }
 
+impl ToString for Month {
+  fn to_string(&self) -> String {
+    match self {
+      Month::January => "1".to_string(),
+      Month::February => "2".to_string(),
+      Month::March => "3".to_string(),
+      Month::April => "4".to_string(),
+      Month::May => "5".to_string(),
+      Month::June => "6".to_string(),
+      Month::July => "7".to_string(),
+      Month::August => "8".to_string(),
+      Month::September => "9".to_string(),
+      Month::October => "10".to_string(),
+      Month::November => "11".to_string(),
+      Month::December => "12".to_string(),
+    }
+  }
+}
+
 impl FromStr for Month {
   type Err = String;
 
@@ -43,18 +62,18 @@ impl FromStr for Month {
 impl From<&u8> for Month {
   fn from(month: &u8) -> Self {
     match month {
-      0 => Month::January,
-      1 => Month::February,
-      2 => Month::March,
-      3 => Month::April,
-      4 => Month::May,
-      5 => Month::June,
-      6 => Month::July,
-      7 => Month::August,
-      8 => Month::September,
-      9 => Month::October,
-      10 => Month::November,
-      11 => Month::December,
+      1 => Month::January,
+      2 => Month::February,
+      3 => Month::March,
+      4 => Month::April,
+      5 => Month::May,
+      6 => Month::June,
+      7 => Month::July,
+      8 => Month::August,
+      9 => Month::September,
+      10 => Month::October,
+      11 => Month::November,
+      12 => Month::December,
       _ => panic!("Unknown month index: {}", month),
     }
   }

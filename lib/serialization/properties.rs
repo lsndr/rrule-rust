@@ -1,15 +1,15 @@
 use super::property::{Error, Property};
 
-pub struct Properties<'a> {
-  items: Vec<Property<'a>>,
+pub struct Properties {
+  items: Vec<Property>,
 }
 
-impl<'a> Properties<'a> {
-  pub fn items(&self) -> &Vec<Property<'a>> {
+impl Properties {
+  pub fn items(&self) -> &Vec<Property> {
     &self.items
   }
 
-  pub fn from_string<'b>(str: &'b str) -> Result<Properties<'b>, Error> {
+  pub fn from_string<'b>(str: &'b str) -> Result<Properties, Error> {
     let mut items = Vec::new();
     let property_strings = str.split('\n');
 

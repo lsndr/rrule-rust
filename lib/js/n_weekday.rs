@@ -37,6 +37,32 @@ impl Into<rrule::NWeekday> for NWeekday {
   }
 }
 
+impl Into<String> for NWeekday {
+  fn into(self) -> String {
+    match self.n {
+      Some(n) => {
+        let weekday: String = self.weekday.into();
+
+        format!("{}{}", n, weekday)
+      }
+      None => self.weekday.into(),
+    }
+  }
+}
+
+impl Into<String> for &NWeekday {
+  fn into(self) -> String {
+    match self.n {
+      Some(n) => {
+        let weekday: String = self.weekday.into();
+
+        format!("{}{}", n, weekday)
+      }
+      None => self.weekday.into(),
+    }
+  }
+}
+
 impl FromStr for NWeekday {
   type Err = String;
 

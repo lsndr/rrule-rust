@@ -131,11 +131,9 @@ impl RRuleSet {
 
   #[napi(factory, ts_return_type = "RRuleSet")]
   pub fn parse(str: String) -> napi::Result<Self> {
-    let rrule_set: rrule::RRuleSet = str
-      .parse()
-      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+    let set: Self = str.parse()?;
 
-    Ok(RRuleSet { rrule_set })
+    Ok(set)
   }
 
   #[napi]

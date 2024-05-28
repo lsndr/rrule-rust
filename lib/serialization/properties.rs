@@ -5,11 +5,7 @@ pub struct Properties {
 }
 
 impl Properties {
-  pub fn items(&self) -> &Vec<Property> {
-    &self.items
-  }
-
-  pub fn from_string<'b>(str: &'b str) -> Result<Properties, Error> {
+  pub fn from_str(str: &str) -> Result<Properties, Error> {
     let mut items = Vec::new();
     let property_strings = str.split('\n');
 
@@ -18,5 +14,14 @@ impl Properties {
     }
 
     Ok(Properties { items })
+  }
+}
+
+impl IntoIterator for Properties {
+  type Item = Property;
+  type IntoIter = std::vec::IntoIter<Self::Item>;
+
+  fn into_iter(self) -> Self::IntoIter {
+    self.items.into_iter()
   }
 }

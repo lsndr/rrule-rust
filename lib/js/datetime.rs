@@ -4,8 +4,6 @@ use chrono::Datelike;
 use chrono::TimeZone;
 use chrono::Timelike;
 
-use super::month;
-
 pub struct DateTime {
   year: u32,
   month: u32,
@@ -17,6 +15,10 @@ pub struct DateTime {
 }
 
 impl DateTime {
+  pub fn utc(&self) -> bool {
+    self.utc
+  }
+
   pub fn to_rrule_datetime(
     &self,
     timezone: &rrule::Tz,

@@ -77,7 +77,7 @@ impl Property {
     }
   }
 
-  pub fn from_string<'b>(str: &'b str) -> Result<Property, Error> {
+  pub fn from_string(str: &str) -> Result<Property, Error> {
     let key_value: Vec<&str> = str.split(':').collect();
 
     if key_value.len() != 2 {

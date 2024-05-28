@@ -97,33 +97,25 @@ impl Into<String> for &RRule {
   }
 }
 
-impl FromStr for RRule {
-  type Err = napi::Error;
+impl TryFrom<Property> for RRule {
+  type Error = napi::Error;
 
-  fn from_str(str: &str) -> Result<Self, Self::Err> {
-    let str = if !str.to_uppercase().starts_with("RRULE:") {
-      format!("RRULE:{}", str)
-    } else {
-      str.to_string()
-    };
-
-    let property = crate::serialization::Property::from_string(&str)
-      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
-
-    if property.name() != "RRULE" {
+  fn try_from(property: Property) -> Result<Self, Self::Error> {
+    if property.name() != "RRULE" && property.name() != "EXRULE" {
       return Err(napi::Error::new(
         napi::Status::GenericFailure,
         format!("Invalid property name: {}", property.name()),
       ));
     }
 
-    let value = if let Parameters::Multiple(params) = property.value() {
-      params
-    } else {
-      return Err(napi::Error::new(
-        napi::Status::GenericFailure,
-        "Invalid rrule value",
-      ));
+    let value = match property.value() {
+      Parameters::Multiple(value) => value,
+      Parameters::Single(value) => {
+        return Err(napi::Error::new(
+          napi::Status::GenericFailure,
+          format!("Invalid {} value {}", property.name(), value),
+        ))
+      }
     };
 
     let rrule = rrule::RRule::new(rrule::Frequency::Daily);
@@ -310,5 +302,24 @@ impl FromStr for RRule {
     };
 
     Ok(Self::from_rrule(rrule)?)
+  }
+}
+
+impl FromStr for RRule {
+  type Err = napi::Error;
+
+  fn from_str(str: &str) -> Result<Self, Self::Err> {
+    let str = if !str.to_uppercase().starts_with("RRULE:") {
+      format!("RRULE:{}", str)
+    } else {
+      str.to_string()
+    };
+
+    let property = crate::serialization::Property::from_string(&str)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+
+    let rrule = RRule::try_from(property)?;
+
+    Ok(rrule)
   }
 }

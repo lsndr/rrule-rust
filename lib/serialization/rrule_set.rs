@@ -149,7 +149,18 @@ impl Into<String> for &RRuleSet {
       properties.push(Property::new(
         "EXDATE".to_string(),
         IndexMap::new(),
-        Parameters::Single(self.exdates().iter().map(|date| date.to_string()).collect()),
+        Parameters::Single(
+          self
+            .exdates()
+            .into_iter()
+            .map(|date| {
+              let date: DateTime = date.into();
+              let date: String = date.into();
+
+              date
+            })
+            .collect(),
+        ),
       ));
     }
 
@@ -157,7 +168,18 @@ impl Into<String> for &RRuleSet {
       properties.push(Property::new(
         "RDATE".to_string(),
         IndexMap::new(),
-        Parameters::Single(self.rdates().iter().map(|date| date.to_string()).collect()),
+        Parameters::Single(
+          self
+            .rdates()
+            .into_iter()
+            .map(|date| {
+              let date: DateTime = date.into();
+              let date: String = date.into();
+
+              date
+            })
+            .collect(),
+        ),
       ));
     }
 

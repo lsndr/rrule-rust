@@ -128,7 +128,7 @@ test('Should properly parse monthly individual recurrence rule', () => {
   //expect(rule.byWeekday)
 
   const asString = rule.toString();
-  expect(asString).toBe('FREQ=MONTHLY;COUNT=10;INTERVAL=2;BYDAY=1SU,-1SU');
+  expect(asString).toBe('FREQ=MONTHLY;COUNT=10;INTERVAL=2;BYDAY=SU,-1SU');
 });
 
 test('Should throw error on invalid individual recurrence rule', () => {

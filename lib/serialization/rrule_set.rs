@@ -1,3 +1,4 @@
+use crate::serialization::to_vec::ToVec;
 use std::str::FromStr;
 
 use super::{Parameters, Properties, Property};
@@ -12,6 +13,9 @@ impl FromStr for RRuleSet {
 
     let mut dtstart: Option<(i64, String)> = None;
     let mut rrules: Vec<RRule> = Vec::new();
+    let mut exrules: Vec<RRule> = Vec::new();
+    let mut exdates: Vec<i64> = Vec::new();
+    let mut rdates: Vec<i64> = Vec::new();
 
     for property in properties {
       match property.name() {
@@ -26,13 +30,72 @@ impl FromStr for RRuleSet {
         }
         "EXRULE" => {
           let rrule = RRule::try_from(property)?;
-          rrules.push(rrule);
+          exrules.push(rrule);
+        }
+        "EXDATE" => {
+          if let Some(value) = property.parameters().get("VALUE") {
+            if value == "DATE" {
+              return Err(napi::Error::new(
+                napi::Status::GenericFailure,
+                "Unsupported EXDATE value: DATE",
+              ));
+            } else if value != "DATE-TIME" {
+              return Err(napi::Error::new(
+                napi::Status::GenericFailure,
+                format!("Unsupported EXDATE value: {}", value),
+              ));
+            }
+          }
+
+          let value = match property.value() {
+            Parameters::Single(value) => value,
+            Parameters::Multiple(_) => {
+              return Err(napi::Error::new(
+                napi::Status::GenericFailure,
+                "Invalid EXDATE",
+              ));
+            }
+          };
+
+          let dates: Vec<DateTime> = value.as_str().to_vec()?;
+
+          for date in dates {
+            exdates.push(date.into());
+          }
+        }
+        "RDATE" => {
+          if let Some(value) = property.parameters().get("VALUE") {
+            if value == "DATE" {
+              return Err(napi::Error::new(
+                napi::Status::GenericFailure,
+                "Unsupported RDATE value: DATE. Only DATE-TIME is supported",
+              ));
+            } else if value != "DATE-TIME" {
+              return Err(napi::Error::new(
+                napi::Status::GenericFailure,
+                format!("Unsupported RDATE value: {}", value),
+              ));
+            }
+          }
+
+          let value = match property.value() {
+            Parameters::Single(value) => value,
+            Parameters::Multiple(_) => {
+              return Err(napi::Error::new(
+                napi::Status::GenericFailure,
+                "Invalid RDATE",
+              ));
+            }
+          };
+
+          let dates: Vec<DateTime> = value.as_str().to_vec()?;
+
+          for date in dates {
+            rdates.push(date.into());
+          }
         }
         _ => {
-          return Err(napi::Error::new(
-            napi::Status::GenericFailure,
-            format!("Unsupported property: {}", property.name()),
-          ));
+          // Ignore unsupported properties
         }
       }
     }
@@ -51,9 +114,9 @@ impl FromStr for RRuleSet {
       dtstart,
       tzid,
       Some(rrules.iter().collect()),
-      None,
-      None,
-      None,
+      Some(exrules.iter().collect()),
+      Some(exdates),
+      Some(rdates),
     );
   }
 }

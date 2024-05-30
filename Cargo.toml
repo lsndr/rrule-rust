@@ -13,7 +13,7 @@ chrono-tz = "0.8.5"
 indexmap = "2.2.6"
 # Default enable napi5 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
 napi = { version = "2.16.6", default-features = false, features = ["napi5"] }
-napi-derive = "2.16.4"
+napi-derive = "2.16.5"
 replace_with = "0.1.7"
 rrule = { version = "0.12.0", features = ["exrule"] }
 

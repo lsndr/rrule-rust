@@ -65,68 +65,56 @@ impl RRuleSet {
   }
 
   #[napi(getter)]
-  pub fn tzid(&self) -> napi::Result<String> {
-    Ok(self.rrule_set.get_dt_start().timezone().to_string())
+  pub fn tzid(&self) -> String {
+    self.rrule_set.get_dt_start().timezone().to_string()
   }
 
   #[napi(getter)]
-  pub fn dtstart(&self) -> napi::Result<i64> {
+  pub fn dtstart(&self) -> i64 {
     let dtstart = *self.rrule_set.get_dt_start();
     let dtstart: i64 = super::DateTime::from(dtstart).into();
 
-    Ok(dtstart)
+    dtstart
   }
 
   #[napi(getter, ts_return_type = "RRule[]")]
-  pub fn rrules(&self, env: Env) -> Array {
-    let mut arr = env.create_array(0).unwrap();
-    let rrules = self.rrule_set.get_rrule();
-
-    for rrule in rrules.iter() {
-      arr.insert(RRule::from(to_unvalidated(rrule))).unwrap();
-    }
-
-    arr
+  pub fn rrules(&self) -> Vec<RRule> {
+    self
+      .rrule_set
+      .get_rrule()
+      .iter()
+      .map(|rrule| RRule::from(to_unvalidated(rrule)))
+      .collect()
   }
 
   #[napi(getter, ts_return_type = "RRule[]")]
-  pub fn exrules(&self, env: Env) -> Array {
-    let mut arr = env.create_array(0).unwrap();
-    let rrules = self.rrule_set.get_exrule();
-
-    for rrule in rrules.iter() {
-      arr.insert(RRule::from(to_unvalidated(rrule))).unwrap();
-    }
-
-    arr
+  pub fn exrules(&self) -> Vec<RRule> {
+    self
+      .rrule_set
+      .get_exrule()
+      .iter()
+      .map(|rrule| RRule::from(to_unvalidated(rrule)))
+      .collect()
   }
 
   #[napi(getter, ts_return_type = "number[]")]
-  pub fn exdates(&self, env: Env) -> Array {
-    let mut arr = env.create_array(0).unwrap();
-    let dates = self.rrule_set.get_exdate();
-
-    for date in dates.iter() {
-      let datetime: i64 = super::DateTime::from(*date).into();
-
-      arr.insert(datetime).unwrap();
-    }
-
-    arr
+  pub fn exdates(&self) -> Vec<i64> {
+    self
+      .rrule_set
+      .get_exdate()
+      .iter()
+      .map(|date| super::DateTime::from(*date).into())
+      .collect()
   }
 
   #[napi(getter, ts_return_type = "number[]")]
-  pub fn rdates(&self, env: Env) -> Array {
-    let mut arr = env.create_array(0).unwrap();
-    let dates = self.rrule_set.get_rdate();
-
-    for date in dates.iter() {
-      let datetime: i64 = super::DateTime::from(*date).into();
-
-      arr.insert(datetime).unwrap();
-    }
-
-    arr
+  pub fn rdates(&self) -> Vec<i64> {
+    self
+      .rrule_set
+      .get_rdate()
+      .iter()
+      .map(|date| super::DateTime::from(*date).into())
+      .collect()
   }
 
   #[napi(factory, ts_return_type = "RRuleSet")]
@@ -282,7 +270,7 @@ impl RRuleSet {
 
   #[napi]
   pub fn to_string(&self) -> napi::Result<String> {
-    Ok(self.rrule_set.to_string())
+    Ok(self.into())
   }
 
   #[napi]

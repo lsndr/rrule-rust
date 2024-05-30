@@ -6,18 +6,44 @@ use crate::serialization::to_string_array::ToStringArray;
 use crate::serialization::to_vec::ToVec;
 use std::str::FromStr;
 
-impl Into<String> for &RRule {
-  fn into(self) -> String {
+impl Into<Property> for &RRule {
+  fn into(self) -> Property {
     let mut value: IndexMap<String, String> = IndexMap::new();
 
     if let Ok(freq) = self.frequency() {
       value.insert("FREQ".to_string(), freq.into());
     }
 
+    if let Ok(count) = self.count() {
+      if let Some(count) = count {
+        value.insert("COUNT".to_string(), count.to_string());
+      }
+    }
+
     if let Ok(until) = self.until() {
       if let Some(until) = until {
         let datetime = DateTime::from(until);
         value.insert("UNTIL".to_string(), datetime.into());
+      }
+    }
+
+    if let Ok(interval) = self.interval() {
+      if interval > 1 {
+        value.insert("INTERVAL".to_string(), interval.to_string());
+      }
+    }
+
+    if let Ok(weekstart) = self.weekstart() {
+      if weekstart != Weekday::Monday {
+        value.insert("WKST".to_string(), weekstart.into());
+      }
+    }
+
+    if let Ok(by_setpos) = self.by_setpos() {
+      if (by_setpos.len() > 0) {
+        // TODO: use to_string_array
+        let by_month: Vec<String> = by_setpos.iter().map(|month| month.to_string()).collect();
+        value.insert("BYSETPOS".to_string(), by_month.join(","));
       }
     }
 
@@ -35,6 +61,14 @@ impl Into<String> for &RRule {
           "BYMONTHDAY".to_string(),
           by_monthday.iter().to_string_array(),
         );
+      }
+    }
+
+    if let Ok(by_weekno) = self.by_weekno() {
+      if (by_weekno.len() > 0) {
+        // TODO: use to_string_array
+        let by_weekno: Vec<String> = by_weekno.iter().map(|month| month.to_string()).collect();
+        value.insert("BYWEEKNO".to_string(), by_weekno.join(","));
       }
     }
 
@@ -56,42 +90,40 @@ impl Into<String> for &RRule {
       }
     }
 
-    if let Ok(count) = self.count() {
-      if let Some(count) = count {
-        value.insert("COUNT".to_string(), count.to_string());
-      }
-    }
-
-    if let Ok(interval) = self.interval() {
-      if interval > 1 {
-        value.insert("INTERVAL".to_string(), interval.to_string());
-      }
-    }
-
-    if let Ok(weekstart) = self.weekstart() {
-      if weekstart != Weekday::Monday {
-        value.insert("WKST".to_string(), weekstart.into());
+    if let Ok(by_yearday) = self.by_yearday() {
+      if (by_yearday.len() > 0) {
+        // TODO: use to_string_array
+        let by_yearday: Vec<String> = by_yearday.iter().map(|month| month.to_string()).collect();
+        value.insert("BYYEARDAY".to_string(), by_yearday.join(","));
       }
     }
 
     if let Ok(by_weekday) = self.by_weekday() {
-      let by_weekday: Vec<String> = by_weekday
-        .iter()
-        .map(|n_weekday| {
-          let n_weekday: String = n_weekday.into();
+      if (by_weekday.len() > 0) {
+        let by_weekday: Vec<String> = by_weekday
+          .iter()
+          .map(|n_weekday| {
+            let n_weekday: String = n_weekday.into();
 
-          n_weekday
-        })
-        .collect();
+            n_weekday
+          })
+          .collect();
 
-      value.insert("BYDAY".to_string(), by_weekday.join(","));
+        value.insert("BYDAY".to_string(), by_weekday.join(","));
+      }
     }
 
-    let property = Property::new(
+    Property::new(
       "RRULE".to_string(),
       IndexMap::new(),
       Parameters::Multiple(value),
-    );
+    )
+  }
+}
+
+impl Into<String> for &RRule {
+  fn into(self) -> String {
+    let property: Property = self.into();
 
     property.to_string()[6..].to_string()
   }

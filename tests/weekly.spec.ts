@@ -78,7 +78,7 @@ test('Every other week - limit 10', () => {
   const dates = set.all(10);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;WKST=SU;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -109,7 +109,7 @@ test('Every other week on Monday, Wednesday and Friday until December 24, 1997, 
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T050000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T050000Z;INTERVAL=2;WKST=SU;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
   );
   expect(dates).toEqual([
     // TODO: rrule crate does not include dtstart date (873205200000), create a bug report

@@ -1,3 +1,5 @@
+use indexmap::IndexMap;
+
 use crate::serialization::to_vec::ToVec;
 use std::str::FromStr;
 
@@ -118,6 +120,48 @@ impl FromStr for RRuleSet {
       Some(exdates),
       Some(rdates),
     );
+  }
+}
+
+impl Into<String> for &RRuleSet {
+  fn into(self) -> String {
+    let mut properties = Properties::new();
+    let mut dtstart_parameters: IndexMap<String, String> = IndexMap::new();
+    dtstart_parameters.insert("TZID".to_string(), self.tzid());
+
+    let dtstart_value: String = DateTime::from(self.dtstart()).into();
+
+    properties.push(Property::new(
+      "DTSTART".to_string(),
+      dtstart_parameters,
+      Parameters::Single(dtstart_value),
+    ));
+
+    for rrule in self.rrules().iter() {
+      properties.push(rrule.into());
+    }
+
+    for exrule in self.exrules().iter() {
+      properties.push(exrule.into());
+    }
+
+    if !self.exdates().is_empty() {
+      properties.push(Property::new(
+        "EXDATE".to_string(),
+        IndexMap::new(),
+        Parameters::Single(self.exdates().iter().map(|date| date.to_string()).collect()),
+      ));
+    }
+
+    if !self.rdates().is_empty() {
+      properties.push(Property::new(
+        "RDATE".to_string(),
+        IndexMap::new(),
+        Parameters::Single(self.rdates().iter().map(|date| date.to_string()).collect()),
+      ));
+    }
+
+    properties.to_string()
   }
 }
 

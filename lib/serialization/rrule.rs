@@ -113,7 +113,7 @@ impl TryFrom<Property> for RRule {
       Parameters::Single(value) => {
         return Err(napi::Error::new(
           napi::Status::GenericFailure,
-          format!("Invalid {} value {}", property.name(), value),
+          format!("Invalid {}: {}", property.name(), value),
         ))
       }
     };
@@ -122,9 +122,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("FREQ") {
       Some(value) => {
-        let freq = value
-          .parse::<Frequency>()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let freq = value.parse::<Frequency>().map_err(|err| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid FREQ value: {}", value),
+          )
+        })?;
 
         rrule.freq(freq.into())
       }
@@ -136,7 +139,7 @@ impl TryFrom<Property> for RRule {
         let interval = value.parse::<u16>().map_err(|_| {
           napi::Error::new(
             napi::Status::GenericFailure,
-            format!("Invalid interval: {}", value),
+            format!("Invalid INTERVAL value: {}", value),
           )
         })?;
 
@@ -147,9 +150,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("UNTIL") {
       Some(value) => {
-        let until: DateTime = value
-          .parse()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let until: DateTime = value.parse().map_err(|err| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid UNTIL value: {}", value),
+          )
+        })?;
 
         rrule.until(until.to_rrule_datetime(&rrule::Tz::Local(chrono::Local::now().timezone()))?)
       }
@@ -158,9 +164,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("COUNT") {
       Some(value) => {
-        let count = value
-          .parse::<u32>()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let count = value.parse::<u32>().map_err(|_| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid COUNT value: {}", value),
+          )
+        })?;
 
         rrule.count(count)
       }
@@ -169,10 +178,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("BYHOUR") {
       Some(value) => {
-        let by_hour: Vec<u8> = value
-          .as_str()
-          .to_vec()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let by_hour: Vec<u8> = value.as_str().to_vec().map_err(|err| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid BYHOUR value: {}", value),
+          )
+        })?;
 
         rrule.by_hour(by_hour)
       }
@@ -181,10 +192,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("BYMINUTE") {
       Some(value) => {
-        let by_minute: Vec<u8> = value
-          .as_str()
-          .to_vec()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let by_minute: Vec<u8> = value.as_str().to_vec().map_err(|_| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid BYMINUTE value: {}", value),
+          )
+        })?;
 
         rrule.by_minute(by_minute)
       }
@@ -193,10 +206,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("BYSECOND") {
       Some(value) => {
-        let by_second: Vec<u8> = value
-          .as_str()
-          .to_vec()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let by_second: Vec<u8> = value.as_str().to_vec().map_err(|_| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid BYSECOND value: {}", value),
+          )
+        })?;
 
         rrule.by_second(by_second)
       }
@@ -205,10 +220,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("BYMONTH") {
       Some(value) => {
-        let by_month: Vec<chrono::Month> = value
-          .as_str()
-          .to_vec()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let by_month: Vec<chrono::Month> = value.as_str().to_vec().map_err(|err| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid BYMONTH value: {}", value),
+          )
+        })?;
 
         rrule.by_month(&by_month)
       }
@@ -217,9 +234,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("WKST") {
       Some(value) => {
-        let week_start = value
-          .parse::<Weekday>()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let week_start = value.parse::<Weekday>().map_err(|_| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid WKST value: {}", value),
+          )
+        })?;
 
         rrule.week_start(week_start.into())
       }
@@ -228,10 +248,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("BYDAY") {
       Some(value) => {
-        let week_day: Vec<NWeekday> = value
-          .as_str()
-          .to_vec()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let week_day: Vec<NWeekday> = value.as_str().to_vec().map_err(|_| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid BYDAY value: {}", value),
+          )
+        })?;
         let week_day = week_day
           .into_iter()
           .map(|n_weekday| n_weekday.into())
@@ -242,23 +264,14 @@ impl TryFrom<Property> for RRule {
       None => rrule,
     };
 
-    let rrule = match value.get("WKST") {
-      Some(value) => {
-        let week_start = value
-          .parse::<Weekday>()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
-
-        rrule.week_start(week_start.into())
-      }
-      None => rrule,
-    };
-
     let rrule = match value.get("BYSETPOS") {
       Some(value) => {
-        let by_setpos: Vec<i32> = value
-          .as_str()
-          .to_vec()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let by_setpos: Vec<i32> = value.as_str().to_vec().map_err(|err| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid BYSETPOS value: {}", value),
+          )
+        })?;
 
         rrule.by_set_pos(by_setpos)
       }
@@ -267,10 +280,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("BYMONTHDAY") {
       Some(value) => {
-        let by_monthday: Vec<i8> = value
-          .as_str()
-          .to_vec()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let by_monthday: Vec<i8> = value.as_str().to_vec().map_err(|_| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid BYMONTHDAY value: {}", value),
+          )
+        })?;
 
         rrule.by_month_day(by_monthday)
       }
@@ -279,10 +294,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("BYYEARDAY") {
       Some(value) => {
-        let by_yearday: Vec<i16> = value
-          .as_str()
-          .to_vec()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let by_yearday: Vec<i16> = value.as_str().to_vec().map_err(|err| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid BYYEARDAY value: {}", value),
+          )
+        })?;
 
         rrule.by_year_day(by_yearday)
       }
@@ -291,10 +308,12 @@ impl TryFrom<Property> for RRule {
 
     let rrule = match value.get("BYWEEKNO") {
       Some(value) => {
-        let by_weekno: Vec<i8> = value
-          .as_str()
-          .to_vec()
-          .map_err(|err| napi::Error::new(napi::Status::GenericFailure, err))?;
+        let by_weekno: Vec<i8> = value.as_str().to_vec().map_err(|err| {
+          napi::Error::new(
+            napi::Status::GenericFailure,
+            format!("Invalid BYWEEKNO value: {}", value),
+          )
+        })?;
 
         rrule.by_week_no(by_weekno)
       }

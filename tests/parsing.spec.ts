@@ -7,7 +7,7 @@ test('Should properly parse weekly recurrence', () => {
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
   );
 });
 
@@ -24,28 +24,26 @@ test('Should properly parse monthly recurrence', () => {
 
 test('Should throw error on missing start date', () => {
   expect(() => RRuleSet.parse('FREQ=monthly;COUNT=10;INTERVAL=2')).toThrowError(
-    'RRule parsing error: Missing start date. There needs to be a unique start date which the iteration can start from.',
+    'Invalid property: FREQ=monthly;COUNT=10;INTERVAL=2',
   );
 });
 
 test('Should throw error on invalid rule set', () => {
   expect(() => RRuleSet.parse('Invalid')).toThrowError(
-    'RRule parsing error: `Invalid` is a malformed property parameter. Parameter should be specified as `key=value`',
+    'Invalid property: Invalid',
   );
 });
 
 test('Should throw error on invalid timezone', () => {
   expect(() =>
     RRuleSet.parse('DTSTART;TZID=Invalid:19970907T090000'),
-  ).toThrowError('RRule parsing error: `Invalid` is not a valid timezone.');
+  ).toThrowError(`'Invalid' is not a valid timezone`);
 });
 
 test('Should throw error on invalid recurrence rule', () => {
   expect(() =>
     RRuleSet.parse('DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:Invalid'),
-  ).toThrowError(
-    'RRule parsing error: `Invalid` is a malformed property parameter. Parameter should be specified as `key=value`',
-  );
+  ).toThrowError('Invalid RRULE: Invalid');
 });
 
 test('Should throw error on invalid frequency', () => {
@@ -53,7 +51,7 @@ test('Should throw error on invalid frequency', () => {
     RRuleSet.parse(
       'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=Invalid',
     ),
-  ).toThrowError('RRule parsing error: `INVALID` is not a valid frequency.');
+  ).toThrowError('Invalid FREQ value: Invalid');
 });
 
 test('Should throw error on invalid interval', () => {
@@ -61,9 +59,7 @@ test('Should throw error on invalid interval', () => {
     RRuleSet.parse(
       'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=DAILY;INTERVAL=Invalid',
     ),
-  ).toThrowError(
-    'RRule parsing error: `Invalid` is not a valid INTERVAL value.',
-  );
+  ).toThrowError('Invalid INTERVAL value: Invalid');
 });
 
 test('Should throw error on invalid count', () => {
@@ -71,7 +67,7 @@ test('Should throw error on invalid count', () => {
     RRuleSet.parse(
       'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=DAILY;COUNT=Invalid',
     ),
-  ).toThrowError('RRule parsing error: `Invalid` is not a valid COUNT value.');
+  ).toThrowError('Invalid COUNT value: Invalid');
 });
 
 test('Should throw error on invalid until', () => {
@@ -79,9 +75,7 @@ test('Should throw error on invalid until', () => {
     RRuleSet.parse(
       'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=DAILY;UNTIL=Invalid',
     ),
-  ).toThrowError(
-    'RRule parsing error: `Invalid` is not a valid datetime format for `UNTIL`.',
-  );
+  ).toThrowError('Invalid UNTIL value: Invalid');
 });
 
 test('Should throw error on invalid week start', () => {
@@ -89,9 +83,7 @@ test('Should throw error on invalid week start', () => {
     RRuleSet.parse(
       'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=DAILY;WKST=Invalid',
     ),
-  ).toThrowError(
-    'RRule parsing error: `Invalid` is not a valid weekday start. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`.',
-  );
+  ).toThrowError('Invalid WKST value: Invalid');
 });
 
 test('Should properly parse weekly individual recurrence rule', () => {
@@ -111,7 +103,7 @@ test('Should properly parse weekly individual recurrence rule', () => {
 
   const asString = rule.toString();
   expect(asString).toBe(
-    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYDAY=MO,WE,FR',
+    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYDAY=MO,WE,FR',
   );
 });
 
@@ -122,7 +114,7 @@ test('Should properly parse individual recurrence rule with RRULE prefix', () =>
 
   const asString = rule.toString();
   expect(asString).toBe(
-    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYDAY=MO,WE,FR',
+    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYDAY=MO,WE,FR',
   );
 });
 
@@ -140,32 +132,30 @@ test('Should properly parse monthly individual recurrence rule', () => {
 });
 
 test('Should throw error on invalid individual recurrence rule', () => {
-  expect(() => RRule.parse('Invalid')).toThrowError(
-    'RRule parsing error: `Invalid` is a malformed property parameter. Parameter should be specified as `key=value',
-  );
+  expect(() => RRule.parse('Invalid')).toThrowError('Invalid RRULE: Invalid');
 });
 
 test('Should throw error on invalid individual recurrence rule frequency', () => {
   expect(() => RRule.parse('FREQ=Invalid')).toThrowError(
-    'RRule parsing error: `INVALID` is not a valid frequency.',
+    'Invalid FREQ value: Invalid',
   );
 });
 
 test('Should throw error on invalid individual recurrence rule interval', () => {
   expect(() => RRule.parse('FREQ=DAILY;INTERVAL=Invalid')).toThrowError(
-    'RRule parsing error: `Invalid` is not a valid INTERVAL value.',
+    'Invalid INTERVAL value: Invalid',
   );
 });
 
 test('Should throw error on invalid individual recurrence rule until', () => {
   expect(() => RRule.parse('FREQ=DAILY;UNTIL=Invalid')).toThrowError(
-    'RRule parsing error: `Invalid` is not a valid datetime format for `UNTIL`.',
+    'Invalid UNTIL value: Invalid',
   );
 });
 
 test('Should throw error on invalid individual recurrence rule week start', () => {
   expect(() => RRule.parse('FREQ=DAILY;WKST=Invalid')).toThrowError(
-    'RRule parsing error: `Invalid` is not a valid weekday start. Valid values are `MO`, `TU`, `WE`, `TH`, `FR`, `SA` and `SU`.',
+    'Invalid WKST value: Invalid',
   );
 });
 
@@ -178,6 +168,33 @@ test('Should be able to parse rule set without dtstart', () => {
   );
 
   expect(set.toString()).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=Sun;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+  );
+});
+
+test('Should parse dtstart from string', () => {
+  const set = new RRuleSet(
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
+  ).setFromString(
+    'DTSTART;TZID=Asia/Tbilisi:20060101T010000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
+  );
+
+  expect(set.toString()).toBe(
+    'DTSTART;TZID=Asia/Tbilisi:20060101T010000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+  );
+});
+
+test('Should add rrule with until', () => {
+  const set = new RRuleSet(
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
+  ).setFromString(
+    'RRULE:FREQ=WEEKLY;WKST=MO;UNTIL=20220513T000000;BYDAY=FR,TH,TU,WE',
+  );
+
+  expect(set.toString()).toBe(
+    // TODO: return until in local timezone
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=20220513T040000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU,WE,TH,FR',
   );
 });

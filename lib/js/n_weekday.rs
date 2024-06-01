@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use super::weekday::Weekday;
 use napi_derive::napi;
 
@@ -33,4 +35,61 @@ impl Into<rrule::NWeekday> for NWeekday {
       None => rrule::NWeekday::Every(self.weekday.into()),
     }
   }
+}
+
+impl Into<String> for &NWeekday {
+  fn into(self) -> String {
+    match self.n {
+      Some(n) => {
+        let n = if n > 1 || n < 0 {
+          n.to_string()
+        } else {
+          "".to_string()
+        };
+        let weekday: String = self.weekday.into();
+
+        format!("{}{}", n, weekday)
+      }
+      None => self.weekday.into(),
+    }
+  }
+}
+
+impl FromStr for NWeekday {
+  type Err = String;
+
+  fn from_str(str: &str) -> Result<Self, Self::Err> {
+    let weekday = extract_weekday(str)?;
+    let n = if str.len() > 2 {
+      Some(extract_number(str)?)
+    } else {
+      None
+    };
+
+    Ok(NWeekday { n, weekday })
+  }
+}
+
+fn extract_weekday(str: &str) -> Result<Weekday, String> {
+  let weekday = str
+    .chars()
+    .rev()
+    .take(2)
+    .collect::<String>()
+    .chars()
+    .rev()
+    .collect::<String>();
+
+  weekday.parse()
+}
+
+fn extract_number(str: &str) -> Result<i16, String> {
+  let number = str
+    .chars()
+    .take_while(|c| c.is_digit(10) || *c == '-')
+    .collect::<String>();
+
+  number
+    .parse()
+    .map_err(|_| format!("Invalid number: {}", number))
 }

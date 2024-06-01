@@ -1,5 +1,5 @@
 use super::{Frequency, Month, NWeekday, Weekday};
-use chrono::{DateTime, Datelike, Local, Timelike};
+use chrono::{Datelike, Local, Timelike};
 use napi::{bindgen_prelude::Array, Either, Env};
 use napi_derive::napi;
 use replace_with::replace_with_or_abort;
@@ -15,6 +15,10 @@ impl RRule {
   pub fn new(frequency: Frequency) -> napi::Result<Self> {
     let rrule = rrule::RRule::new(frequency.into());
 
+    Ok(RRule { rrule })
+  }
+
+  pub fn from_rrule(rrule: rrule::RRule<rrule::Unvalidated>) -> napi::Result<Self> {
     Ok(RRule { rrule })
   }
 
@@ -63,11 +67,9 @@ impl RRule {
 
   #[napi(factory, ts_return_type = "RRule")]
   pub fn parse(str: String) -> napi::Result<Self> {
-    let rrule: rrule::RRule<rrule::Unvalidated> = str
-      .parse()
-      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+    let rrule: Self = str.parse()?;
 
-    Ok(RRule { rrule })
+    Ok(rrule)
   }
 
   #[napi(getter)]
@@ -86,13 +88,15 @@ impl RRule {
   }
 
   #[napi(getter, ts_return_type = "NWeekday[]")]
-  pub fn by_weekday(&self) -> Vec<NWeekday> {
-    return self
-      .rrule
-      .get_by_weekday()
-      .iter()
-      .map(|nday| NWeekday::from(*nday))
-      .collect();
+  pub fn by_weekday(&self) -> napi::Result<Vec<NWeekday>> {
+    Ok(
+      self
+        .rrule
+        .get_by_weekday()
+        .iter()
+        .map(|nday| NWeekday::from(*nday))
+        .collect(),
+    )
   }
 
   #[napi(getter)]
@@ -121,15 +125,11 @@ impl RRule {
   }
 
   #[napi(getter, ts_return_type = "Month[]")]
-  pub fn by_month(&self, env: Env) -> napi::Result<Array> {
+  pub fn by_month(&self) -> napi::Result<Vec<Month>> {
     let months = self.rrule.get_by_month();
-    let mut arr = env.create_array(0)?;
+    let months = months.iter().map(|month| Month::from(month)).collect();
 
-    for month in months.iter() {
-      arr.insert(Month::from(month))?;
-    }
-
-    Ok(arr)
+    Ok(months)
   }
 
   #[napi(getter)]
@@ -162,7 +162,7 @@ impl RRule {
 
   #[napi]
   pub fn to_string(&self) -> napi::Result<String> {
-    Ok(self.rrule.to_string())
+    Ok(self.into())
   }
 
   #[napi]
@@ -297,7 +297,7 @@ impl RRule {
   #[napi]
   pub fn set_until(&mut self, datetime: i64) -> napi::Result<&Self> {
     let datetime = super::DateTime::from(datetime);
-    let datetime: DateTime<rrule::Tz> =
+    let datetime: chrono::DateTime<rrule::Tz> =
       datetime.to_rrule_datetime(&rrule::Tz::Local(Local::now().timezone()))?;
 
     replace_with_or_abort(&mut self.rrule, |self_| self_.until(datetime));
@@ -307,7 +307,7 @@ impl RRule {
 
   pub fn validate(
     &self,
-    dtstart: DateTime<rrule::Tz>,
+    dtstart: chrono::DateTime<rrule::Tz>,
   ) -> napi::Result<rrule::RRule<rrule::Validated>> {
     let mut rrule = self.rrule.clone();
 

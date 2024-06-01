@@ -3,104 +3,33 @@ use indexmap::IndexMap;
 use crate::serialization::to_vec::ToVec;
 use std::str::FromStr;
 
-use super::{Parameters, Properties, Property};
+use super::{Calendar, Parameters, Properties, Property};
 use crate::js::{DateTime, RRule, RRuleSet};
 
 impl FromStr for RRuleSet {
   type Err = napi::Error;
 
   fn from_str(str: &str) -> Result<Self, Self::Err> {
-    let properties =
-      Properties::from_str(str).map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
-
     let mut dtstart: Option<(i64, String)> = None;
     let mut rrules: Vec<RRule> = Vec::new();
     let mut exrules: Vec<RRule> = Vec::new();
     let mut exdates: Vec<i64> = Vec::new();
     let mut rdates: Vec<i64> = Vec::new();
 
-    for property in properties {
-      match property.name() {
-        "DTSTART" => {
-          let (datetime, tzid) = property_to_dtstart(&property)
-            .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
-          dtstart = Some((datetime, tzid));
-        }
-        "RRULE" => {
-          let rrule = RRule::try_from(property)?;
-          rrules.push(rrule);
-        }
-        "EXRULE" => {
-          let rrule = RRule::try_from(property)?;
-          exrules.push(rrule);
-        }
-        "EXDATE" => {
-          if let Some(value) = property.parameters().get("VALUE") {
-            if value == "DATE" {
-              return Err(napi::Error::new(
-                napi::Status::GenericFailure,
-                "Unsupported EXDATE value: DATE",
-              ));
-            } else if value != "DATE-TIME" {
-              return Err(napi::Error::new(
-                napi::Status::GenericFailure,
-                format!("Unsupported EXDATE value: {}", value),
-              ));
-            }
-          }
+    let calendar = Calendar::from_str(str)?;
+    let (calendar_dtstarts, calendar_rrules, calendar_exrules, calendar_exdates, calendar_rdates) =
+      calendar.into();
 
-          let value = match property.value() {
-            Parameters::Single(value) => value,
-            Parameters::Multiple(_) => {
-              return Err(napi::Error::new(
-                napi::Status::GenericFailure,
-                "Invalid EXDATE",
-              ));
-            }
-          };
-
-          let dates: Vec<DateTime> = value.as_str().to_vec()?;
-
-          for date in dates {
-            exdates.push(date.into());
-          }
-        }
-        "RDATE" => {
-          if let Some(value) = property.parameters().get("VALUE") {
-            if value == "DATE" {
-              return Err(napi::Error::new(
-                napi::Status::GenericFailure,
-                "Unsupported RDATE value: DATE. Only DATE-TIME is supported",
-              ));
-            } else if value != "DATE-TIME" {
-              return Err(napi::Error::new(
-                napi::Status::GenericFailure,
-                format!("Unsupported RDATE value: {}", value),
-              ));
-            }
-          }
-
-          let value = match property.value() {
-            Parameters::Single(value) => value,
-            Parameters::Multiple(_) => {
-              return Err(napi::Error::new(
-                napi::Status::GenericFailure,
-                "Invalid RDATE",
-              ));
-            }
-          };
-
-          let dates: Vec<DateTime> = value.as_str().to_vec()?;
-
-          for date in dates {
-            rdates.push(date.into());
-          }
-        }
-        _ => {
-          // Ignore unsupported properties
-        }
-      }
+    if calendar_dtstarts.len() > 1 {
+      return Err(napi::Error::new(
+        napi::Status::GenericFailure,
+        "Only one DTSTART is allowed",
+      ));
     }
+
+    dtstart = calendar_dtstarts
+      .first()
+      .and_then(|item| Some(item.clone()));
 
     let (dtstart, tzid) = match dtstart {
       Some(value) => value,
@@ -111,6 +40,22 @@ impl FromStr for RRuleSet {
         ));
       }
     };
+
+    for rrule in calendar_rrules {
+      rrules.push(rrule);
+    }
+
+    for exrule in calendar_exrules {
+      exrules.push(exrule);
+    }
+
+    for exdate in calendar_exdates {
+      exdates.push(exdate);
+    }
+
+    for rdate in calendar_rdates {
+      rdates.push(rdate);
+    }
 
     return Self::create(
       dtstart,

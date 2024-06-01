@@ -78,7 +78,7 @@ impl Property {
   }
 
   pub fn from_string(str: &str) -> Result<Property, Error> {
-    let key_value: Vec<&str> = str.split(':').collect();
+    let key_value: Vec<&str> = str.trim().split(':').collect();
 
     if key_value.len() != 2 {
       return Err(Error::InvalidProperty(str.to_string()));
@@ -148,7 +148,6 @@ impl Property {
 
 #[cfg(test)]
 mod tests {
-  use super::Parameters;
   use super::Property;
 
   #[test]

@@ -171,3 +171,30 @@ test('Should be able to parse rule set without dtstart', () => {
     'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
   );
 });
+
+test('Should parse dtstart from string', () => {
+  const set = new RRuleSet(
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
+  ).setFromString(
+    'DTSTART;TZID=Asia/Tbilisi:20060101T010000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
+  );
+
+  expect(set.toString()).toBe(
+    'DTSTART;TZID=Asia/Tbilisi:20060101T010000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+  );
+});
+
+test('Should add rrule with until', () => {
+  const set = new RRuleSet(
+    DateTime.create(1997, 9, 2, 9, 0, 0, false),
+    'US/Eastern',
+  ).setFromString(
+    'RRULE:FREQ=WEEKLY;WKST=MO;UNTIL=20220513T000000;BYDAY=FR,TH,TU,WE',
+  );
+
+  expect(set.toString()).toBe(
+    // TODO: return until in local timezone
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=20220513T040000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU,WE,TH,FR',
+  );
+});

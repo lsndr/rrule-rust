@@ -31,9 +31,14 @@ impl Properties {
 
   pub fn from_str(str: &str) -> Result<Properties, Error> {
     let mut items = Vec::new();
-    let property_strings = str.split('\n');
 
-    for property_string in property_strings {
+    for property_string in str.lines() {
+      let property_string = property_string.trim();
+
+      if property_string.is_empty() {
+        continue;
+      }
+
       items.push(Property::from_string(property_string)?);
     }
 

@@ -1,4 +1,6 @@
-use super::RRule;
+use crate::serialization::Calendar;
+
+use super::{DateTime, RRule};
 use napi::bindgen_prelude::{Array, Reference, SharedReference};
 use napi::iterator::Generator;
 use napi::Env;
@@ -139,11 +141,70 @@ impl RRuleSet {
 
   #[napi]
   pub fn set_from_string(&mut self, str: String) -> napi::Result<&Self> {
-    let rrule_set = self
-      .rrule_set
-      .clone()
-      .set_from_string(&str)
-      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+    let calendar: Calendar = str.parse()?;
+    let (calendar_dtstarts, calendar_rrules, calendar_exrules, calendar_exdates, calendar_rdates) =
+      calendar.into();
+
+    if calendar_dtstarts.len() > 1 {
+      return Err(napi::Error::new(
+        napi::Status::GenericFailure,
+        "Only one DTSTART is allowed",
+      ));
+    }
+
+    let mut rrule_set = self.rrule_set.clone();
+
+    if let Some((dtstart, tzid)) = calendar_dtstarts.first() {
+      let timezone: chrono_tz::Tz = tzid
+        .parse()
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+      let datetime = DateTime::from(*dtstart);
+      let datetime = datetime
+        .to_rrule_datetime(&rrule::Tz::Tz(timezone))?
+        .with_timezone(&rrule::Tz::Tz(timezone));
+
+      rrule_set = rrule::RRuleSet::new(datetime);
+
+      for rrule in self.rrule_set.get_rrule() {
+        rrule_set = rrule_set.rrule(rrule.clone());
+      }
+
+      for exrule in self.rrule_set.get_exrule() {
+        rrule_set = rrule_set.exrule(exrule.clone());
+      }
+
+      for exdate in self.rrule_set.get_exdate() {
+        rrule_set = rrule_set.exdate(*exdate);
+      }
+
+      for rdate in self.rrule_set.get_rdate() {
+        rrule_set = rrule_set.rdate(*rdate);
+      }
+    }
+
+    for rrule in calendar_rrules {
+      let dtstart = *self.rrule_set.get_dt_start();
+      rrule_set = rrule_set.rrule(rrule.validate(dtstart)?);
+    }
+
+    for rrule in calendar_exrules {
+      let dtstart = *self.rrule_set.get_dt_start();
+      rrule_set = rrule_set.exrule(rrule.validate(dtstart)?);
+    }
+
+    for exdate in calendar_exdates {
+      let timezone = self.rrule_set.get_dt_start().timezone();
+      let datetime = super::DateTime::from(exdate).to_rrule_datetime(&timezone)?;
+
+      rrule_set = rrule_set.exdate(datetime);
+    }
+
+    for rdate in calendar_rdates {
+      let timezone = self.rrule_set.get_dt_start().timezone();
+      let datetime = super::DateTime::from(rdate).to_rrule_datetime(&timezone)?;
+
+      rrule_set = rrule_set.rdate(datetime);
+    }
 
     self.rrule_set = rrule_set;
 

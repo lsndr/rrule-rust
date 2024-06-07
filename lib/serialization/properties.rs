@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use super::property::{Error, Property};
 
 pub struct Properties {
@@ -52,5 +54,13 @@ impl IntoIterator for Properties {
 
   fn into_iter(self) -> Self::IntoIter {
     self.items.into_iter()
+  }
+}
+
+impl FromStr for Properties {
+  type Err = Error;
+
+  fn from_str(str: &str) -> Result<Self, Self::Err> {
+    Properties::from_str(str)
   }
 }

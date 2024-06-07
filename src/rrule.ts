@@ -49,7 +49,7 @@ export enum Weekday {
 
 export interface RRuleLike {
   readonly frequency: Frequency;
-  readonly interval: number;
+  readonly interval?: number;
   readonly count?: number;
   readonly until?: DateTime;
   readonly byWeekday: readonly (NWeekday | Weekday)[];
@@ -61,7 +61,7 @@ export interface RRuleLike {
   readonly byMonth: readonly Month[];
   readonly byWeekno: readonly number[];
   readonly byYearday: readonly number[];
-  readonly weekstart: Weekday;
+  readonly weekstart?: Weekday;
 }
 
 export class RRule {
@@ -69,7 +69,7 @@ export class RRule {
   private rust?: Rust;
 
   public readonly frequency: Frequency;
-  public readonly interval: number;
+  public readonly interval?: number;
   public readonly until?: DateTime;
   public readonly count?: number;
   public readonly byWeekday: readonly (NWeekday | Weekday)[];
@@ -81,14 +81,14 @@ export class RRule {
   public readonly byMonth: readonly Month[];
   public readonly byWeekno: readonly number[];
   public readonly byYearday: readonly number[];
-  public readonly weekstart: Weekday;
+  public readonly weekstart?: Weekday;
 
   constructor(frequency: Frequency);
   constructor(rrule?: Partial<RRuleLike>);
   constructor(rruleOrFrequency: number | Partial<RRuleLike> = {}) {
     if (typeof rruleOrFrequency === 'object' && rruleOrFrequency !== null) {
       this.frequency = rruleOrFrequency.frequency ?? Frequency.Daily;
-      this.interval = rruleOrFrequency.interval ?? 1;
+      this.interval = rruleOrFrequency.interval;
       this.until = rruleOrFrequency.until;
       this.count = rruleOrFrequency.count;
       this.byWeekday = rruleOrFrequency.byWeekday ?? [];
@@ -100,10 +100,9 @@ export class RRule {
       this.byMonth = rruleOrFrequency.byMonth ?? [];
       this.byWeekno = rruleOrFrequency.byWeekno ?? [];
       this.byYearday = rruleOrFrequency.byYearday ?? [];
-      this.weekstart = rruleOrFrequency.weekstart ?? Weekday.Monday;
+      this.weekstart = rruleOrFrequency.weekstart;
     } else {
       this.frequency = rruleOrFrequency;
-      this.interval = 1;
       this.byWeekday = [];
       this.byHour = [];
       this.byMinute = [];
@@ -113,7 +112,6 @@ export class RRule {
       this.byMonth = [];
       this.byWeekno = [];
       this.byYearday = [];
-      this.weekstart = Weekday.Monday;
     }
   }
 
@@ -132,10 +130,10 @@ export class RRule {
   public static fromRust(rust: Rust) {
     const rrule = new this({
       frequency: rust.frequency,
-      interval: rust.interval,
+      interval: rust.interval ?? undefined,
       until: rust.until === null ? undefined : DateTime.fromNumeric(rust.until),
       count: rust.count === null ? undefined : rust.count,
-      byWeekday: rust.byWeekday,
+      byWeekday: rust.byDay,
       byHour: rust.byHour,
       byMinute: rust.byMinute,
       bySecond: rust.bySecond,
@@ -144,7 +142,7 @@ export class RRule {
       byMonth: rust.byMonth,
       byWeekno: rust.byWeekno,
       byYearday: rust.byYearday,
-      weekstart: rust.weekstart,
+      weekstart: rust.weekstart ?? undefined,
     });
 
     rrule.rust = rust;
@@ -217,10 +215,12 @@ export class RRule {
    */
   public toRust(): Rust {
     if (!this.rust) {
-      this.rust = Rust.create(
+      this.rust = new Rust(
         this.frequency,
         this.interval,
         this.count,
+        this.weekstart,
+        this.until?.toNumeric(),
         this.byWeekday,
         this.byHour,
         this.byMinute,
@@ -230,8 +230,6 @@ export class RRule {
         this.byMonth,
         this.byWeekno,
         this.byYearday,
-        this.weekstart,
-        this.until?.toNumeric(),
       );
     }
 

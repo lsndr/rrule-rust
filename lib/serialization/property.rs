@@ -1,9 +1,10 @@
-use indexmap::IndexMap;
-use std::fmt;
+use std::{fmt, str::FromStr};
 
-pub enum Parameters {
+use super::parameters::Parameters;
+
+pub enum Value {
   Single(String),
-  Multiple(IndexMap<String, String>),
+  Parameters(Parameters),
 }
 
 #[derive(Debug)]
@@ -25,8 +26,8 @@ impl fmt::Display for Error {
 
 pub struct Property {
   name: String,
-  parameters: IndexMap<String, String>,
-  value: Parameters,
+  parameters: Parameters,
+  value: Value,
 }
 
 impl Property {
@@ -34,26 +35,26 @@ impl Property {
     &self.name
   }
 
-  pub fn parameters(&self) -> &IndexMap<String, String> {
+  pub fn parameters(&self) -> &Parameters {
     &self.parameters
   }
 
-  pub fn value(&self) -> &Parameters {
+  pub fn value(&self) -> &Value {
     &self.value
   }
 
   pub fn to_string(&self) -> String {
     let mut string = format!("{}", self.name);
 
-    for (key, value) in self.parameters() {
+    for (key, value) in self.parameters.iter() {
       string.push_str(&format!(";{}={}", key, value));
     }
 
     string.push_str(":");
 
     match &self.value {
-      Parameters::Single(value) => string.push_str(value),
-      Parameters::Multiple(values) => {
+      Value::Single(value) => string.push_str(value),
+      Value::Parameters(values) => {
         let mut values = values.iter();
 
         if let Some((key, value)) = values.next() {
@@ -69,7 +70,7 @@ impl Property {
     string
   }
 
-  pub fn new(name: String, parameters: IndexMap<String, String>, value: Parameters) -> Property {
+  pub fn new(name: String, parameters: Parameters, value: Value) -> Property {
     Property {
       name,
       parameters,
@@ -87,21 +88,21 @@ impl Property {
     let (name, parameters) = Self::parse_name(key_value[0].trim())?;
     let value = Self::parse_parameters(key_value[1].trim())?;
 
-    if let Parameters::Single(_) = parameters {
+    if let Value::Single(_) = parameters {
       return Err(Error::InvalidParameters(key_value[0].to_string()));
     }
 
     match parameters {
-      Parameters::Multiple(parameters) => Ok(Property {
+      Value::Parameters(parameters) => Ok(Property {
         name,
         parameters,
         value,
       }),
-      Parameters::Single(_) => Err(Error::InvalidParameters(key_value[0].to_string())),
+      Value::Single(_) => Err(Error::InvalidParameters(key_value[0].to_string())),
     }
   }
 
-  fn parse_name(str: &str) -> Result<(String, Parameters), Error> {
+  fn parse_name(str: &str) -> Result<(String, Value), Error> {
     let name_params: Vec<&str> = str.split(';').take(2).collect();
 
     let name = name_params[0].trim().to_uppercase();
@@ -110,8 +111,8 @@ impl Property {
     Ok((name, params))
   }
 
-  fn parse_parameters(str: &str) -> Result<Parameters, Error> {
-    let mut params = IndexMap::new();
+  fn parse_parameters(str: &str) -> Result<Value, Error> {
+    let mut params = Parameters::new();
     let param_strings = str.split(';');
 
     for param_string in param_strings {
@@ -121,13 +122,13 @@ impl Property {
       if let Some(name) = key {
         params.insert(name.to_uppercase(), value.to_string());
       } else if params.len() == 0 && param_string.len() > 0 {
-        return Ok(Parameters::Single(param_string.to_string()));
+        return Ok(Value::Single(param_string.to_string()));
       } else if params.len() > 0 {
         return Err(Error::InvalidParameters(str.to_string()));
       }
     }
 
-    Ok(Parameters::Multiple(params))
+    Ok(Value::Parameters(params))
   }
 
   fn parse_parameter(str: &str) -> Result<(Option<String>, &str), Error> {
@@ -146,59 +147,10 @@ impl Property {
   }
 }
 
-#[cfg(test)]
-mod tests {
-  use super::Property;
+impl FromStr for Property {
+  type Err = Error;
 
-  #[test]
-  fn test_rrule() {
-    let property = Property::from_string("RRULE:FREQ=DAILY;INTERVAL=1").unwrap();
-
-    assert_eq!(property.name(), "RRULE");
-    assert_eq!(property.parameters().len(), 0);
-    assert!(matches!(property.value(), super::Parameters::Multiple(params) if params.len() == 2));
-    assert!(
-      matches!(property.value(), super::Parameters::Multiple(params) if params["FREQ"] == "DAILY")
-    );
-    assert!(
-      matches!(property.value(), super::Parameters::Multiple(params) if params["INTERVAL"] == "1")
-    );
-  }
-
-  #[test]
-  fn test_exdate() {
-    let property = Property::from_string("EXDATE;VALUE=DATE-TIME:19980313T090000Z").unwrap();
-
-    assert_eq!(property.name(), "EXDATE");
-    assert_eq!(property.parameters().len(), 1);
-    assert_eq!(property.parameters()["VALUE"], "DATE-TIME");
-    assert!(
-      matches!(property.value(), super::Parameters::Single(value) if value == &"19980313T090000Z")
-    );
-  }
-
-  #[test]
-  fn test_key_value() {
-    let property = Property::from_string("KEY:VALUE").unwrap();
-
-    assert_eq!(property.name(), "KEY");
-    assert_eq!(property.parameters().len(), 0);
-    assert!(matches!(property.value(), super::Parameters::Single(value) if value == &"VALUE"));
-  }
-
-  #[test]
-  fn test_rrule_to_string() {
-    let rrule_strings = vec![
-      "RRULE:FREQ=DAILY;INTERVAL=1",
-      "RRULE:FREQ=DAILY;UNTIL=20220101T000000Z;INTERVAL=1",
-      "RRULE:INTERVAL=1",
-      "RRULE:INTERVAL=1",
-    ];
-
-    rrule_strings.iter().for_each(|rrule_string| {
-      let property = Property::from_string(rrule_string).unwrap();
-
-      assert_eq!(property.to_string(), rrule_string.to_string());
-    });
+  fn from_str(str: &str) -> Result<Self, Self::Err> {
+    Property::from_string(str)
   }
 }

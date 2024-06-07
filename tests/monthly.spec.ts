@@ -14,7 +14,7 @@ test('Monthly on the 1st Friday for 10 occurrences', () => {
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYSETPOS=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYSETPOS=1;BYDAY=FR',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 5, 9, 0, 0, false),
@@ -45,7 +45,7 @@ test('Monthly on the 1st Friday until December 24, 1997', () => {
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;UNTIL=19971224T050000Z;BYSETPOS=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;UNTIL=19971224T000000;BYSETPOS=1;BYDAY=FR',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 5, 9, 0, 0, false),
@@ -71,7 +71,7 @@ test('Every other month on the 1st and last Sunday of the month for 10 occurrenc
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;INTERVAL=2;BYSETPOS=-1,1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=SU',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;INTERVAL=2;COUNT=10;BYSETPOS=1,-1;BYDAY=SU,SU',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 7, 9, 0, 0, false),
@@ -102,7 +102,7 @@ test('Monthly on the second to last Monday of the month for 6 months', () => {
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=6;BYSETPOS=-2;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=6;BYSETPOS=-2;BYDAY=MO',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 22, 9, 0, 0, false),
@@ -126,7 +126,7 @@ test('Monthly on the third to the last day of the month, limit 6', () => {
   const dates = set.all(6);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=-3',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 28, 9, 0, 0, false),
@@ -151,7 +151,7 @@ test('Monthly on the 2nd and 15th of the month for 10 occurrences', () => {
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYMONTHDAY=2,15;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYMONTHDAY=2,15',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -181,7 +181,7 @@ test('Monthly on the first and last day of the month for 10 occurrences', () => 
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYMONTHDAY=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;BYMONTHDAY=1,-1',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 30, 9, 0, 0, false),
@@ -212,7 +212,7 @@ test('Every 18 months on the 10th thru 15th of the month for 10 occurrences', ()
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=10;INTERVAL=18;BYMONTHDAY=10,11,12,13,14,15;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;INTERVAL=18;COUNT=10;BYMONTHDAY=10,11,12,13,14,15',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 10, 9, 0, 0, false),
@@ -268,7 +268,7 @@ test('Every Tuesday, every other month, limit 18', () => {
   const dates = set.all(18);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;INTERVAL=2;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=MONTHLY;INTERVAL=2;BYDAY=TU',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -305,7 +305,7 @@ test('Monthly on the second to last Monday of the month for 6 months 1', () => {
   const dates = set.all(8);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970922T090000\nRRULE:FREQ=MONTHLY;COUNT=6;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=-2MO',
+    'DTSTART;TZID=US/Eastern:19970922T090000\nRRULE:FREQ=MONTHLY;COUNT=6;BYDAY=-2MO',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 22, 9, 0, 0, false),

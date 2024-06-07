@@ -27,12 +27,6 @@ export enum Month {
   December = 11
 }
 export interface NWeekday {
-  /**
-   * If set, this represents the nth occurrence of the weekday.
-   * Otherwise it represents every occurrence of the weekday.
-   *
-   * A negative value represents nth occurrence from the end.
-   */
   n?: number
   weekday: Weekday
 }
@@ -46,13 +40,12 @@ export enum Weekday {
   Sunday = 6
 }
 export class RRule {
-  constructor(frequency: Frequency)
-  static create(frequency?: Frequency | undefined | null, interval?: number | undefined | null, count?: number | undefined | null, byWeekday?: (readonly (NWeekday | Weekday)[]) | undefined | null, byHour?: (readonly number[]) | undefined | null, byMinute?: (readonly number[]) | undefined | null, bySecond?: (readonly number[]) | undefined | null, byMonthday?: (readonly number[]) | undefined | null, bySetpos?: (readonly number[]) | undefined | null, byMonth?: (readonly number[]) | undefined | null, byWeekno?: (readonly number[]) | undefined | null, byYearday?: (readonly number[]) | undefined | null, weekstart?: Weekday | undefined | null, until?: number | undefined | null): RRule
+  constructor(frequency: Frequency, interval?: number | undefined | null, count?: number | undefined | null, weekstart?: Weekday | undefined | null, until?: number | undefined | null, byDay?: (readonly (NWeekday | Weekday)[]) | undefined | null, byHour?: (readonly number[]) | undefined | null, byMinute?: (readonly number[]) | undefined | null, bySecond?: (readonly number[]) | undefined | null, byMonthday?: (readonly number[]) | undefined | null, bySetpos?: (readonly number[]) | undefined | null, byMonth?: (readonly number[]) | undefined | null, byWeekno?: (readonly number[]) | undefined | null, byYearday?: (readonly number[]) | undefined | null)
   static parse(str: string): RRule
   get frequency(): Frequency
-  get interval(): number
+  get interval(): number | null
   get count(): number | null
-  get byWeekday(): NWeekday[]
+  get byDay(): NWeekday[]
   get byHour(): Array<number>
   get byMinute(): Array<number>
   get bySecond(): Array<number>
@@ -61,44 +54,28 @@ export class RRule {
   get byMonth(): Month[]
   get byWeekno(): Array<number>
   get byYearday(): Array<number>
-  get weekstart(): Weekday
+  get weekstart(): Weekday | null
   get until(): number | null
   toString(): string
-  setInterval(interval: number): this
-  setCount(count: number): this
-  setByWeekday(weekdays: readonly (NWeekday | Weekday)[]): this
-  setByHour(hours: readonly number[]): this
-  setByMinute(minutes: readonly number[]): this
-  setBySecond(seconds: readonly number[]): this
-  setByMonthday(days: readonly number[]): this
-  setBySetpos(poses: readonly number[]): this
-  setByMonth(months: readonly Month[]): this
-  setByWeekno(weekNumbers: readonly number[]): this
-  setByYearday(days: readonly number[]): this
-  setWeekstart(day: Weekday): this
-  setUntil(datetime: number): this
 }
 export class RRuleSet {
-  constructor(dtstart: number, tzid: string)
-  static create(dtstart: number, tzid: string, rrules?: (readonly RRule[]) | undefined | null, exrules?: (readonly RRule[]) | undefined | null, exdates?: (readonly number[]) | undefined | null, rdates?: (readonly number[]) | undefined | null): RRuleSet
-  get tzid(): string
+  constructor(dtstart: number, tzid?: string | undefined | null, rrules?: (readonly RRule[]) | undefined | null, exrules?: (readonly RRule[]) | undefined | null, exdates?: (readonly number[]) | undefined | null, rdates?: (readonly number[]) | undefined | null)
+  get tzid(): string | null
   get dtstart(): number
   get rrules(): RRule[]
   get exrules(): RRule[]
   get exdates(): number[]
   get rdates(): number[]
   static parse(str: string): RRuleSet
-  setDtstart(str: string): this
-  setFromString(str: string): this
-  addRrule(rrule: RRule): this
-  addExrule(rrule: RRule): this
-  addExdate(datetime: number): this
-  addRdate(datetime: number): this
   all(limit?: number | undefined | null): number[]
   between(afterDatetime: number, beforeDatetime: number, inclusive?: boolean | undefined | null): number[]
+  setFromString(str: string): this
   toString(): string
-  iter(): RRuleSetIter
+  iterator(): RRuleSetIterator
 }
-export class RRuleSetIter {
+export class RRuleSetIterator {
+  iterator(): RRuleSetIteratorIterable
+}
+export class RRuleSetIteratorIterable {
   [Symbol.iterator](): Iterator<number, void, void>
 }

@@ -11,7 +11,7 @@ test('Daily for 10 occurrences', () => {
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=10',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -43,7 +43,7 @@ test('Daily for 10 occurrences between 873550800000 and 873723600000 inclusively
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=10',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 6, 9, 0, 0, false),
@@ -67,7 +67,7 @@ test('Daily for 10 occurrences between 873550800000 and 873723600000 exclusively
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=10',
   );
   expect(dates).toEqual([DateTime.create(1997, 9, 7, 9, 0, 0, false)]);
 });
@@ -85,7 +85,7 @@ test('Daily until September 6, 1997', () => {
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;UNTIL=19970906T130000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;UNTIL=19970906T090000',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -108,7 +108,7 @@ test('Every other day', () => {
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=6;INTERVAL=2;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;INTERVAL=2;COUNT=6',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -132,7 +132,7 @@ test('Every 10 days, 5 occurrences', () => {
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=5;INTERVAL=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;INTERVAL=10;COUNT=5',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -158,7 +158,7 @@ test('Every Monday in January, for 3 years', () => {
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;UNTIL=20000131T190000Z;BYMONTH=1;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;UNTIL=20000131T140000;BYMONTH=1;BYDAY=MO',
   );
   expect(dates).toEqual([
     DateTime.create(1998, 1, 5, 9, 0, 0, false),
@@ -208,7 +208,7 @@ test('Every Monday in January, for 3 years except Jan 31 2000', () => {
     DateTime.create(2000, 1, 24, 9, 0, 0, false),
   ]);
   expect(set.rrules.map((rrule) => rrule.toString())).toEqual([
-    'FREQ=DAILY;UNTIL=20000131T140000;BYMONTH=1;BYDAY=MO',
+    'RRULE:FREQ=DAILY;UNTIL=20000131T140000;BYMONTH=1;BYDAY=MO',
   ]);
   expect(set.exrules).toEqual([]);
   expect([...set]).toEqual(dates);

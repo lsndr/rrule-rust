@@ -4,7 +4,7 @@ import { DateTime } from './datetime';
 
 export interface RRuleSetLike {
   readonly dtstart: DateTime;
-  readonly tzid: string;
+  readonly tzid?: string;
   readonly rrules: readonly RRule[];
   readonly exrules: readonly RRule[];
   readonly exdates: readonly DateTime[];
@@ -22,9 +22,12 @@ export class RRuleSet implements Iterable<DateTime> {
   public readonly exdates: readonly DateTime[];
   public readonly rdates: readonly DateTime[];
 
-  constructor(dtstart: DateTime, tzid: string);
+  constructor(dtstart: DateTime, tzid: string | undefined);
   constructor(options: Partial<RRuleSetLike>);
-  constructor(setOrDtstart?: DateTime | Partial<RRuleSetLike>, tzid?: string) {
+  constructor(
+    setOrDtstart?: DateTime | Partial<RRuleSetLike>,
+    tzid?: string | undefined,
+  ) {
     if (!(setOrDtstart instanceof DateTime)) {
       if (setOrDtstart?.dtstart) {
         this.dtstart = setOrDtstart?.dtstart;
@@ -76,7 +79,7 @@ export class RRuleSet implements Iterable<DateTime> {
   public static fromRust(rust: Rust): RRuleSet {
     const set = new RRuleSet({
       dtstart: DateTime.fromNumeric(rust.dtstart),
-      tzid: rust.tzid,
+      tzid: rust.tzid ?? undefined,
       rrules: rust.rrules.map((rrule) => RRule.fromRust(rrule)),
       exrules: rust.exrules.map((rrule) => RRule.fromRust(rrule)),
       exdates: rust.exdates.map((datetime) => DateTime.fromNumeric(datetime)),
@@ -200,7 +203,7 @@ export class RRuleSet implements Iterable<DateTime> {
    */
   public toRust(): Rust {
     if (!this.rust) {
-      this.rust = Rust.create(
+      this.rust = new Rust(
         this.dtstart.toNumeric(),
         this.tzid,
         this.rrules.map((rrule) => rrule.toRust()),
@@ -232,7 +235,7 @@ export class RRuleSet implements Iterable<DateTime> {
   }
 
   public [Symbol.iterator]() {
-    const iter = this.toRust().iter()[Symbol.iterator]();
+    const iter = this.toRust().iterator().iterator()[Symbol.iterator]();
 
     return {
       next: () => {

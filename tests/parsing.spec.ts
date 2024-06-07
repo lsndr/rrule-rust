@@ -7,7 +7,7 @@ test('Should properly parse weekly recurrence', () => {
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR;WKST=SU',
   );
 });
 
@@ -18,7 +18,7 @@ test('Should properly parse monthly recurrence', () => {
   const asString = set.toString();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=MONTHLY;COUNT=10;INTERVAL=2;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=-1SU,SU',
+    'DTSTART;TZID=US/Eastern:19970907T090000\nRRULE:FREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=1SU,-1SU',
   );
 });
 
@@ -103,7 +103,7 @@ test('Should properly parse weekly individual recurrence rule', () => {
 
   const asString = rule.toString();
   expect(asString).toBe(
-    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYDAY=MO,WE,FR',
+    'RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR;WKST=SU',
   );
 });
 
@@ -114,7 +114,7 @@ test('Should properly parse individual recurrence rule with RRULE prefix', () =>
 
   const asString = rule.toString();
   expect(asString).toBe(
-    'FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYDAY=MO,WE,FR',
+    'RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR;WKST=SU',
   );
 });
 
@@ -124,11 +124,10 @@ test('Should properly parse monthly individual recurrence rule', () => {
   expect(rule.interval).toBe(2);
   expect(rule.count).toBe(10);
 
-  // TODO: NWeekday not supported yet
-  //expect(rule.byWeekday)
-
   const asString = rule.toString();
-  expect(asString).toBe('FREQ=MONTHLY;COUNT=10;INTERVAL=2;BYDAY=SU,-1SU');
+  expect(asString).toBe(
+    'RRULE:FREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=1SU,-1SU',
+  );
 });
 
 test('Should throw error on invalid individual recurrence rule', () => {
@@ -168,7 +167,7 @@ test('Should be able to parse rule set without dtstart', () => {
   );
 
   expect(set.toString()).toBe(
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR;WKST=SU',
   );
 });
 
@@ -181,7 +180,7 @@ test('Should parse dtstart from string', () => {
   );
 
   expect(set.toString()).toBe(
-    'DTSTART;TZID=Asia/Tbilisi:20060101T010000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000Z;INTERVAL=2;WKST=SU;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO,WE,FR',
+    'DTSTART;TZID=Asia/Tbilisi:20060101T010000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR;WKST=SU',
   );
 });
 
@@ -194,7 +193,6 @@ test('Should add rrule with until', () => {
   );
 
   expect(set.toString()).toBe(
-    // TODO: return until in local timezone
-    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=20220513T040000Z;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU,WE,TH,FR',
+    'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=20220513T000000;BYDAY=FR,TH,TU,WE;WKST=MO',
   );
 });

@@ -13,7 +13,7 @@ test('Yearly in June and July for 10 occurrences', () => {
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970610T090000\nRRULE:FREQ=YEARLY;COUNT=10;BYMONTH=6,7;BYMONTHDAY=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970610T090000\nRRULE:FREQ=YEARLY;COUNT=10;BYMONTH=6,7',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 6, 10, 9, 0, 0, false),
@@ -44,7 +44,7 @@ test('Every other year on January, February, and March for 10 occurrences', () =
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970310T090000\nRRULE:FREQ=YEARLY;COUNT=10;INTERVAL=2;BYMONTH=1,2,3;BYMONTHDAY=10;BYHOUR=9;BYMINUTE=0;BYSECOND=0',
+    'DTSTART;TZID=US/Eastern:19970310T090000\nRRULE:FREQ=YEARLY;INTERVAL=2;COUNT=10;BYMONTH=1,2,3',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 3, 10, 9, 0, 0, false),
@@ -75,7 +75,7 @@ test('Every 3rd year on the 1st, 100th and 200th day for 10 occurrences', () => 
   const dates = set.all();
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970101T090000\nRRULE:FREQ=YEARLY;COUNT=10;INTERVAL=3;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYYEARDAY=1,100,200',
+    'DTSTART;TZID=US/Eastern:19970101T090000\nRRULE:FREQ=YEARLY;INTERVAL=3;COUNT=10;BYYEARDAY=1,100,200',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 1, 1, 9, 0, 0, false),
@@ -105,7 +105,7 @@ test('Every 20th Monday of the year, limit 3', () => {
   const dates = set.all(3);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970512T090000\nRRULE:FREQ=YEARLY;BYSETPOS=20;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
+    'DTSTART;TZID=US/Eastern:19970512T090000\nRRULE:FREQ=YEARLY;BYSETPOS=20;BYDAY=MO',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 5, 19, 9, 0, 0, false),
@@ -128,7 +128,7 @@ test('Monday of week number 20 (where the default start of the week is Monday), 
   const dates = set.all(3);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970512T090000\nRRULE:FREQ=YEARLY;BYWEEKNO=20;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=MO',
+    'DTSTART;TZID=US/Eastern:19970512T090000\nRRULE:FREQ=YEARLY;BYWEEKNO=20;BYDAY=MO;WKST=MO',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 5, 12, 9, 0, 0, false),
@@ -150,7 +150,7 @@ test('Every Thursday in March, limit 11', () => {
   const dates = set.all(11);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19970313T090000\nRRULE:FREQ=YEARLY;BYMONTH=3;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TH',
+    'DTSTART;TZID=US/Eastern:19970313T090000\nRRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=TH',
   );
   expect(dates).toEqual([
     DateTime.create(1997, 3, 13, 9, 0, 0, false),
@@ -183,7 +183,7 @@ test('Every Friday the 13th, limit 5', () => {
 
   expect(asString).toBe(
     'DTSTART;TZID=US/Eastern:19970902T090000\n' +
-      'RRULE:FREQ=YEARLY;BYMONTHDAY=13;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=FR\n' +
+      'RRULE:FREQ=YEARLY;BYMONTHDAY=13;BYDAY=FR\n' +
       'EXDATE:19980313T090000',
   );
   expect(dates).toEqual([
@@ -210,7 +210,7 @@ test('Every four years, the first Tuesday after a Monday in November, forever (U
   const dates = set.all(3);
 
   expect(asString).toBe(
-    'DTSTART;TZID=US/Eastern:19961105T090000\nRRULE:FREQ=YEARLY;INTERVAL=4;BYMONTH=11;BYMONTHDAY=2,3,4,5,6,7,8;BYHOUR=9;BYMINUTE=0;BYSECOND=0;BYDAY=TU',
+    'DTSTART;TZID=US/Eastern:19961105T090000\nRRULE:FREQ=YEARLY;INTERVAL=4;BYMONTHDAY=2,3,4,5,6,7,8;BYMONTH=11;BYDAY=TU',
   );
   expect(dates).toEqual([
     DateTime.create(1996, 11, 5, 9, 0, 0, false),

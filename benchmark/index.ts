@@ -37,6 +37,7 @@ function suite(tzid: string) {
         count: 30,
         interval: 1,
       });
+
       const set = new node.RRuleSet();
       set.rrule(rrule);
 

@@ -4,6 +4,7 @@ use chrono::Datelike;
 use chrono::TimeZone;
 use chrono::Timelike;
 
+#[derive(Clone)]
 pub struct DateTime {
   year: u32,
   month: u32,
@@ -19,12 +20,12 @@ impl DateTime {
     self.utc
   }
 
-  pub fn to_rrule_datetime(
+  pub fn to_datetime(
     &self,
-    timezone: &rrule::Tz,
-  ) -> napi::Result<chrono::DateTime<rrule::Tz>> {
+    timezone: &chrono_tz::Tz,
+  ) -> Result<chrono::DateTime<chrono_tz::Tz>, String> {
     let timezone = match self.utc {
-      true => &rrule::Tz::UTC,
+      true => &chrono_tz::Tz::UTC,
       false => &timezone,
     };
 
@@ -40,25 +41,20 @@ impl DateTime {
       .single()
     {
       Some(datetime) => Ok(datetime),
-      None => Err(napi::Error::new(
-        napi::Status::GenericFailure,
-        format!(
-          "Invalid datetime: {}-{}-{} {}:{}:{} {}",
-          self.year,
-          self.month,
-          self.day,
-          self.hour,
-          self.minute,
-          self.second,
-          if self.utc { "UTC" } else { "Local" }
-        ),
+      None => Err(format!(
+        "Invalid datetime: {}-{}-{} {}:{}:{} {}",
+        self.year,
+        self.month,
+        self.day,
+        self.hour,
+        self.minute,
+        self.second,
+        if self.utc { "UTC" } else { "Local" }
       )),
     }
   }
-}
 
-impl Into<String> for DateTime {
-  fn into(self) -> String {
+  pub fn to_string(&self) -> String {
     format!(
       "{:04}{:02}{:02}T{:02}{:02}{:02}{}",
       self.year,
@@ -70,76 +66,8 @@ impl Into<String> for DateTime {
       if self.utc { "Z" } else { "" }
     )
   }
-}
 
-impl From<i64> for DateTime {
-  fn from(numeric: i64) -> Self {
-    let year = (numeric / 100000000000) as u32;
-    let month = ((numeric / 1000000000) % 100) as u32;
-    let day = ((numeric / 10000000) % 100) as u32;
-    let hour = ((numeric / 100000) % 100) as u32;
-    let minute = ((numeric / 1000) % 100) as u32;
-    let second = ((numeric / 10) % 100) as u32;
-    let utc = (numeric % 10) == 1;
-
-    DateTime {
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-      utc,
-    }
-  }
-}
-
-impl From<chrono::DateTime<rrule::Tz>> for DateTime {
-  fn from(datetime: chrono::DateTime<rrule::Tz>) -> Self {
-    let year = datetime.year() as u32;
-    let month = datetime.month();
-    let day = datetime.day();
-    let hour = datetime.hour();
-    let minute = datetime.minute();
-    let second = datetime.second();
-    let utc = datetime.timezone() == rrule::Tz::UTC;
-
-    DateTime {
-      year,
-      month,
-      day,
-      hour,
-      minute,
-      second,
-      utc,
-    }
-  }
-}
-
-impl Into<i64> for DateTime {
-  fn into(self) -> i64 {
-    let year = self.year as i64;
-    let month = self.month as i64;
-    let day = self.day as i64;
-    let hour = self.hour as i64;
-    let minute = self.minute as i64;
-    let second = self.second as i64;
-    let utc = if self.utc { 1 } else { 0 };
-
-    year * 100000000000
-      + month * 1000000000
-      + day * 10000000
-      + hour * 100000
-      + minute * 1000
-      + second * 10
-      + utc
-  }
-}
-
-impl FromStr for DateTime {
-  type Err = String;
-
-  fn from_str(str: &str) -> Result<Self, Self::Err> {
+  fn from_str(str: &str) -> Result<Self, String> {
     if str.len() > 16 || str.len() < 15 {
       return Err(format!("Invalid datetime string: {}", str));
     }
@@ -186,7 +114,7 @@ impl FromStr for DateTime {
 
     let utc = str.get(15..16).unwrap_or("").to_uppercase() == "Z";
 
-    Ok(DateTime {
+    Ok(Self {
       year,
       month,
       day,
@@ -195,5 +123,77 @@ impl FromStr for DateTime {
       second,
       utc,
     })
+  }
+}
+
+impl From<i64> for DateTime {
+  fn from(numeric: i64) -> Self {
+    let year = (numeric / 100000000000) as u32;
+    let month = ((numeric / 1000000000) % 100) as u32;
+    let day = ((numeric / 10000000) % 100) as u32;
+    let hour = ((numeric / 100000) % 100) as u32;
+    let minute = ((numeric / 1000) % 100) as u32;
+    let second = ((numeric / 10) % 100) as u32;
+    let utc = (numeric % 10) == 1;
+
+    DateTime {
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second,
+      utc,
+    }
+  }
+}
+
+impl From<&chrono::DateTime<rrule::Tz>> for DateTime {
+  fn from(datetime: &chrono::DateTime<rrule::Tz>) -> Self {
+    let year = datetime.year() as u32;
+    let month = datetime.month();
+    let day = datetime.day();
+    let hour = datetime.hour();
+    let minute = datetime.minute();
+    let second = datetime.second();
+    let utc = datetime.timezone() == rrule::Tz::UTC;
+
+    DateTime {
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second,
+      utc,
+    }
+  }
+}
+
+impl Into<i64> for &DateTime {
+  fn into(self) -> i64 {
+    let year = self.year as i64;
+    let month = self.month as i64;
+    let day = self.day as i64;
+    let hour = self.hour as i64;
+    let minute = self.minute as i64;
+    let second = self.second as i64;
+    let utc = if self.utc { 1 } else { 0 };
+
+    year * 100000000000
+      + month * 1000000000
+      + day * 10000000
+      + hour * 100000
+      + minute * 1000
+      + second * 10
+      + utc
+  }
+}
+
+impl FromStr for DateTime {
+  type Err = String;
+
+  fn from_str(str: &str) -> Result<Self, Self::Err> {
+    DateTime::from_str(str)
   }
 }

@@ -1,254 +1,157 @@
-use crate::serialization::Calendar;
-
-use super::{DateTime, RRule};
+use super::rrule::RRule;
+use crate::rrule::datetime::DateTime;
+use crate::rrule::dtstart::DtStart;
+use crate::rrule::{rrule, rrule_set};
 use napi::bindgen_prelude::{Array, Reference, SharedReference};
 use napi::iterator::Generator;
 use napi::Env;
 use napi_derive::napi;
-use replace_with::replace_with_or_abort;
+use replace_with::replace_with_or_abort_and_return;
 
 #[napi(js_name = "RRuleSet")]
 pub struct RRuleSet {
-  rrule_set: rrule::RRuleSet,
+  rrule_set: rrule_set::RRuleSet,
 }
 
 #[napi]
 impl RRuleSet {
   #[napi(constructor)]
-  pub fn new(dtstart: i64, tzid: String) -> napi::Result<Self> {
-    let timezone: chrono_tz::Tz = tzid
-      .parse()
-      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
-    let datetime = super::DateTime::from(dtstart);
-    let datetime = datetime
-      .to_rrule_datetime(&rrule::Tz::Tz(timezone))?
-      .with_timezone(&rrule::Tz::Tz(timezone));
-    let rrule_set = rrule::RRuleSet::new(datetime);
-
-    Ok(RRuleSet { rrule_set })
-  }
-
-  #[napi(factory)]
-  pub fn create(
+  pub fn new(
     dtstart: i64,
-    tzid: String,
+    tzid: Option<String>,
     #[napi(ts_arg_type = "(readonly RRule[]) | undefined | null")] rrules: Option<Vec<&RRule>>,
     #[napi(ts_arg_type = "(readonly RRule[]) | undefined | null")] exrules: Option<Vec<&RRule>>,
     #[napi(ts_arg_type = "(readonly number[]) | undefined | null")] exdates: Option<Vec<i64>>,
     #[napi(ts_arg_type = "(readonly number[]) | undefined | null")] rdates: Option<Vec<i64>>,
   ) -> napi::Result<Self> {
-    let mut set = Self::new(dtstart, tzid)?;
+    let tzid: Option<chrono_tz::Tz> = match tzid {
+      Some(tzid) => Some(
+        tzid
+          .parse()
+          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?,
+      ),
+      None => None,
+    };
 
-    if let Some(rrules) = rrules {
-      for rrule in rrules.iter() {
-        set.add_rrule(rrule)?;
-      }
-    }
+    let dtstart = DtStart::new(dtstart.into(), tzid)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
-    if let Some(exrules) = exrules {
-      for rrule in exrules.iter() {
-        set.add_exrule(rrule)?;
-      }
-    }
+    let rrules: Vec<rrule::RRule> = rrules
+      .unwrap_or_default()
+      .into_iter()
+      .map(|rrule| rrule.into())
+      .collect();
 
-    if let Some(exdates) = exdates {
-      for datetime in exdates.iter() {
-        set.add_exdate(*datetime)?;
-      }
-    }
+    let exrules: Vec<rrule::RRule> = exrules
+      .unwrap_or_default()
+      .into_iter()
+      .map(|rrule| rrule.into())
+      .collect();
 
-    if let Some(rdates) = rdates {
-      for datetime in rdates.iter() {
-        set.add_rdate(*datetime)?;
-      }
-    }
+    let exdates: Vec<DateTime> = exdates
+      .unwrap_or_default()
+      .into_iter()
+      .map(Into::into)
+      .collect();
 
-    Ok(set)
+    let rdates: Vec<DateTime> = rdates
+      .unwrap_or_default()
+      .into_iter()
+      .map(Into::into)
+      .collect();
+
+    let rrule_set = rrule_set::RRuleSet::new(dtstart)
+      .set_rrules(rrules)
+      .set_exrules(exrules)
+      .set_exdates(exdates)
+      .set_rdates(rdates);
+
+    Ok(Self { rrule_set })
   }
 
   #[napi(getter)]
-  pub fn tzid(&self) -> String {
-    self.rrule_set.get_dt_start().timezone().to_string()
+  pub fn tzid(&self) -> napi::Result<Option<String>> {
+    Ok(
+      self
+        .rrule_set
+        .dtstart()
+        .tzid()
+        .and_then(|tzid| Some(tzid.to_string())),
+    )
   }
 
   #[napi(getter)]
-  pub fn dtstart(&self) -> i64 {
-    let dtstart = *self.rrule_set.get_dt_start();
-    let dtstart: i64 = super::DateTime::from(dtstart).into();
-
-    dtstart
+  pub fn dtstart(&self) -> napi::Result<i64> {
+    Ok(self.rrule_set.dtstart().datetime().into())
   }
 
   #[napi(getter, ts_return_type = "RRule[]")]
-  pub fn rrules(&self) -> Vec<RRule> {
-    self
-      .rrule_set
-      .get_rrule()
-      .iter()
-      .map(|rrule| RRule::from(to_unvalidated(rrule)))
-      .collect()
+  pub fn rrules(&self) -> napi::Result<Vec<RRule>> {
+    Ok(
+      self
+        .rrule_set
+        .rrules()
+        .iter()
+        .map(|rrule| rrule.clone().into())
+        .collect(),
+    )
   }
 
   #[napi(getter, ts_return_type = "RRule[]")]
-  pub fn exrules(&self) -> Vec<RRule> {
-    self
-      .rrule_set
-      .get_exrule()
-      .iter()
-      .map(|rrule| RRule::from(to_unvalidated(rrule)))
-      .collect()
+  pub fn exrules(&self) -> napi::Result<Vec<RRule>> {
+    Ok(
+      self
+        .rrule_set
+        .exrules()
+        .into_iter()
+        .map(|rrule| rrule.clone().into())
+        .collect(),
+    )
   }
 
   #[napi(getter, ts_return_type = "number[]")]
-  pub fn exdates(&self) -> Vec<i64> {
-    self
-      .rrule_set
-      .get_exdate()
-      .iter()
-      .map(|date| super::DateTime::from(*date).into())
-      .collect()
+  pub fn exdates(&self) -> napi::Result<Vec<i64>> {
+    Ok(
+      self
+        .rrule_set
+        .exdates()
+        .iter()
+        .map(|date| date.into())
+        .collect(),
+    )
   }
 
   #[napi(getter, ts_return_type = "number[]")]
-  pub fn rdates(&self) -> Vec<i64> {
-    self
-      .rrule_set
-      .get_rdate()
-      .iter()
-      .map(|date| super::DateTime::from(*date).into())
-      .collect()
+  pub fn rdates(&self) -> napi::Result<Vec<i64>> {
+    Ok(
+      self
+        .rrule_set
+        .rdates()
+        .iter()
+        .map(|date| date.into())
+        .collect(),
+    )
   }
 
   #[napi(factory, ts_return_type = "RRuleSet")]
   pub fn parse(str: String) -> napi::Result<Self> {
-    let set: Self = str.parse()?;
-
-    Ok(set)
-  }
-
-  #[napi]
-  pub fn set_dtstart(&mut self, str: String) -> napi::Result<&Self> {
-    let rrule_set = self
-      .rrule_set
-      .clone()
-      .set_from_string(&str)
+    let rrule_set: rrule_set::RRuleSet = str
+      .parse()
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
-    self.rrule_set = rrule_set;
-
-    Ok(self)
+    Ok(Self { rrule_set })
   }
 
-  #[napi]
-  pub fn set_from_string(&mut self, str: String) -> napi::Result<&Self> {
-    let calendar: Calendar = str.parse()?;
-    let (calendar_dtstarts, calendar_rrules, calendar_exrules, calendar_exdates, calendar_rdates) =
-      calendar.into();
+  #[napi(ts_return_type = "number[]")]
+  pub fn all(&self, limit: Option<i32>) -> napi::Result<Vec<i64>> {
+    let iterator = self.rrule_set.iterator();
+    let iter = iterator.into_iter().map(|date| (&date).into());
 
-    if calendar_dtstarts.len() > 1 {
-      return Err(napi::Error::new(
-        napi::Status::GenericFailure,
-        "Only one DTSTART is allowed",
-      ));
+    if let Some(limit) = limit {
+      return Ok(iter.take(limit as usize).collect());
     }
 
-    let mut rrule_set = self.rrule_set.clone();
-
-    if let Some((dtstart, tzid)) = calendar_dtstarts.first() {
-      let timezone: chrono_tz::Tz = tzid
-        .parse()
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
-      let datetime = DateTime::from(*dtstart);
-      let datetime = datetime
-        .to_rrule_datetime(&rrule::Tz::Tz(timezone))?
-        .with_timezone(&rrule::Tz::Tz(timezone));
-
-      rrule_set = rrule::RRuleSet::new(datetime);
-
-      for rrule in self.rrule_set.get_rrule() {
-        rrule_set = rrule_set.rrule(rrule.clone());
-      }
-
-      for exrule in self.rrule_set.get_exrule() {
-        rrule_set = rrule_set.exrule(exrule.clone());
-      }
-
-      for exdate in self.rrule_set.get_exdate() {
-        rrule_set = rrule_set.exdate(*exdate);
-      }
-
-      for rdate in self.rrule_set.get_rdate() {
-        rrule_set = rrule_set.rdate(*rdate);
-      }
-    }
-
-    for rrule in calendar_rrules {
-      let dtstart = *self.rrule_set.get_dt_start();
-      rrule_set = rrule_set.rrule(rrule.validate(dtstart)?);
-    }
-
-    for rrule in calendar_exrules {
-      let dtstart = *self.rrule_set.get_dt_start();
-      rrule_set = rrule_set.exrule(rrule.validate(dtstart)?);
-    }
-
-    for exdate in calendar_exdates {
-      let timezone = self.rrule_set.get_dt_start().timezone();
-      let datetime = super::DateTime::from(exdate).to_rrule_datetime(&timezone)?;
-
-      rrule_set = rrule_set.exdate(datetime);
-    }
-
-    for rdate in calendar_rdates {
-      let timezone = self.rrule_set.get_dt_start().timezone();
-      let datetime = super::DateTime::from(rdate).to_rrule_datetime(&timezone)?;
-
-      rrule_set = rrule_set.rdate(datetime);
-    }
-
-    self.rrule_set = rrule_set;
-
-    Ok(self)
-  }
-
-  #[napi]
-  pub fn add_rrule(&mut self, rrule: &RRule) -> napi::Result<&Self> {
-    let dtstart = *self.rrule_set.get_dt_start();
-    let rrule = rrule.validate(dtstart)?;
-
-    replace_with_or_abort(&mut self.rrule_set, |self_| self_.rrule(rrule));
-
-    Ok(self)
-  }
-
-  #[napi]
-  pub fn add_exrule(&mut self, rrule: &RRule) -> napi::Result<&Self> {
-    let dtstart = *self.rrule_set.get_dt_start();
-    let rrule = rrule.validate(dtstart)?;
-
-    replace_with_or_abort(&mut self.rrule_set, |self_| self_.exrule(rrule));
-
-    Ok(self)
-  }
-
-  #[napi]
-  pub fn add_exdate(&mut self, datetime: i64) -> napi::Result<&Self> {
-    let timezone = self.rrule_set.get_dt_start().timezone();
-    let datetime = super::DateTime::from(datetime).to_rrule_datetime(&timezone)?;
-
-    replace_with_or_abort(&mut self.rrule_set, |self_| self_.exdate(datetime));
-
-    Ok(self)
-  }
-
-  #[napi]
-  pub fn add_rdate(&mut self, datetime: i64) -> napi::Result<&Self> {
-    let timezone = self.rrule_set.get_dt_start().timezone();
-    let datetime = super::DateTime::from(datetime).to_rrule_datetime(&timezone)?;
-
-    replace_with_or_abort(&mut self.rrule_set, |self_| self_.rdate(datetime.into()));
-
-    Ok(self)
+    Ok(iter.collect())
   }
 
   fn is_after(&self, timestamp: i64, after_timestamp: i64, inclusive: Option<bool>) -> bool {
@@ -276,26 +179,6 @@ impl RRuleSet {
   }
 
   #[napi(ts_return_type = "number[]")]
-  pub fn all(&self, env: Env, limit: Option<i32>) -> napi::Result<Array> {
-    let mut arr = env.create_array(0).unwrap();
-    let mut left = limit.unwrap_or(-1);
-
-    for date in self.rrule_set.into_iter() {
-      let datetime: i64 = super::DateTime::from(date).into();
-
-      arr.insert(datetime).unwrap();
-
-      left -= 1;
-
-      if left == 0 {
-        break;
-      }
-    }
-
-    Ok(arr)
-  }
-
-  #[napi(ts_return_type = "number[]")]
   pub fn between(
     &self,
     env: Env,
@@ -304,21 +187,29 @@ impl RRuleSet {
     inclusive: Option<bool>,
   ) -> napi::Result<Array> {
     let mut arr = env.create_array(0).unwrap();
-    let timezone = self.rrule_set.get_dt_start().timezone();
-    let after_timestamp = super::DateTime::from(after_datetime)
-      .to_rrule_datetime(&timezone)?
+    let timezone = self.rrule_set.dtstart().timezone();
+    let after_timestamp = DateTime::from(after_datetime)
+      .to_datetime(&timezone)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
       .timestamp_millis();
-    let before_timestamp = super::DateTime::from(before_datetime)
-      .to_rrule_datetime(&timezone)?
+    let before_timestamp = DateTime::from(before_datetime)
+      .to_datetime(&timezone)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
       .timestamp_millis();
 
-    for date in self.rrule_set.into_iter() {
-      let date_timestamp = date.timestamp_millis();
+    let iterator = self.rrule_set.iterator();
+    let iter = iterator.into_iter();
+
+    for date in iter {
+      let date_timestamp = date
+        .to_datetime(&timezone)
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
+        .timestamp_millis();
       let is_after = self.is_after(date_timestamp, after_timestamp, inclusive);
       let is_before = self.is_before(date_timestamp, before_timestamp, inclusive);
 
       if is_after && is_before {
-        let datetime: i64 = super::DateTime::from(date).into();
+        let datetime: i64 = (&date).into();
 
         arr.insert(datetime).unwrap();
       } else if !is_before {
@@ -330,63 +221,65 @@ impl RRuleSet {
   }
 
   #[napi]
-  pub fn to_string(&self) -> napi::Result<String> {
-    Ok(self.into())
+  pub fn set_from_string(&mut self, str: String) -> napi::Result<&Self> {
+    replace_with_or_abort_and_return(&mut self.rrule_set, |set| {
+      let new_set = set.clone();
+
+      match new_set.set_from_string(&str) {
+        Ok(set) => (None, set),
+        Err(e) => (Some(e), set),
+      }
+    });
+
+    Ok(self)
   }
 
   #[napi]
-  pub fn iter(&self, this: Reference<RRuleSet>, env: Env) -> napi::Result<RRuleSetIter> {
-    let iter = this.share_with(env, |set| Ok(set.rrule_set.into_iter()))?;
-    Ok(RRuleSetIter { iter })
+  pub fn to_string(&self) -> napi::Result<String> {
+    Ok(self.rrule_set.to_string())
+  }
+
+  #[napi]
+  pub fn iterator(&self) -> napi::Result<RRuleSetIterator> {
+    Ok(RRuleSetIterator {
+      iterator: self.rrule_set.iterator(),
+    })
+  }
+}
+
+#[napi]
+pub struct RRuleSetIterator {
+  iterator: rrule_set::RRuleSetIterator,
+}
+
+#[napi]
+impl RRuleSetIterator {
+  #[napi]
+  pub fn iterator(
+    &self,
+    this: Reference<RRuleSetIterator>,
+    env: Env,
+  ) -> napi::Result<RRuleSetIteratorIterable> {
+    let iterator = this.share_with(env, |iter: &mut RRuleSetIterator| {
+      Ok(iter.iterator.into_iter())
+    })?;
+
+    Ok(RRuleSetIteratorIterable { iterator })
   }
 }
 
 #[napi(iterator)]
-pub struct RRuleSetIter {
-  iter: SharedReference<RRuleSet, rrule::RRuleSetIter<'static>>,
+pub struct RRuleSetIteratorIterable {
+  iterator: SharedReference<RRuleSetIterator, rrule_set::RRuleSetIteratorIterable<'static>>,
 }
 
 #[napi]
-impl Generator for RRuleSetIter {
+impl Generator for RRuleSetIteratorIterable {
   type Yield = i64;
   type Next = ();
   type Return = ();
 
   fn next(&mut self, _next: Option<Self::Next>) -> Option<Self::Yield> {
-    self.iter.next().map(|date| {
-      let datetime: i64 = super::DateTime::from(date).into();
-
-      datetime
-    })
+    self.iterator.next().map(|date: DateTime| (&date).into())
   }
-}
-
-fn to_unvalidated(rrule: &rrule::RRule) -> rrule::RRule<rrule::Unvalidated> {
-  let by_month = rrule
-    .get_by_month()
-    .iter()
-    .map(|m| chrono::Month::try_from(*m).unwrap())
-    .collect::<Vec<_>>();
-  let mut unvalidated = rrule::RRule::new(rrule.get_freq())
-    .interval(rrule.get_interval())
-    .week_start(rrule.get_week_start())
-    .by_set_pos(rrule.get_by_set_pos().to_vec())
-    .by_month(&by_month)
-    .by_month_day(rrule.get_by_month_day().to_vec())
-    .by_year_day(rrule.get_by_year_day().to_vec())
-    .by_week_no(rrule.get_by_week_no().to_vec())
-    .by_weekday(rrule.get_by_weekday().to_vec())
-    .by_hour(rrule.get_by_hour().to_vec())
-    .by_minute(rrule.get_by_minute().to_vec())
-    .by_second(rrule.get_by_second().to_vec());
-
-  if let Some(count) = rrule.get_count() {
-    unvalidated = unvalidated.count(count);
-  }
-
-  if let Some(until) = rrule.get_until() {
-    unvalidated = unvalidated.until(*until);
-  }
-
-  unvalidated
 }

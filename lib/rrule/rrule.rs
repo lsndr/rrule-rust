@@ -17,7 +17,7 @@ pub struct RRule {
   interval: Option<u16>,
   count: Option<u32>,
   weekstart: Option<Weekday>,
-  by_day: Vec<NWeekday>,
+  by_weekday: Vec<NWeekday>,
   by_hour: Vec<u8>,
   by_minute: Vec<u8>,
   by_second: Vec<u8>,
@@ -36,7 +36,7 @@ impl RRule {
       count: None,
       until: None,
       weekstart: None,
-      by_day: Vec::new(),
+      by_weekday: Vec::new(),
       by_hour: Vec::new(),
       by_minute: Vec::new(),
       by_second: Vec::new(),
@@ -95,8 +95,8 @@ impl RRule {
     Self { by_weekno, ..self }
   }
 
-  pub fn set_by_day(self, by_day: Vec<NWeekday>) -> Self {
-    Self { by_day, ..self }
+  pub fn set_by_weekday(self, by_weekday: Vec<NWeekday>) -> Self {
+    Self { by_weekday, ..self }
   }
 
   pub fn set_weekstart(self, weekstart: Option<Weekday>) -> Self {
@@ -115,8 +115,8 @@ impl RRule {
     self.count
   }
 
-  pub fn by_day(&self) -> &Vec<NWeekday> {
-    &self.by_day
+  pub fn by_weekday(&self) -> &Vec<NWeekday> {
+    &self.by_weekday
   }
 
   pub fn by_hour(&self) -> &Vec<u8> {
@@ -215,11 +215,11 @@ impl RRule {
       value.insert("BYWEEKNO".to_string(), self.by_weekno.iter().join(","));
     }
 
-    if !self.by_day.is_empty() {
+    if !self.by_weekday.is_empty() {
       value.insert(
         "BYDAY".to_string(),
         self
-          .by_day
+          .by_weekday
           .iter()
           .map(|day| Into::<String>::into(day))
           .join(","),
@@ -276,7 +276,7 @@ impl RRule {
     let by_second = value.get_as_vec::<u8>("BYSECOND")?;
     let by_month = value.get_as_vec::<Month>("BYMONTH")?;
     let weekstart = value.get_as::<Weekday>("WKST")?;
-    let by_day = value.get_as_vec::<NWeekday>("BYDAY")?;
+    let by_weekday = value.get_as_vec::<NWeekday>("BYDAY")?;
     let by_setpos = value.get_as_vec::<i32>("BYSETPOS")?;
     let by_monthday = value.get_as_vec::<i8>("BYMONTHDAY")?;
     let by_yearday = value.get_as_vec::<i16>("BYYEARDAY")?;
@@ -288,7 +288,7 @@ impl RRule {
       interval,
       count,
       weekstart,
-      by_day: by_day.unwrap_or_default(),
+      by_weekday: by_weekday.unwrap_or_default(),
       by_hour: by_hour.unwrap_or_default(),
       by_minute: by_minute.unwrap_or_default(),
       by_second: by_second.unwrap_or_default(),
@@ -353,7 +353,12 @@ impl ToRRule for RRule {
     rrule = rrule.by_week_no(self.by_weekno.clone());
     rrule = rrule.by_year_day(self.by_yearday.clone());
     rrule = rrule.week_start(self.weekstart.as_ref().unwrap_or_default().into());
-    rrule = rrule.by_weekday((&self.by_day).into_iter().map(|day| day.into()).collect());
+    rrule = rrule.by_weekday(
+      (&self.by_weekday)
+        .into_iter()
+        .map(|day| day.into())
+        .collect(),
+    );
 
     let dtstart = dtstart.to_datetime()?;
     let dtstart = dtstart.with_timezone(&rrule::Tz::Tz(dtstart.timezone()));

@@ -133,7 +133,7 @@ export class RRule {
       interval: rust.interval ?? undefined,
       until: rust.until === null ? undefined : DateTime.fromNumeric(rust.until),
       count: rust.count === null ? undefined : rust.count,
-      byWeekday: rust.byDay,
+      byWeekday: rust.byWeekday,
       byHour: rust.byHour,
       byMinute: rust.byMinute,
       bySecond: rust.bySecond,

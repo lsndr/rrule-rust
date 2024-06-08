@@ -17,9 +17,8 @@ impl RRule {
     count: Option<u32>,
     weekstart: Option<Weekday>,
     until: Option<i64>,
-    #[napi(ts_arg_type = "(readonly (NWeekday | Weekday)[]) | undefined | null")] by_day: Option<
-      Vec<Either<NWeekday, Weekday>>,
-    >,
+    #[napi(ts_arg_type = "(readonly (NWeekday | Weekday)[]) | undefined | null")]
+    by_weekday: Option<Vec<Either<NWeekday, Weekday>>>,
     #[napi(ts_arg_type = "(readonly number[]) | undefined | null")] by_hour: Option<Vec<u8>>,
     #[napi(ts_arg_type = "(readonly number[]) | undefined | null")] by_minute: Option<Vec<u8>>,
     #[napi(ts_arg_type = "(readonly number[]) | undefined | null")] by_second: Option<Vec<u8>>,
@@ -48,8 +47,8 @@ impl RRule {
     rrule = rrule.set_by_weekno(by_weekno.unwrap_or_default());
     rrule = rrule.set_by_yearday(by_yearday.unwrap_or_default());
     rrule = rrule.set_weekstart(weekstart.map(|weekday| weekday.into()));
-    rrule = rrule.set_by_day(
-      by_day
+    rrule = rrule.set_by_weekday(
+      by_weekday
         .unwrap_or_default()
         .into_iter()
         .map(|day| match day {
@@ -89,8 +88,15 @@ impl RRule {
   }
 
   #[napi(getter, ts_return_type = "NWeekday[]")]
-  pub fn by_day(&self) -> napi::Result<Vec<NWeekday>> {
-    Ok(self.rrule.by_day().iter().map(|nday| nday.into()).collect())
+  pub fn by_weekday(&self) -> napi::Result<Vec<NWeekday>> {
+    Ok(
+      self
+        .rrule
+        .by_weekday()
+        .iter()
+        .map(|nday| nday.into())
+        .collect(),
+    )
   }
 
   #[napi(getter)]

@@ -40,12 +40,12 @@ export enum Weekday {
   Sunday = 6
 }
 export class RRule {
-  constructor(frequency: Frequency, interval?: number | undefined | null, count?: number | undefined | null, weekstart?: Weekday | undefined | null, until?: number | undefined | null, byDay?: (readonly (NWeekday | Weekday)[]) | undefined | null, byHour?: (readonly number[]) | undefined | null, byMinute?: (readonly number[]) | undefined | null, bySecond?: (readonly number[]) | undefined | null, byMonthday?: (readonly number[]) | undefined | null, bySetpos?: (readonly number[]) | undefined | null, byMonth?: (readonly number[]) | undefined | null, byWeekno?: (readonly number[]) | undefined | null, byYearday?: (readonly number[]) | undefined | null)
+  constructor(frequency: Frequency, interval?: number | undefined | null, count?: number | undefined | null, weekstart?: Weekday | undefined | null, until?: number | undefined | null, byWeekday?: (readonly (NWeekday | Weekday)[]) | undefined | null, byHour?: (readonly number[]) | undefined | null, byMinute?: (readonly number[]) | undefined | null, bySecond?: (readonly number[]) | undefined | null, byMonthday?: (readonly number[]) | undefined | null, bySetpos?: (readonly number[]) | undefined | null, byMonth?: (readonly number[]) | undefined | null, byWeekno?: (readonly number[]) | undefined | null, byYearday?: (readonly number[]) | undefined | null)
   static parse(str: string): RRule
   get frequency(): Frequency
   get interval(): number | null
   get count(): number | null
-  get byDay(): NWeekday[]
+  get byWeekday(): NWeekday[]
   get byHour(): Array<number>
   get byMinute(): Array<number>
   get bySecond(): Array<number>

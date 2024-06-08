@@ -85,7 +85,7 @@ export class RRule {
 
   constructor(frequency: Frequency);
   constructor(rrule?: Partial<RRuleLike>);
-  constructor(rruleOrFrequency: number | Partial<RRuleLike> = {}) {
+  constructor(rruleOrFrequency: Frequency | Partial<RRuleLike> = {}) {
     if (typeof rruleOrFrequency === 'object' && rruleOrFrequency !== null) {
       this.frequency = rruleOrFrequency.frequency ?? Frequency.Daily;
       this.interval = rruleOrFrequency.interval;

@@ -1,13 +1,4 @@
-target
-Cargo.lock
-.cargo
-.github
-npm
-.eslintrc
-.prettierignore
-rustfmt.toml
-yarn.lock
+*
+!dist/**/*
 *.node
-.yarn
-__test__
-renovate.json
+*.tsbuildinfo

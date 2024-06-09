@@ -17,7 +17,7 @@ function isMusl() {
   // For Node 10
   if (!process.report || typeof process.report.getReport !== 'function') {
     try {
-      const lddPath = require('child_process').execSync('which ldd').toString().trim();
+      const lddPath = require('child_process').execSync('which ldd').toString().trim()
       return readFileSync(lddPath, 'utf8').includes('musl')
     } catch (e) {
       return true
@@ -224,14 +224,72 @@ switch (platform) {
         }
         break
       case 'arm':
+        if (isMusl()) {
+          localFileExisted = existsSync(
+            join(__dirname, 'rrule-rust.linux-arm-musleabihf.node')
+          )
+          try {
+            if (localFileExisted) {
+              nativeBinding = require('./rrule-rust.linux-arm-musleabihf.node')
+            } else {
+              nativeBinding = require('@rrule-rust/lib-linux-arm-musleabihf')
+            }
+          } catch (e) {
+            loadError = e
+          }
+        } else {
+          localFileExisted = existsSync(
+            join(__dirname, 'rrule-rust.linux-arm-gnueabihf.node')
+          )
+          try {
+            if (localFileExisted) {
+              nativeBinding = require('./rrule-rust.linux-arm-gnueabihf.node')
+            } else {
+              nativeBinding = require('@rrule-rust/lib-linux-arm-gnueabihf')
+            }
+          } catch (e) {
+            loadError = e
+          }
+        }
+        break
+      case 'riscv64':
+        if (isMusl()) {
+          localFileExisted = existsSync(
+            join(__dirname, 'rrule-rust.linux-riscv64-musl.node')
+          )
+          try {
+            if (localFileExisted) {
+              nativeBinding = require('./rrule-rust.linux-riscv64-musl.node')
+            } else {
+              nativeBinding = require('@rrule-rust/lib-linux-riscv64-musl')
+            }
+          } catch (e) {
+            loadError = e
+          }
+        } else {
+          localFileExisted = existsSync(
+            join(__dirname, 'rrule-rust.linux-riscv64-gnu.node')
+          )
+          try {
+            if (localFileExisted) {
+              nativeBinding = require('./rrule-rust.linux-riscv64-gnu.node')
+            } else {
+              nativeBinding = require('@rrule-rust/lib-linux-riscv64-gnu')
+            }
+          } catch (e) {
+            loadError = e
+          }
+        }
+        break
+      case 's390x':
         localFileExisted = existsSync(
-          join(__dirname, 'rrule-rust.linux-arm-gnueabihf.node')
+          join(__dirname, 'rrule-rust.linux-s390x-gnu.node')
         )
         try {
           if (localFileExisted) {
-            nativeBinding = require('./rrule-rust.linux-arm-gnueabihf.node')
+            nativeBinding = require('./rrule-rust.linux-s390x-gnu.node')
           } else {
-            nativeBinding = require('@rrule-rust/lib-linux-arm-gnueabihf')
+            nativeBinding = require('@rrule-rust/lib-linux-s390x-gnu')
           }
         } catch (e) {
           loadError = e
@@ -252,11 +310,12 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { Frequency, Weekday, Month, RRule, RRuleSet, Occurrences } = nativeBinding
+const { Frequency, Month, RRule, RRuleSet, RRuleSetIterator, RRuleSetIteratorIterable, Weekday } = nativeBinding
 
 module.exports.Frequency = Frequency
-module.exports.Weekday = Weekday
 module.exports.Month = Month
 module.exports.RRule = RRule
 module.exports.RRuleSet = RRuleSet
-module.exports.Occurrences = Occurrences
+module.exports.RRuleSetIterator = RRuleSetIterator
+module.exports.RRuleSetIteratorIterable = RRuleSetIteratorIterable
+module.exports.Weekday = Weekday

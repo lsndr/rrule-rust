@@ -1,4 +1,9 @@
 name: Release
+env:
+  HUSKY: 0
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 on:
   push:
     branches:
@@ -22,24 +27,24 @@ jobs:
       - build_and_test
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.CI_GITHUB_TOKEN }}
           persist-credentials: false
       - name: Setup LTS Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "lts/*"
-          cache: "yarn"
+          cache: "npm"
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Move artifacts
-        run: yarn artifacts
+        run: npm run artifacts
       - name: List packages
         run: ls -R ./npm
         shell: bash

@@ -89,6 +89,67 @@ describe('Monthly', () => {
     expect([...set]).toEqual(dates);
   });
 
+  it('every friday the 13th for 5 occurrences', () => {
+    const rrule = new RRule(Frequency.Monthly)
+      .setCount(5)
+      .setByWeekday([Weekday.Friday])
+      .setByMonthday([13]);
+    const set = new RRuleSet(
+      DateTime.create(1997, 9, 2, 9, 0, 0, false),
+      'America/New_York',
+    )
+      .addRrule(rrule)
+      .addExdate(DateTime.create(1998, 11, 13, 9, 0, 0, false));
+
+    const asString = set.toString();
+    const dates = set.all();
+
+    expect(asString).toBe(
+      'DTSTART;TZID=America/New_York:19970902T090000\nRRULE:FREQ=MONTHLY;COUNT=5;BYMONTHDAY=13;BYDAY=FR\nEXDATE:19981113T090000',
+    );
+    expect(dates).toEqual([
+      DateTime.create(1998, 2, 13, 9, 0, 0, false),
+      DateTime.create(1998, 3, 13, 9, 0, 0, false),
+      DateTime.create(1999, 8, 13, 9, 0, 0, false),
+      DateTime.create(2000, 10, 13, 9, 0, 0, false),
+    ]);
+    expect([...set]).toEqual(dates);
+  });
+
+  it('the second-to-last weekday of the month', () => {
+    const rrule = new RRule(Frequency.Monthly)
+      .setCount(7)
+      .setByWeekday([
+        Weekday.Monday,
+        Weekday.Tuesday,
+        Weekday.Wednesday,
+        Weekday.Thursday,
+        Weekday.Friday,
+      ])
+      .setBySetpos([-2]);
+    const set = new RRuleSet(
+      DateTime.create(1997, 9, 29, 9, 0, 0, false),
+      'America/New_York',
+    ).addRrule(rrule);
+
+    const asString = set.toString();
+    const dates = set.all();
+
+    expect(asString).toBe(
+      'DTSTART;TZID=America/New_York:19970929T090000\nRRULE:FREQ=MONTHLY;COUNT=7;BYSETPOS=-2;BYDAY=MO,TU,WE,TH,FR',
+    );
+    expect(dates).toEqual([
+      DateTime.create(1997, 9, 29, 9, 0, 0, false),
+      DateTime.create(1997, 10, 30, 9, 0, 0, false),
+      DateTime.create(1997, 11, 27, 9, 0, 0, false),
+      DateTime.create(1997, 12, 30, 9, 0, 0, false),
+      DateTime.create(1998, 1, 29, 9, 0, 0, false),
+      DateTime.create(1998, 2, 26, 9, 0, 0, false),
+      DateTime.create(1998, 3, 30, 9, 0, 0, false),
+    ]);
+    expect([...set]).toEqual(dates);
+  });
+
   it('monthly on the second to last Monday of the month for 6 months', () => {
     const rrule = new RRule(Frequency.Monthly)
       .setCount(6)

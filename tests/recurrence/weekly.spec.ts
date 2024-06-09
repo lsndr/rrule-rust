@@ -141,4 +141,56 @@ describe('Weekly', () => {
     ]);
     expect([...set]).toEqual(dates);
   });
+
+  it('every other week for 4 occurrences when week starts on Monday', () => {
+    const rrule = new RRule(Frequency.Weekly)
+      .setInterval(2)
+      .setCount(4)
+      .setByWeekday([Weekday.Tuesday, Weekday.Sunday])
+      .setWeekstart(Weekday.Monday);
+    const set = new RRuleSet(
+      DateTime.create(1997, 8, 5, 9, 0, 0, false),
+      'America/New_York',
+    ).addRrule(rrule);
+
+    const asString = set.toString();
+    const dates = set.all();
+
+    expect(asString).toBe(
+      'DTSTART;TZID=America/New_York:19970805T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=4;BYDAY=TU,SU;WKST=MO',
+    );
+    expect(dates).toEqual([
+      DateTime.create(1997, 8, 5, 9, 0, 0, false),
+      DateTime.create(1997, 8, 10, 9, 0, 0, false),
+      DateTime.create(1997, 8, 19, 9, 0, 0, false),
+      DateTime.create(1997, 8, 24, 9, 0, 0, false),
+    ]);
+    expect([...set]).toEqual(dates);
+  });
+
+  it('every other week for 4 occurrences when week starts on Sunday', () => {
+    const rrule = new RRule(Frequency.Weekly)
+      .setInterval(2)
+      .setCount(4)
+      .setByWeekday([Weekday.Tuesday, Weekday.Sunday])
+      .setWeekstart(Weekday.Sunday);
+    const set = new RRuleSet(
+      DateTime.create(1997, 8, 5, 9, 0, 0, false),
+      'America/New_York',
+    ).addRrule(rrule);
+
+    const asString = set.toString();
+    const dates = set.all();
+
+    expect(asString).toBe(
+      'DTSTART;TZID=America/New_York:19970805T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=4;BYDAY=TU,SU;WKST=SU',
+    );
+    expect(dates).toEqual([
+      DateTime.create(1997, 8, 5, 9, 0, 0, false),
+      DateTime.create(1997, 8, 17, 9, 0, 0, false),
+      DateTime.create(1997, 8, 19, 9, 0, 0, false),
+      DateTime.create(1997, 8, 31, 9, 0, 0, false),
+    ]);
+    expect([...set]).toEqual(dates);
+  });
 });

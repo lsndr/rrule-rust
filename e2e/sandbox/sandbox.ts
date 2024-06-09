@@ -3,14 +3,30 @@ import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { rimrafSync } from 'rimraf';
 import * as path from 'path';
 
-export class Sandbox {
-  private readonly projectPath: string = path.resolve(__dirname, 'app');
+export type SandboxOptions = {
+  esm: boolean;
+};
 
-  install(version: string) {
+export class Sandbox {
+  private readonly projectPath: string;
+  private readonly esm: boolean;
+  constructor(options: SandboxOptions) {
+    this.projectPath = path.resolve(__dirname, 'app');
+    this.esm = options.esm;
+  }
+
+  install() {
     rimrafSync(path.resolve(this.projectPath));
     mkdirSync(this.projectPath);
     execSync(`npm init -y`, { cwd: this.projectPath });
-    execSync(`npm install rrule-rust@${version}`, { cwd: this.projectPath });
+
+    if (this.esm) {
+      execSync(`npm pkg set type=module`, { cwd: this.projectPath });
+    }
+
+    execSync(`npm install rrule-rust@${this.getVersion()}`, {
+      cwd: this.projectPath,
+    });
   }
 
   uninstall() {
@@ -21,7 +37,11 @@ export class Sandbox {
     writeFileSync(
       path.resolve(this.projectPath, 'index.js'),
       `
-    const src_1 = require('rrule-rust');
+      ${
+        this.esm
+          ? `import * as src_1 from 'rrule-rust';`
+          : `const src_1 = require('rrule-rust');`
+      }
 
     const code = ${code.toString()}; 
 
@@ -36,5 +56,15 @@ export class Sandbox {
     } finally {
       rmSync(path.resolve(this.projectPath, 'index.js'));
     }
+  }
+
+  private getVersion() {
+    const version = process.env['E2E_LIBRARY_VERSION'];
+
+    if (!version) {
+      throw new Error('E2E_LIBRARY_VERSION is required');
+    }
+
+    return version;
   }
 }

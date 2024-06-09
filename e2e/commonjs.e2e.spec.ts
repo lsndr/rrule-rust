@@ -1,17 +1,13 @@
 import { DateTime, Frequency, Month, RRule, RRuleSet } from '../src';
 import { Sandbox } from './sandbox/sandbox';
 
-describe('Yearly', () => {
-  const sandbox = new Sandbox();
+describe('Commonjs', () => {
+  const sandbox = new Sandbox({
+    esm: false,
+  });
 
   beforeAll(() => {
-    const version = process.env['E2E_LIBRARY_VERSION'];
-
-    if (!version) {
-      throw new Error('E2E_LIBRARY_VERSION is required');
-    }
-
-    sandbox.install(version);
+    sandbox.install();
   });
 
   afterAll(() => {

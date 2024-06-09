@@ -10,12 +10,12 @@ export type SandboxOptions = {
 export class Sandbox {
   private readonly projectPath: string;
   private readonly esm: boolean;
-  constructor(options: SandboxOptions) {
+  public constructor(options: SandboxOptions) {
     this.projectPath = path.resolve(__dirname, 'app');
     this.esm = options.esm;
   }
 
-  install() {
+  public install() {
     rimrafSync(path.resolve(this.projectPath));
     mkdirSync(this.projectPath);
     execSync(`npm init -y`, { cwd: this.projectPath });
@@ -29,11 +29,11 @@ export class Sandbox {
     });
   }
 
-  uninstall() {
+  public uninstall() {
     rimrafSync(path.resolve(this.projectPath));
   }
 
-  run<T>(code: () => T): T {
+  public run<T>(code: () => T): T {
     writeFileSync(
       path.resolve(this.projectPath, 'index.js'),
       `

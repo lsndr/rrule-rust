@@ -12,9 +12,6 @@ export interface RRuleSetLike {
 }
 
 export class RRuleSet implements Iterable<DateTime> {
-  /** @internal */
-  private rust?: Rust;
-
   public readonly dtstart: DateTime;
   public readonly tzid: string;
   public readonly rrules: readonly RRule[];
@@ -22,9 +19,12 @@ export class RRuleSet implements Iterable<DateTime> {
   public readonly exdates: readonly DateTime[];
   public readonly rdates: readonly DateTime[];
 
-  constructor(dtstart: DateTime, tzid: string | undefined);
-  constructor(options: Partial<RRuleSetLike>);
-  constructor(
+  /** @internal */
+  private rust?: Rust;
+
+  public constructor(dtstart: DateTime, tzid: string | undefined);
+  public constructor(options: Partial<RRuleSetLike>);
+  public constructor(
     setOrDtstart?: DateTime | Partial<RRuleSetLike>,
     tzid?: string | undefined,
   ) {

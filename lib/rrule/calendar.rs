@@ -1,17 +1,14 @@
-use crate::serialization::{
-  properties::Properties,
-  property::{Property, Value},
-};
+use crate::serialization::properties::Properties;
 use std::str::FromStr;
 
-use super::{datetime::DateTime, dtstart::DtStart, exdate::ExDate, rrule::RRule};
+use super::{dtstart::DtStart, exdate::ExDate, rdate::RDate, rrule::RRule};
 
 pub struct Calendar {
   dtstarts: Vec<DtStart>,
   rrules: Vec<RRule>,
   exrules: Vec<RRule>,
   exdates: Vec<ExDate>,
-  rdates: Vec<DateTime>,
+  rdates: Vec<RDate>,
 }
 
 impl
@@ -20,7 +17,7 @@ impl
     Vec<RRule>,
     Vec<RRule>,
     Vec<ExDate>,
-    Vec<DateTime>,
+    Vec<RDate>,
   )> for Calendar
 {
   fn into(
@@ -30,7 +27,7 @@ impl
     Vec<RRule>,
     Vec<RRule>,
     Vec<ExDate>,
-    Vec<DateTime>,
+    Vec<RDate>,
   ) {
     (
       self.dtstarts,
@@ -52,7 +49,7 @@ impl FromStr for Calendar {
     let mut rrules: Vec<RRule> = Vec::new();
     let mut exrules: Vec<RRule> = Vec::new();
     let mut exdates: Vec<ExDate> = Vec::new();
-    let mut rdates: Vec<DateTime> = Vec::new();
+    let mut rdates: Vec<RDate> = Vec::new();
 
     for property in properties {
       match property.name() {
@@ -69,7 +66,7 @@ impl FromStr for Calendar {
           exdates.push(ExDate::from_property(property)?);
         }
         "RDATE" => {
-          rdates.extend(parse_datetimes_property("EXDATE", property)?);
+          rdates.push(RDate::from_property(property)?);
         }
         _ => {
           // Ignore unsupported properties
@@ -85,29 +82,4 @@ impl FromStr for Calendar {
       rdates,
     })
   }
-}
-
-fn parse_datetimes_property(key: &str, property: Property) -> Result<Vec<DateTime>, String> {
-  if let Some(value) = property.parameters().get("VALUE") {
-    if value != "DATE-TIME" {
-      return Err(format!(
-        "Unsupported {} type: DATE. Only DATE-TIME is supported",
-        key
-      ));
-    }
-  }
-
-  let value = match property.value() {
-    Value::Single(value) => value,
-    Value::Parameters(_) => {
-      return Err(format!("Invalid {}", key));
-    }
-  };
-
-  let dates: Result<Vec<DateTime>, String> = value
-    .split(',')
-    .map(|date| date.parse::<DateTime>())
-    .collect();
-
-  dates
 }

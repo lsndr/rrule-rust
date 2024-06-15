@@ -1,16 +1,13 @@
 use std::str::FromStr;
 
-use crate::serialization::{
-  parameters::Parameters,
-  properties::Properties,
-  property::{Property, Value},
-};
+use crate::serialization::properties::Properties;
 
 use super::{
   calendar::Calendar,
   datetime::DateTime,
   dtstart::DtStart,
   exdate::ExDate,
+  rdate::RDate,
   rrule::{RRule, ToRRule},
 };
 
@@ -20,7 +17,7 @@ pub struct RRuleSet {
   rrules: Vec<RRule>,
   exrules: Vec<RRule>,
   exdates: Vec<ExDate>,
-  rdates: Vec<DateTime>,
+  rdates: Vec<RDate>,
 }
 
 impl RRuleSet {
@@ -50,7 +47,7 @@ impl RRuleSet {
     &self.exdates
   }
 
-  pub fn rdates(&self) -> &Vec<DateTime> {
+  pub fn rdates(&self) -> &Vec<RDate> {
     &self.rdates
   }
 
@@ -66,7 +63,7 @@ impl RRuleSet {
     Self { exdates, ..self }
   }
 
-  pub fn set_rdates(self, rdates: Vec<DateTime>) -> Self {
+  pub fn set_rdates(self, rdates: Vec<RDate>) -> Self {
     Self { rdates, ..self }
   }
 
@@ -124,11 +121,7 @@ impl RRuleSet {
     }
 
     for rdate in self.rdates.iter() {
-      properties.push(Property::new(
-        "RDATE".to_string(),
-        Parameters::new(),
-        Value::Single(rdate.to_string()),
-      ));
+      properties.push(rdate.to_property());
     }
 
     properties
@@ -151,7 +144,7 @@ impl RRuleSet {
     let mut rrules: Vec<RRule> = Vec::new();
     let mut exrules: Vec<RRule> = Vec::new();
     let mut exdates: Vec<ExDate> = Vec::new();
-    let mut rdates: Vec<DateTime> = Vec::new();
+    let mut rdates: Vec<RDate> = Vec::new();
 
     let dtstart = match dtstart {
       Some(value) => value,
@@ -222,10 +215,11 @@ impl ToRRuleSet for RRuleSet {
     }
 
     for rdate in self.rdates.iter() {
-      let rdate = rdate.to_datetime(self.dtstart.tzid().unwrap_or(&chrono_tz::Tz::UTC))?;
-      let rdate = rdate.with_timezone(&rrule::Tz::Tz(rdate.timezone()));
+      let datetimes = rdate.to_datetimes(&self.dtstart)?;
 
-      rrule_set = rrule_set.rdate(rdate);
+      for datetime in datetimes.into_iter() {
+        rrule_set = rrule_set.rdate(datetime.with_timezone(&rrule::Tz::Tz(datetime.timezone())));
+      }
     }
 
     Ok(rrule_set)

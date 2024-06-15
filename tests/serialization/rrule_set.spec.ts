@@ -164,7 +164,7 @@ describe(RRuleSet, () => {
       },
     },
   ])(
-    'should respect parase exdate property when dtstart is $dtstart and exdate is $exdate',
+    'should parse exdate property when dtstart is $dtstart and exdate is $exdate',
     ({ dtstart, exdate, expected }) => {
       const set = RRuleSet.parse(
         `${dtstart}\n${exdate}\nRRULE:FREQ=WEEKLY;UNTIL=20190208T045959Z;INTERVAL=2;BYDAY=FR`,
@@ -172,6 +172,53 @@ describe(RRuleSet, () => {
 
       expect(set.tzid).toBe(expected.tzid);
       expect(set.exdates).toEqual(expected.exdates);
+      expect(set.toString()).toContain(exdate);
+    },
+  );
+
+  it.each([
+    {
+      dtstart: 'DTSTART:20240323T170000Z',
+      rdate: 'RDATE;TZID=America/New_York:20240921T130000',
+      expected: {
+        tzid: 'UTC',
+        rdates: [DateTime.create(2024, 9, 21, 17, 0, 0, true)],
+      },
+    },
+    {
+      dtstart: 'DTSTART;TZID=America/New_York:20240323T170000',
+      rdate: 'RDATE:20240921T130000Z',
+      expected: {
+        tzid: 'America/New_York',
+        rdates: [DateTime.create(2024, 9, 21, 9, 0, 0, false)],
+      },
+    },
+    {
+      dtstart: 'DTSTART;TZID=America/New_York:20240323T170000',
+      rdate: 'RDATE;TZID=America/New_York:20240921T170000',
+      expected: {
+        tzid: 'America/New_York',
+        rdates: [DateTime.create(2024, 9, 21, 17, 0, 0, false)],
+      },
+    },
+    {
+      dtstart: 'DTSTART;TZID=Europe/Moscow:20240323T170000',
+      rdate: 'RDATE;TZID=UTC:20240921T170000',
+      expected: {
+        tzid: 'Europe/Moscow',
+        rdates: [DateTime.create(2024, 9, 21, 20, 0, 0, false)],
+      },
+    },
+  ])(
+    'should parse rdate property when dtstart is $dtstart and rdate is $exdate',
+    ({ dtstart, rdate, expected }) => {
+      const set = RRuleSet.parse(
+        `${dtstart}\n${rdate}\nRRULE:FREQ=WEEKLY;UNTIL=20190208T045959Z;INTERVAL=2;BYDAY=FR`,
+      );
+
+      expect(set.tzid).toBe(expected.tzid);
+      expect(set.rdates).toEqual(expected.rdates);
+      expect(set.toString()).toContain(rdate);
     },
   );
 });

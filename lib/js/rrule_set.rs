@@ -1,6 +1,7 @@
 use super::rrule::RRule;
 use crate::rrule::datetime::DateTime;
 use crate::rrule::dtstart::DtStart;
+use crate::rrule::exdate::ExDate;
 use crate::rrule::{rrule, rrule_set};
 use napi::bindgen_prelude::{Array, Reference, SharedReference};
 use napi::iterator::Generator;
@@ -48,7 +49,7 @@ impl RRuleSet {
       .map(|rrule| rrule.into())
       .collect();
 
-    let exdates: Vec<DateTime> = exdates
+    let exdates: Vec<ExDate> = exdates
       .unwrap_or_default()
       .into_iter()
       .map(Into::into)
@@ -111,14 +112,22 @@ impl RRuleSet {
 
   #[napi(getter, ts_return_type = "number[]")]
   pub fn exdates(&self) -> napi::Result<Vec<i64>> {
-    Ok(
-      self
-        .rrule_set
-        .exdates()
-        .iter()
-        .map(|date| date.into())
-        .collect(),
-    )
+    let mut exdates = Vec::<i64>::new();
+
+    for exdate in self.rrule_set.exdates() {
+      let datetimes = exdate
+        .to_datetimes(&self.rrule_set.dtstart())
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+
+      for datetime in datetimes.iter() {
+        let datetime = datetime.with_timezone(&self.rrule_set.dtstart().timezone());
+        let datetime = DateTime::from(&datetime);
+
+        exdates.push((&datetime).into());
+      }
+    }
+
+    Ok(exdates)
   }
 
   #[napi(getter, ts_return_type = "number[]")]

@@ -4,13 +4,13 @@ use crate::serialization::{
 };
 use std::str::FromStr;
 
-use super::{datetime::DateTime, dtstart::DtStart, rrule::RRule};
+use super::{datetime::DateTime, dtstart::DtStart, exdate::ExDate, rrule::RRule};
 
 pub struct Calendar {
   dtstarts: Vec<DtStart>,
   rrules: Vec<RRule>,
   exrules: Vec<RRule>,
-  exdates: Vec<DateTime>,
+  exdates: Vec<ExDate>,
   rdates: Vec<DateTime>,
 }
 
@@ -19,7 +19,7 @@ impl
     Vec<DtStart>,
     Vec<RRule>,
     Vec<RRule>,
-    Vec<DateTime>,
+    Vec<ExDate>,
     Vec<DateTime>,
   )> for Calendar
 {
@@ -29,7 +29,7 @@ impl
     Vec<DtStart>,
     Vec<RRule>,
     Vec<RRule>,
-    Vec<DateTime>,
+    Vec<ExDate>,
     Vec<DateTime>,
   ) {
     (
@@ -51,7 +51,7 @@ impl FromStr for Calendar {
     let mut dtstarts: Vec<DtStart> = Vec::new();
     let mut rrules: Vec<RRule> = Vec::new();
     let mut exrules: Vec<RRule> = Vec::new();
-    let mut exdates: Vec<DateTime> = Vec::new();
+    let mut exdates: Vec<ExDate> = Vec::new();
     let mut rdates: Vec<DateTime> = Vec::new();
 
     for property in properties {
@@ -66,7 +66,7 @@ impl FromStr for Calendar {
           exrules.push(property.try_into()?);
         }
         "EXDATE" => {
-          exdates.extend(parse_datetimes_property("EXDATE", property)?);
+          exdates.push(ExDate::from_property(property)?);
         }
         "RDATE" => {
           rdates.extend(parse_datetimes_property("EXDATE", property)?);

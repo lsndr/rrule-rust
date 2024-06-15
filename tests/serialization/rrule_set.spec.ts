@@ -129,4 +129,49 @@ describe(RRuleSet, () => {
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=20220513T000000;BYDAY=FR,TH,TU,WE;WKST=MO',
     );
   });
+
+  it.each([
+    {
+      dtstart: 'DTSTART:20240323T170000Z',
+      exdate: 'EXDATE;TZID=America/New_York:20240921T130000',
+      expected: {
+        tzid: 'UTC',
+        exdates: [DateTime.create(2024, 9, 21, 17, 0, 0, true)],
+      },
+    },
+    {
+      dtstart: 'DTSTART;TZID=America/New_York:20240323T170000',
+      exdate: 'EXDATE:20240921T130000Z',
+      expected: {
+        tzid: 'America/New_York',
+        exdates: [DateTime.create(2024, 9, 21, 9, 0, 0, false)],
+      },
+    },
+    {
+      dtstart: 'DTSTART;TZID=America/New_York:20240323T170000',
+      exdate: 'EXDATE;TZID=America/New_York:20240921T170000',
+      expected: {
+        tzid: 'America/New_York',
+        exdates: [DateTime.create(2024, 9, 21, 17, 0, 0, false)],
+      },
+    },
+    {
+      dtstart: 'DTSTART;TZID=Europe/Moscow:20240323T170000',
+      exdate: 'EXDATE;TZID=UTC:20240921T170000',
+      expected: {
+        tzid: 'Europe/Moscow',
+        exdates: [DateTime.create(2024, 9, 21, 20, 0, 0, false)],
+      },
+    },
+  ])(
+    'should respect parase exdate property when dtstart is $dtstart and exdate is $exdate',
+    ({ dtstart, exdate, expected }) => {
+      const set = RRuleSet.parse(
+        `${dtstart}\n${exdate}\nRRULE:FREQ=WEEKLY;UNTIL=20190208T045959Z;INTERVAL=2;BYDAY=FR`,
+      );
+
+      expect(set.tzid).toBe(expected.tzid);
+      expect(set.exdates).toEqual(expected.exdates);
+    },
+  );
 });

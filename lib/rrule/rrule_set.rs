@@ -10,6 +10,7 @@ use super::{
   calendar::Calendar,
   datetime::DateTime,
   dtstart::DtStart,
+  exdate::ExDate,
   rrule::{RRule, ToRRule},
 };
 
@@ -18,7 +19,7 @@ pub struct RRuleSet {
   dtstart: DtStart,
   rrules: Vec<RRule>,
   exrules: Vec<RRule>,
-  exdates: Vec<DateTime>,
+  exdates: Vec<ExDate>,
   rdates: Vec<DateTime>,
 }
 
@@ -45,7 +46,7 @@ impl RRuleSet {
     &self.exrules
   }
 
-  pub fn exdates(&self) -> &Vec<DateTime> {
+  pub fn exdates(&self) -> &Vec<ExDate> {
     &self.exdates
   }
 
@@ -61,7 +62,7 @@ impl RRuleSet {
     Self { exrules, ..self }
   }
 
-  pub fn set_exdates(self, exdates: Vec<DateTime>) -> Self {
+  pub fn set_exdates(self, exdates: Vec<ExDate>) -> Self {
     Self { exdates, ..self }
   }
 
@@ -119,11 +120,7 @@ impl RRuleSet {
     }
 
     for exdate in self.exdates.iter() {
-      properties.push(Property::new(
-        "EXDATE".to_string(),
-        Parameters::new(),
-        Value::Single(exdate.to_string()),
-      ));
+      properties.push(exdate.to_property());
     }
 
     for rdate in self.rdates.iter() {
@@ -153,7 +150,7 @@ impl RRuleSet {
     let dtstart: Option<DtStart> = calendar_dtstarts.into_iter().nth(0);
     let mut rrules: Vec<RRule> = Vec::new();
     let mut exrules: Vec<RRule> = Vec::new();
-    let mut exdates: Vec<DateTime> = Vec::new();
+    let mut exdates: Vec<ExDate> = Vec::new();
     let mut rdates: Vec<DateTime> = Vec::new();
 
     let dtstart = match dtstart {
@@ -217,10 +214,11 @@ impl ToRRuleSet for RRuleSet {
     }
 
     for exdate in self.exdates.iter() {
-      let exdate = exdate.to_datetime(self.dtstart.tzid().unwrap_or(&chrono_tz::Tz::UTC))?;
-      let exdate = exdate.with_timezone(&rrule::Tz::Tz(exdate.timezone()));
+      let datetimes = exdate.to_datetimes(&self.dtstart)?;
 
-      rrule_set = rrule_set.exdate(exdate);
+      for datetime in datetimes.into_iter() {
+        rrule_set = rrule_set.exdate(datetime.with_timezone(&rrule::Tz::Tz(datetime.timezone())));
+      }
     }
 
     for rdate in self.rdates.iter() {

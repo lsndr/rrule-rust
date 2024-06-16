@@ -8,7 +8,7 @@
 `rrule-rust` is a library for working with recurrence rules based on Rust's [rrule](https://crates.io/crates/rrule) crate
 
 1. [Quick Start](#quick-start)
-2. [Perfomance](#perfomance)
+2. [Performance](#performance)
 
 ## Quick Start
 

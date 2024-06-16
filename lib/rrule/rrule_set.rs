@@ -1,15 +1,13 @@
 use std::str::FromStr;
 
-use crate::serialization::{
-  parameters::Parameters,
-  properties::Properties,
-  property::{Property, Value},
-};
+use crate::serialization::properties::Properties;
 
 use super::{
   calendar::Calendar,
   datetime::DateTime,
   dtstart::DtStart,
+  exdate::ExDate,
+  rdate::RDate,
   rrule::{RRule, ToRRule},
 };
 
@@ -18,8 +16,8 @@ pub struct RRuleSet {
   dtstart: DtStart,
   rrules: Vec<RRule>,
   exrules: Vec<RRule>,
-  exdates: Vec<DateTime>,
-  rdates: Vec<DateTime>,
+  exdates: Vec<ExDate>,
+  rdates: Vec<RDate>,
 }
 
 impl RRuleSet {
@@ -45,11 +43,11 @@ impl RRuleSet {
     &self.exrules
   }
 
-  pub fn exdates(&self) -> &Vec<DateTime> {
+  pub fn exdates(&self) -> &Vec<ExDate> {
     &self.exdates
   }
 
-  pub fn rdates(&self) -> &Vec<DateTime> {
+  pub fn rdates(&self) -> &Vec<RDate> {
     &self.rdates
   }
 
@@ -61,11 +59,11 @@ impl RRuleSet {
     Self { exrules, ..self }
   }
 
-  pub fn set_exdates(self, exdates: Vec<DateTime>) -> Self {
+  pub fn set_exdates(self, exdates: Vec<ExDate>) -> Self {
     Self { exdates, ..self }
   }
 
-  pub fn set_rdates(self, rdates: Vec<DateTime>) -> Self {
+  pub fn set_rdates(self, rdates: Vec<RDate>) -> Self {
     Self { rdates, ..self }
   }
 
@@ -119,19 +117,11 @@ impl RRuleSet {
     }
 
     for exdate in self.exdates.iter() {
-      properties.push(Property::new(
-        "EXDATE".to_string(),
-        Parameters::new(),
-        Value::Single(exdate.to_string()),
-      ));
+      properties.push(exdate.to_property());
     }
 
     for rdate in self.rdates.iter() {
-      properties.push(Property::new(
-        "RDATE".to_string(),
-        Parameters::new(),
-        Value::Single(rdate.to_string()),
-      ));
+      properties.push(rdate.to_property());
     }
 
     properties
@@ -153,8 +143,8 @@ impl RRuleSet {
     let dtstart: Option<DtStart> = calendar_dtstarts.into_iter().nth(0);
     let mut rrules: Vec<RRule> = Vec::new();
     let mut exrules: Vec<RRule> = Vec::new();
-    let mut exdates: Vec<DateTime> = Vec::new();
-    let mut rdates: Vec<DateTime> = Vec::new();
+    let mut exdates: Vec<ExDate> = Vec::new();
+    let mut rdates: Vec<RDate> = Vec::new();
 
     let dtstart = match dtstart {
       Some(value) => value,
@@ -217,17 +207,19 @@ impl ToRRuleSet for RRuleSet {
     }
 
     for exdate in self.exdates.iter() {
-      let exdate = exdate.to_datetime(self.dtstart.tzid().unwrap_or(&chrono_tz::Tz::UTC))?;
-      let exdate = exdate.with_timezone(&rrule::Tz::Tz(exdate.timezone()));
+      let datetimes = exdate.to_datetimes(&self.dtstart)?;
 
-      rrule_set = rrule_set.exdate(exdate);
+      for datetime in datetimes.into_iter() {
+        rrule_set = rrule_set.exdate(datetime.with_timezone(&rrule::Tz::Tz(datetime.timezone())));
+      }
     }
 
     for rdate in self.rdates.iter() {
-      let rdate = rdate.to_datetime(self.dtstart.tzid().unwrap_or(&chrono_tz::Tz::UTC))?;
-      let rdate = rdate.with_timezone(&rrule::Tz::Tz(rdate.timezone()));
+      let datetimes = rdate.to_datetimes(&self.dtstart)?;
 
-      rrule_set = rrule_set.rdate(rdate);
+      for datetime in datetimes.into_iter() {
+        rrule_set = rrule_set.rdate(datetime.with_timezone(&rrule::Tz::Tz(datetime.timezone())));
+      }
     }
 
     Ok(rrule_set)

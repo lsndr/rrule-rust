@@ -65,9 +65,6 @@ export interface RRuleLike {
 }
 
 export class RRule {
-  /** @internal */
-  private rust?: Rust;
-
   public readonly frequency: Frequency;
   public readonly interval?: number;
   public readonly until?: DateTime;
@@ -83,9 +80,12 @@ export class RRule {
   public readonly byYearday: readonly number[];
   public readonly weekstart?: Weekday;
 
-  constructor(frequency: Frequency);
-  constructor(rrule?: Partial<RRuleLike>);
-  constructor(rruleOrFrequency: Frequency | Partial<RRuleLike> = {}) {
+  /** @internal */
+  private rust?: Rust;
+
+  public constructor(frequency: Frequency);
+  public constructor(rrule?: Partial<RRuleLike>);
+  public constructor(rruleOrFrequency: Frequency | Partial<RRuleLike> = {}) {
     if (typeof rruleOrFrequency === 'object' && rruleOrFrequency !== null) {
       this.frequency = rruleOrFrequency.frequency ?? Frequency.Daily;
       this.interval = rruleOrFrequency.interval;

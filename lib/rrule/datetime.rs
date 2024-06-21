@@ -148,6 +148,28 @@ impl From<i64> for DateTime {
   }
 }
 
+impl From<&chrono::DateTime<chrono_tz::Tz>> for DateTime {
+  fn from(datetime: &chrono::DateTime<chrono_tz::Tz>) -> Self {
+    let year = datetime.year() as u32;
+    let month = datetime.month();
+    let day = datetime.day();
+    let hour = datetime.hour();
+    let minute = datetime.minute();
+    let second = datetime.second();
+    let utc = datetime.timezone() == chrono_tz::Tz::UTC;
+
+    DateTime {
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      second,
+      utc,
+    }
+  }
+}
+
 impl From<&chrono::DateTime<rrule::Tz>> for DateTime {
   fn from(datetime: &chrono::DateTime<rrule::Tz>) -> Self {
     let year = datetime.year() as u32;

@@ -17,6 +17,10 @@ export interface FromObjectOptions {
 export class DateTime implements DateTimeLike {
   private readonly numeric: number;
 
+  private constructor(numeric: number) {
+    this.numeric = numeric;
+  }
+
   public get year(): number {
     return Math.floor(this.numeric / 100000000000);
   }
@@ -43,42 +47,6 @@ export class DateTime implements DateTimeLike {
 
   public get utc(): boolean {
     return this.numeric % 10 == 1;
-  }
-
-  private constructor(numeric: number) {
-    this.numeric = numeric;
-  }
-
-  /**
-   * Converts DateTime into a plain object.
-   */
-  public toObject(): DateTimeLike {
-    return {
-      year: this.year,
-      month: this.month,
-      day: this.day,
-      hour: this.hour,
-      minute: this.minute,
-      second: this.second,
-    };
-  }
-
-  /**
-   * Converts DateTime into ISO 8601 string:
-   * - `YYYYMMDDTHHMMSSZ` for UTC
-   * - `YYYYMMDDTHHMMSS` for local
-   */
-  public toString(): string {
-    const year = this.year.toString().padStart(4, '0');
-    const month = this.month.toString().padStart(2, '0');
-    const day = this.day.toString().padStart(2, '0');
-    const hour = this.hour.toString().padStart(2, '0');
-    const minute = this.minute.toString().padStart(2, '0');
-    const second = this.second.toString().padStart(2, '0');
-
-    return `${year}${month}${day}T${hour}${minute}${second}${
-      this.utc ? 'Z' : ''
-    }`;
   }
 
   /**
@@ -186,6 +154,38 @@ export class DateTime implements DateTimeLike {
   /** @internal */
   public static fromNumeric(numeric: number): DateTime {
     return new DateTime(numeric);
+  }
+
+  /**
+   * Converts DateTime into a plain object.
+   */
+  public toObject(): DateTimeLike {
+    return {
+      year: this.year,
+      month: this.month,
+      day: this.day,
+      hour: this.hour,
+      minute: this.minute,
+      second: this.second,
+    };
+  }
+
+  /**
+   * Converts DateTime into ISO 8601 string:
+   * - `YYYYMMDDTHHMMSSZ` for UTC
+   * - `YYYYMMDDTHHMMSS` for local
+   */
+  public toString(): string {
+    const year = this.year.toString().padStart(4, '0');
+    const month = this.month.toString().padStart(2, '0');
+    const day = this.day.toString().padStart(2, '0');
+    const hour = this.hour.toString().padStart(2, '0');
+    const minute = this.minute.toString().padStart(2, '0');
+    const second = this.second.toString().padStart(2, '0');
+
+    return `${year}${month}${day}T${hour}${minute}${second}${
+      this.utc ? 'Z' : ''
+    }`;
   }
 
   /** @internal */

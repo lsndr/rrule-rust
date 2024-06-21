@@ -5,33 +5,30 @@
 [![npm downloads](https://img.shields.io/npm/dt/rrule-rust.svg)](https://www.npmjs.com/package/rrule-rust)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/lsndr/rrule-rust/blob/master/LICENSE.md)
 
-
 `rrule-rust` is a library for working with recurrence rules based on Rust's [rrule](https://crates.io/crates/rrule) crate
 
-
 1. [Quick Start](#quick-start)
-2. [Perfomance](#perfomance)
+2. [Performance](#performance)
 
 ## Quick Start
 
 See [test folder](https://github.com/lsndr/rrule-rust/tree/master/tests) to find more use cases
 
 ```
-  npm i rrule-rust 
+  npm i rrule-rust
 ```
-
 
 ```typescript
 import { RRule, RRuleSet, Frequency, DateTime } from 'rrule-rust';
 
 const rrule = new RRule({
   frequency: Frequency.Daily,
-  count: 5
+  count: 5,
 });
 const set = new RRuleSet({
   dtstart: DateTime.create(1997, 9, 2, 9, 0, 0, false),
   tzid: 'US/Eastern',
-  rrules: [rrule]
+  rrules: [rrule],
 });
 
 const dates = set.all(); // [ DateTime, DateTime, DateTime, DateTime, DateTime ]
@@ -47,10 +44,10 @@ const asString = set.toString(); // DTSTART;TZID=US/Eastern:19970902T090000\nFRE
   Memory: 36 GB LPDDR5
 ```
 
-|          | rrule          | rrule-rust    |              |
-| -------- | -------------- | ------------- | ------------ |
-| UTC TZ   | 15 904 ops/s   | 108 538 ops/s | ~6x faster   |
-| Other TZ | 260 ops/s      | 106 034 ops/s | ~400x faster |
+|          | rrule        | rrule-rust    |              |
+| -------- | ------------ | ------------- | ------------ |
+| UTC TZ   | 15 904 ops/s | 108 538 ops/s | ~6x faster   |
+| Other TZ | 260 ops/s    | 106 034 ops/s | ~400x faster |
 
 You can run benchmarks using `npm run benchmark`
 

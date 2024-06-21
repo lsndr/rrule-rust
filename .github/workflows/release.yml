@@ -9,7 +9,7 @@ on:
     branches:
       - master
       - next
-      - "*.x"
+      - '*.x'
 permissions:
   contents: read
 jobs:
@@ -35,8 +35,8 @@ jobs:
       - name: Setup LTS Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
-          cache: "npm"
+          node-version: 'lts/*'
+          cache: 'npm'
       - name: Install dependencies
         run: npm ci
       - name: Download all artifacts

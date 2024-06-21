@@ -1,1 +1,2 @@
-npm run lint:fix-staged
+npm run lint
+npm run format

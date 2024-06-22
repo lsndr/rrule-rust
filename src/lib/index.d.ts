@@ -77,5 +77,5 @@ export class RRuleSetIterator {
   iterator(): RRuleSetIteratorIterable
 }
 export class RRuleSetIteratorIterable {
-  [Symbol.iterator](): Iterator<number, void, void>
+  next(): number | null
 }

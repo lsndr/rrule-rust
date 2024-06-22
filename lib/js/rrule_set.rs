@@ -5,7 +5,6 @@ use crate::rrule::exdate::ExDate;
 use crate::rrule::rdate::RDate;
 use crate::rrule::{rrule, rrule_set};
 use napi::bindgen_prelude::{Array, Reference, SharedReference};
-use napi::iterator::Generator;
 use napi::Env;
 use napi_derive::napi;
 use replace_with::replace_with_or_abort_and_return;
@@ -286,18 +285,15 @@ impl RRuleSetIterator {
   }
 }
 
-#[napi(iterator)]
+#[napi]
 pub struct RRuleSetIteratorIterable {
   iterator: SharedReference<RRuleSetIterator, rrule_set::RRuleSetIteratorIterable<'static>>,
 }
 
 #[napi]
-impl Generator for RRuleSetIteratorIterable {
-  type Yield = i64;
-  type Next = ();
-  type Return = ();
-
-  fn next(&mut self, _next: Option<Self::Next>) -> Option<Self::Yield> {
+impl RRuleSetIteratorIterable {
+  #[napi]
+  pub fn next(&mut self) -> Option<i64> {
     self.iterator.next().map(|date: DateTime| (&date).into())
   }
 }

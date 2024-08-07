@@ -14,7 +14,7 @@ indexmap = "2.3.0"
 itertools = "0.13.0"
 # Default enable napi5 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
 napi = { version = "2.16.8", default-features = false, features = ["napi5"] }
-napi-derive = "2.16.8"
+napi-derive = "2.16.10"
 replace_with = "0.1.7"
 rrule = { version = "0.12.0", features = ["exrule"] }
 

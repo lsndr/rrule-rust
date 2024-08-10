@@ -127,8 +127,10 @@ impl RRuleSet {
     properties
   }
 
-  pub fn iterator(&self) -> RRuleSetIterator {
-    RRuleSetIterator::new(&self)
+  pub fn iterator(&self) -> Result<RRuleSetIterator, String> {
+    Ok(RRuleSetIterator {
+      iter: self.to_rrule_set()?.into_iter(),
+    })
   }
 
   pub fn from_str(str: &str) -> Result<Self, String> {
@@ -227,33 +229,10 @@ impl ToRRuleSet for RRuleSet {
 }
 
 pub struct RRuleSetIterator {
-  rrule_set: rrule::RRuleSet,
+  iter: rrule::RRuleSetIter,
 }
 
-impl RRuleSetIterator {
-  fn new(rrule_set: &RRuleSet) -> Self {
-    let rrule_set = rrule_set.to_rrule_set().unwrap();
-
-    Self { rrule_set }
-  }
-}
-
-impl<'a> IntoIterator for &'a RRuleSetIterator {
-  type Item = DateTime;
-  type IntoIter = RRuleSetIteratorIterable<'a>;
-
-  fn into_iter(self) -> Self::IntoIter {
-    RRuleSetIteratorIterable {
-      iter: self.rrule_set.into_iter(),
-    }
-  }
-}
-
-pub struct RRuleSetIteratorIterable<'a> {
-  iter: rrule::RRuleSetIter<'a>,
-}
-
-impl<'a> Iterator for RRuleSetIteratorIterable<'a> {
+impl<'a> Iterator for RRuleSetIterator {
   type Item = DateTime;
 
   fn next(&mut self) -> Option<Self::Item> {

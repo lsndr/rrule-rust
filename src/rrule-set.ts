@@ -235,19 +235,22 @@ export class RRuleSet implements Iterable<DateTime> {
   }
 
   public [Symbol.iterator]() {
-    const iter = this.toRust().iterator().iterator()[Symbol.iterator]();
+    const iter = this.toRust().iterator();
 
     return {
       next: () => {
         const result = iter.next();
 
-        if (result.done) {
-          return result;
+        if (result === null) {
+          return {
+            done: true as const,
+            value: undefined,
+          };
         }
 
         return {
           done: false,
-          value: DateTime.fromNumeric(result.value),
+          value: DateTime.fromNumeric(result),
         };
       },
     };

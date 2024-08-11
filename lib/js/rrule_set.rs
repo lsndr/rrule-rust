@@ -5,7 +5,6 @@ use crate::rrule::exdate::ExDate;
 use crate::rrule::rdate::RDate;
 use crate::rrule::{rrule, rrule_set};
 use napi::bindgen_prelude::{Array, Reference, SharedReference};
-use napi::iterator::Generator;
 use napi::Env;
 use napi_derive::napi;
 use replace_with::replace_with_or_abort_and_return;
@@ -162,8 +161,11 @@ impl RRuleSet {
 
   #[napi(ts_return_type = "number[]")]
   pub fn all(&self, limit: Option<i32>) -> napi::Result<Vec<i64>> {
-    let iterator = self.rrule_set.iterator();
-    let iter = iterator.into_iter().map(|date| (&date).into());
+    let iterator = self
+      .rrule_set
+      .iterator()
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+    let iter = iterator.map(|date| (&date).into());
 
     if let Some(limit) = limit {
       return Ok(iter.take(limit as usize).collect());
@@ -215,10 +217,12 @@ impl RRuleSet {
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
       .timestamp_millis();
 
-    let iterator = self.rrule_set.iterator();
-    let iter = iterator.into_iter();
+    let iterator = self
+      .rrule_set
+      .iterator()
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
-    for date in iter {
+    for date in iterator {
       let date_timestamp = date
         .to_datetime(&timezone)
         .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
@@ -258,46 +262,29 @@ impl RRuleSet {
   }
 
   #[napi]
-  pub fn iterator(&self) -> napi::Result<RRuleSetIterator> {
-    Ok(RRuleSetIterator {
-      iterator: self.rrule_set.iterator(),
-    })
+  pub fn iterator(&self, this: Reference<RRuleSet>, env: Env) -> napi::Result<RRuleSetIterator> {
+    let iterator = this.share_with(env, |set: &mut RRuleSet| {
+      Ok(
+        set
+          .rrule_set
+          .iterator()
+          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?,
+      )
+    })?;
+
+    Ok(RRuleSetIterator { iterator })
   }
 }
 
 #[napi]
 pub struct RRuleSetIterator {
-  iterator: rrule_set::RRuleSetIterator,
+  iterator: SharedReference<RRuleSet, rrule_set::RRuleSetIterator>,
 }
 
 #[napi]
 impl RRuleSetIterator {
   #[napi]
-  pub fn iterator(
-    &self,
-    this: Reference<RRuleSetIterator>,
-    env: Env,
-  ) -> napi::Result<RRuleSetIteratorIterable> {
-    let iterator = this.share_with(env, |iter: &mut RRuleSetIterator| {
-      Ok(iter.iterator.into_iter())
-    })?;
-
-    Ok(RRuleSetIteratorIterable { iterator })
-  }
-}
-
-#[napi(iterator)]
-pub struct RRuleSetIteratorIterable {
-  iterator: SharedReference<RRuleSetIterator, rrule_set::RRuleSetIteratorIterable<'static>>,
-}
-
-#[napi]
-impl Generator for RRuleSetIteratorIterable {
-  type Yield = i64;
-  type Next = ();
-  type Return = ();
-
-  fn next(&mut self, _next: Option<Self::Next>) -> Option<Self::Yield> {
+  pub fn next(&mut self) -> Option<i64> {
     self.iterator.next().map(|date: DateTime| (&date).into())
   }
 }

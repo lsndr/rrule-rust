@@ -59,7 +59,9 @@ impl DtStart {
 
     let tzid = match property.parameters().get("TZID") {
       Some(value) => {
-        let tz: chrono_tz::Tz = value.parse()?;
+        let tz: chrono_tz::Tz = value
+          .parse()
+          .map_err(|_| format!("Invalid timezone: {}", value))?;
 
         Some(tz)
       }

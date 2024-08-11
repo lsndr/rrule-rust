@@ -39,7 +39,7 @@ export enum Weekday {
   Saturday = 5,
   Sunday = 6
 }
-export class RRule {
+export declare class RRule {
   constructor(frequency: Frequency, interval?: number | undefined | null, count?: number | undefined | null, weekstart?: Weekday | undefined | null, until?: number | undefined | null, byWeekday?: (readonly (NWeekday | Weekday)[]) | undefined | null, byHour?: (readonly number[]) | undefined | null, byMinute?: (readonly number[]) | undefined | null, bySecond?: (readonly number[]) | undefined | null, byMonthday?: (readonly number[]) | undefined | null, bySetpos?: (readonly number[]) | undefined | null, byMonth?: (readonly number[]) | undefined | null, byWeekno?: (readonly number[]) | undefined | null, byYearday?: (readonly number[]) | undefined | null)
   static parse(str: string): RRule
   get frequency(): Frequency
@@ -58,7 +58,7 @@ export class RRule {
   get until(): number | null
   toString(): string
 }
-export class RRuleSet {
+export declare class RRuleSet {
   constructor(dtstart: number, tzid?: string | undefined | null, rrules?: (readonly RRule[]) | undefined | null, exrules?: (readonly RRule[]) | undefined | null, exdates?: (readonly number[]) | undefined | null, rdates?: (readonly number[]) | undefined | null)
   get tzid(): string | null
   get dtstart(): number
@@ -73,9 +73,6 @@ export class RRuleSet {
   toString(): string
   iterator(): RRuleSetIterator
 }
-export class RRuleSetIterator {
-  iterator(): RRuleSetIteratorIterable
-}
-export class RRuleSetIteratorIterable {
-  [Symbol.iterator](): Iterator<number, void, void>
+export declare class RRuleSetIterator {
+  next(): number | null
 }

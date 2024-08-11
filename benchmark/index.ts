@@ -18,6 +18,20 @@ function suite(tzid: string) {
 
       set.all();
     }),
+    b.add('...RRuleSet (rust)', () => {
+      const rrule = new rust.RRule({
+        frequency: rust.Frequency.Daily,
+        count: 30,
+        interval: 1,
+      });
+      const set = new rust.RRuleSet({
+        dtstart: rust.DateTime.create(2023, 2, 21, 23, 59, 0, false),
+        tzid,
+        rrules: [rrule],
+      });
+
+      [...set];
+    }),
     b.add('RRule.all() (node)', () => {
       const rrule = new node.RRule({
         freq: node.RRule.DAILY,

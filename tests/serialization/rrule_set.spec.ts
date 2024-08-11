@@ -36,7 +36,7 @@ describe(RRuleSet, () => {
   it('should throw error on invalid timezone', () => {
     const act = () => RRuleSet.parse('DTSTART;TZID=Invalid:19970907T090000');
 
-    expect(act).toThrow(`'Invalid' is not a valid timezone`);
+    expect(act).toThrow('Invalid timezone: Invalid');
   });
 
   it('should throw error on invalid recurrence rule', () => {

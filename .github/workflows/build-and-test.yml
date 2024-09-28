@@ -245,6 +245,11 @@ jobs:
             node: '18'
           - target: s390x-unknown-linux-gnu
             node: '18'
+          # no node:16-slim
+          - target: s390x-unknown-linux-gnu
+            node: '16'
+          - target: powerpc64le-unknown-linux-gnu
+            node: '16'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

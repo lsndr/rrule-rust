@@ -194,6 +194,7 @@ jobs:
             target: x86_64-apple-darwin
             architecture: x64
         node:
+          - '16'
           - '18'
           - '20'
     runs-on: ${{ matrix.settings.host }}
@@ -235,6 +236,7 @@ jobs:
           - s390x-unknown-linux-gnu
           - powerpc64le-unknown-linux-gnu
         node:
+          - '16'
           - '18'
           - '20'
         exclude:
@@ -281,7 +283,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bindings-${{ matrix.target }}
-          path: .
+          path: src/lib
       - name: List packages
         run: ls -R .
         shell: bash
@@ -320,7 +322,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bindings-wasm32-wasip1-threads
-          path: .
+          path: src/lib
       - name: List packages
         run: ls -R .
         shell: bash

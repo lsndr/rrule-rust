@@ -194,7 +194,6 @@ jobs:
             target: x86_64-apple-darwin
             architecture: x64
         node:
-          - '16'
           - '18'
           - '20'
     runs-on: ${{ matrix.settings.host }}
@@ -236,7 +235,6 @@ jobs:
           - s390x-unknown-linux-gnu
           - powerpc64le-unknown-linux-gnu
         node:
-          - '16'
           - '18'
           - '20'
         exclude:

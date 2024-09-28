@@ -15,7 +15,7 @@ jobs:
             target: x86_64-apple-darwin
             build: npm run build:lib -- --target x86_64-apple-darwin
           - host: windows-latest
-            build: npm run build:lib
+            build: yarn build:lib --target x86_64-pc-windows-msvc
             target: x86_64-pc-windows-msvc
           - host: windows-latest
             build: |
@@ -24,28 +24,19 @@ jobs:
             target: i686-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
-            build: npm run build:lib -- --target x86_64-unknown-linux-gnu
+            build: CC=clang npm run build:lib -- --target x86_64-unknown-linux-gnu --use-napi-cross
           - host: ubuntu-latest
             target: x86_64-unknown-linux-musl
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
-            build: npm run build:lib -- --target x86_64-unknown-linux-musl
+            build: npm run build:lib -- --target x86_64-unknown-linux-musl -x
           - host: macos-latest
             target: aarch64-apple-darwin
             build: npm run build:lib -- --target aarch64-apple-darwin
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian-aarch64
-            build: npm run build:lib -- --target aarch64-unknown-linux-gnu
+            build: CC=clang npm run build:lib -- --target aarch64-unknown-linux-gnu --use-napi-cross
           - host: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
-            setup: |
-              sudo apt-get update
-              sudo apt-get install gcc-arm-linux-gnueabihf -y
-            build: npm run build:lib -- --target armv7-unknown-linux-gnueabihf
-          - host: ubuntu-latest
-            target: armv7-unknown-linux-musleabihf
-            build: npm run build:lib -- --target armv7-unknown-linux-musleabihf
+            build: CC=clang npm run build:lib -- --target armv7-unknown-linux-gnueabihf --use-napi-cross
           - host: ubuntu-latest
             target: aarch64-linux-android
             build: npm run build:lib -- --target aarch64-linux-android
@@ -54,20 +45,29 @@ jobs:
             build: npm run build:lib -- --target armv7-linux-androideabi
           - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-alpine
-            build: |-
-              set -e &&
-              rustup target add aarch64-unknown-linux-musl &&
-              npm run build:lib -- --target aarch64-unknown-linux-musl
+            build: npm run build:lib -- --target aarch64-unknown-linux-musl -x
+          - host: ubuntu-latest
+            target: powerpc64le-unknown-linux-gnu
+            build: |
+              sudo apt-get update
+              sudo apt-get install -y gcc-powerpc64le-linux-gnu
+              npm run build:lib -- --target powerpc64le-unknown-linux-gnu
+          - host: ubuntu-latest
+            target: s390x-unknown-linux-gnu
+            build: |
+              sudo apt-get update
+              sudo apt-get install -y gcc-s390x-linux-gnu
+              npm run build:lib -- --target s390x-unknown-linux-gnu
           - host: windows-latest
             target: aarch64-pc-windows-msvc
             build: npm run build:lib -- --target aarch64-pc-windows-msvc
           - host: ubuntu-latest
-            target: riscv64gc-unknown-linux-gnu
-            setup: |
-              sudo apt-get update
-              sudo apt-get install gcc-riscv64-linux-gnu -y
-            build: npm run build:lib -- --target riscv64gc-unknown-linux-gnu
+            target: wasm32-wasip1-threads
+            build: |
+              wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-22/wasi-sdk-22.0-linux.tar.gz
+              tar -xvf wasi-sdk-22.0-linux.tar.gz
+              export WASI_SDK_PATH="$(pwd)/wasi-sdk-22.0"
+              npm run build:lib -- --target wasm32-wasip1-threads
     name: stable - ${{ matrix.settings.target }} - node@20
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -131,7 +131,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: src/lib/${{ env.APP_NAME }}.*.node
+          path: |
+            src/lib/${{ env.APP_NAME }}.*.node
+            src/lib/${{ env.APP_NAME }}.*.wasm
           if-no-files-found: error
   build-freebsd:
     runs-on: macos-13
@@ -221,7 +223,7 @@ jobs:
         shell: bash
       - name: Test bindings
         run: npm test
-  test-linux-x64-gnu-binding:
+  test-linux-xx64-gnu-binding:
     name: Test bindings on Linux-x64-gnu - node@${{ matrix.node }}
     needs:
       - build
@@ -399,6 +401,38 @@ jobs:
             set -e
             npm test
             ls -la
+  test-nodejs-wasi:
+    name: Test bindings on wasm32-wasi - node@${{ matrix.node }}
+    needs:
+      - build
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '18'
+          - '20'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: yarn
+      - name: Install dependencies
+        run: npm ci
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: bindings-wasm32-wasip1-threads
+          path: .
+      - name: List packages
+        run: ls -R .
+        shell: bash
+      - name: Test bindings
+        run: npm test
+        env:
+          NAPI_RS_FORCE_WASI: '1'
   universal-macOS:
     name: Build universal macOS binary
     needs:

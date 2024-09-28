@@ -1,12 +1,12 @@
 {
-  "name": "@rrule-rust/lib-linux-arm-gnueabihf",
+  "name": "@rrule-rust/lib-linux-ppc64-gnu",
   "version": "0.0.0",
   "cpu": [
-    "arm"
+    "ppc64"
   ],
-  "main": "rrule-rust.linux-arm-gnueabihf.node",
+  "main": "rrule-rust.linux-ppc64-gnu.node",
   "files": [
-    "rrule-rust.linux-arm-gnueabihf.node"
+    "rrule-rust.linux-ppc64-gnu.node"
   ],
   "author": {
     "name": "lsndr",
@@ -20,6 +20,9 @@
   "repository": "lsndr/rrule-rust",
   "os": [
     "linux"
+  ],
+  "libc": [
+    "glibc"
   ],
   "publishConfig": {
     "access": "public"

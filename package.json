@@ -13,37 +13,36 @@
   "repository": "lsndr/rrule-rust",
   "author": {
     "name": "lsndr",
-    "email": "alexander@lsndr.me",
-    "url": "https://lsndr.me"
+    "email": "alexander@lsndr.dev",
+    "url": "https://lsndr.dev"
   },
   "napi": {
-    "name": "rrule-rust",
-    "package": {
-      "name": "@rrule-rust/lib"
-    },
-    "triples": {
-      "additional": [
-        "aarch64-apple-darwin",
-        "aarch64-linux-android",
-        "aarch64-unknown-linux-gnu",
-        "aarch64-unknown-linux-musl",
-        "aarch64-pc-windows-msvc",
-        "armv7-unknown-linux-gnueabihf",
-        "armv7-unknown-linux-musleabihf",
-        "x86_64-unknown-linux-musl",
-        "x86_64-unknown-freebsd",
-        "i686-pc-windows-msvc",
-        "armv7-linux-androideabi",
-        "universal-apple-darwin",
-        "riscv64gc-unknown-linux-gnu"
-      ]
-    }
+    "binaryName": "rrule-rust",
+    "packageName": "@rrule-rust/lib",
+    "targets": [
+      "x86_64-pc-windows-msvc",
+      "x86_64-apple-darwin",
+      "x86_64-unknown-linux-gnu",
+      "x86_64-unknown-linux-musl",
+      "aarch64-unknown-linux-gnu",
+      "i686-pc-windows-msvc",
+      "armv7-unknown-linux-gnueabihf",
+      "aarch64-apple-darwin",
+      "aarch64-linux-android",
+      "x86_64-unknown-freebsd",
+      "aarch64-unknown-linux-musl",
+      "aarch64-pc-windows-msvc",
+      "armv7-linux-androideabi",
+      "powerpc64le-unknown-linux-gnu",
+      "s390x-unknown-linux-gnu",
+      "wasm32-wasip1-threads"
+    ]
   },
   "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
-    "@napi-rs/cli": "^2.18.2",
+    "@napi-rs/cli": "^3.0.0-alpha.62",
     "@semantic-release/git": "^10.0.1",
     "@types/jest": "^29.5.0",
     "@types/luxon": "^3.4.2",
@@ -76,7 +75,7 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build:lib": "napi build --no-const-enum --platform --release src/lib",
+    "build:lib": "napi build --no-const-enum --platform --release --output-dir src/lib",
     "prebuild": "rimraf ./dist && npm run build:lib",
     "build": "tsc -p ./tsconfig.build.json",
     "postbuild": "cpy ./src/lib/* ./dist/lib --flat",

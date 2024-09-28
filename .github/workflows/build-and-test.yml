@@ -15,7 +15,7 @@ jobs:
             target: x86_64-apple-darwin
             build: npm run build:lib -- --target x86_64-apple-darwin
           - host: windows-latest
-            build: npm run build:lib --target x86_64-pc-windows-msvc
+            build: npm run build:lib -- --target x86_64-pc-windows-msvc
             target: x86_64-pc-windows-msvc
           - host: windows-latest
             build: |

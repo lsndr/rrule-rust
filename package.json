@@ -76,7 +76,7 @@
     "node": ">= 10"
   },
   "scripts": {
-    "artifacts": "napi artifacts",
+    "artifacts": "napi artifacts --build-output-dir dist/browser/lib",
     "build:lib": "napi build --no-const-enum --platform --release --output-dir src/lib",
     "prebuild": "rimraf ./dist && npm run build:lib",
     "prebuild:node": "rimraf ./dist/node",

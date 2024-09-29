@@ -1,9 +1,6 @@
 {
   "name": "@rrule-rust/lib-android-arm64",
   "version": "0.0.0",
-  "os": [
-    "android"
-  ],
   "cpu": [
     "arm64"
   ],
@@ -11,10 +8,19 @@
   "files": [
     "rrule-rust.android-arm64.node"
   ],
+  "author": {
+    "name": "lsndr",
+    "email": "alexander@lsndr.dev",
+    "url": "https://lsndr.dev"
+  },
   "license": "MIT",
   "engines": {
     "node": ">= 10"
   },
+  "repository": "lsndr/rrule-rust",
+  "os": [
+    "android"
+  ],
   "publishConfig": {
     "access": "public"
   }

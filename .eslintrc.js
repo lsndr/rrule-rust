@@ -32,7 +32,7 @@ module.exports = {
         '@typescript-eslint/ban-ts-comment': 'off',
         'import/no-cycle': 'error',
         '@typescript-eslint/member-ordering': 'error',
-        'import/no-unresolved': 'error',
+        'import/no-unresolved': ['error', { ignore: ['@lib'] }],
         '@typescript-eslint/no-for-in-array': 'error',
         'no-implied-eval': 'off',
         '@typescript-eslint/no-implied-eval': 'error',

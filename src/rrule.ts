@@ -1,5 +1,5 @@
 import { DateTime } from './datetime';
-import { RRule as Rust } from './lib';
+import { RRule as Rust } from '@lib';
 
 export interface NWeekday {
   /**

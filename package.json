@@ -1,8 +1,9 @@
 {
   "name": "rrule-rust",
   "version": "0.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/node/index.js",
+  "types": "dist/node/index.d.ts",
+  "browser": "dist/node/browser.js",
   "keywords": [
     "rrule",
     "icalendar",
@@ -13,37 +14,36 @@
   "repository": "lsndr/rrule-rust",
   "author": {
     "name": "lsndr",
-    "email": "alexander@lsndr.me",
-    "url": "https://lsndr.me"
+    "email": "alexander@lsndr.dev",
+    "url": "https://lsndr.dev"
   },
   "napi": {
-    "name": "rrule-rust",
-    "package": {
-      "name": "@rrule-rust/lib"
-    },
-    "triples": {
-      "additional": [
-        "aarch64-apple-darwin",
-        "aarch64-linux-android",
-        "aarch64-unknown-linux-gnu",
-        "aarch64-unknown-linux-musl",
-        "aarch64-pc-windows-msvc",
-        "armv7-unknown-linux-gnueabihf",
-        "armv7-unknown-linux-musleabihf",
-        "x86_64-unknown-linux-musl",
-        "x86_64-unknown-freebsd",
-        "i686-pc-windows-msvc",
-        "armv7-linux-androideabi",
-        "universal-apple-darwin",
-        "riscv64gc-unknown-linux-gnu"
-      ]
-    }
+    "binaryName": "rrule-rust",
+    "packageName": "@rrule-rust/lib",
+    "targets": [
+      "x86_64-pc-windows-msvc",
+      "x86_64-apple-darwin",
+      "x86_64-unknown-linux-gnu",
+      "x86_64-unknown-linux-musl",
+      "aarch64-unknown-linux-gnu",
+      "i686-pc-windows-msvc",
+      "armv7-unknown-linux-gnueabihf",
+      "aarch64-apple-darwin",
+      "aarch64-linux-android",
+      "x86_64-unknown-freebsd",
+      "aarch64-unknown-linux-musl",
+      "aarch64-pc-windows-msvc",
+      "armv7-linux-androideabi",
+      "powerpc64le-unknown-linux-gnu",
+      "s390x-unknown-linux-gnu",
+      "wasm32-wasip1-threads"
+    ]
   },
   "license": "MIT",
   "devDependencies": {
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
-    "@napi-rs/cli": "^2.18.2",
+    "@napi-rs/cli": "^3.0.0-alpha.62",
     "@semantic-release/git": "^10.0.1",
     "@types/jest": "^29.5.0",
     "@types/luxon": "^3.4.2",
@@ -68,7 +68,8 @@
     "rrule": "^2.7.2",
     "semantic-release": "^23.0.8",
     "ts-jest": "^29.0.5",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
     "typescript": "^5.4.5"
   },
   "engines": {
@@ -76,10 +77,15 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build:lib": "napi build --no-const-enum --platform --release src/lib",
+    "build:lib": "napi build --no-const-enum --platform --release --output-dir src/lib",
     "prebuild": "rimraf ./dist && npm run build:lib",
-    "build": "tsc -p ./tsconfig.build.json",
-    "postbuild": "cpy ./src/lib/* ./dist/lib --flat",
+    "prebuild:node": "rimraf ./dist/node",
+    "build:node": "tsc -p ./tsconfig.build.json --outDir dist/node",
+    "postbuild:node": "cpy ./src/lib/* ./dist/node/lib --flat && tsc-alias -p tsconfig.replacer.json --replacer ./node.replacer.js",
+    "prebuild:browser": "rimraf ./dist/browser",
+    "build:browser": "tsc -p ./tsconfig.build.json --outDir dist/browser",
+    "postbuild:browser": "cpy ./src/lib/* ./dist/browser/lib --flat && tsc-alias -p tsconfig.replacer.json --replacer ./browser.replacer.js",
+    "build": "npm run build:node && npm run build:browser",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "cross-env TZ=Europe/Moscow jest --testPathIgnorePatterns=\\.e2e\\.spec\\.ts",
     "test:e2e": "jest --testMatch='**/*.e2e.spec.ts' --runInBand",

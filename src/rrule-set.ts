@@ -1,5 +1,5 @@
 import { RRule } from './rrule';
-import { RRuleSet as Rust } from './lib';
+import { RRuleSet as Rust } from '@lib';
 import { DateTime } from './datetime';
 
 export interface RRuleSetLike {

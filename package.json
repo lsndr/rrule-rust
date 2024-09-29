@@ -1,8 +1,9 @@
 {
   "name": "rrule-rust",
   "version": "0.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/node/index.js",
+  "types": "dist/node/index.d.ts",
+  "browser": "dist/node/browser.js",
   "keywords": [
     "rrule",
     "icalendar",
@@ -67,7 +68,8 @@
     "rrule": "^2.7.2",
     "semantic-release": "^23.0.8",
     "ts-jest": "^29.0.5",
-    "ts-node": "^10.9.1",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
     "typescript": "^5.4.5"
   },
   "engines": {
@@ -77,8 +79,12 @@
     "artifacts": "napi artifacts",
     "build:lib": "napi build --no-const-enum --platform --release --output-dir src/lib",
     "prebuild": "rimraf ./dist && npm run build:lib",
-    "build": "tsc -p ./tsconfig.build.json",
-    "postbuild": "cpy ./src/lib/* ./dist/lib --flat",
+    "prebuild:node": "rimraf ./dist/node",
+    "build:node": "tsc -p ./tsconfig.build.json --outDir dist/node",
+    "prebuild:browser": "rimraf ./dist/browser",
+    "build:browser": "tsc -p ./tsconfig.build.json --outDir dist/browser",
+    "build": "npm run build:node && npm run build:browser",
+    "postbuild": "cpy ./src/lib/* ./dist/*/lib --flat && tsc-alias -p tsconfig.replacer.json --replacer ./replacer.js",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "cross-env TZ=Europe/Moscow jest --testPathIgnorePatterns=\\.e2e\\.spec\\.ts",
     "test:e2e": "jest --testMatch='**/*.e2e.spec.ts' --runInBand",

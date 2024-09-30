@@ -1,9 +1,6 @@
 {
   "name": "@rrule-rust/lib-wasm32-wasi",
   "version": "0.0.0",
-  "cpu": [
-    "wasm32"
-  ],
   "main": "rrule-rust.wasi.cjs",
   "files": [
     "rrule-rust.wasm32-wasi.wasm",
@@ -24,9 +21,13 @@
   "repository": "lsndr/rrule-rust",
   "browser": "rrule-rust.wasi-browser.js",
   "dependencies": {
-    "@napi-rs/wasm-runtime": "^0.2.4"
+    "@napi-rs/wasm-runtime": "=0.2.4",
+    "patch-package": "^8.0.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "postinstall": "patch-package"
   }
 }

@@ -1,0 +1,28 @@
+diff --git a/node_modules/@napi-rs/wasm-runtime/dist/runtime.js b/node_modules/@napi-rs/wasm-runtime/dist/runtime.js
+index e06c158..a23882c 100644
+--- a/node_modules/@napi-rs/wasm-runtime/dist/runtime.js
++++ b/node_modules/@napi-rs/wasm-runtime/dist/runtime.js
+@@ -2532,7 +2532,22 @@ function createNapiModule(options) {
+                     }
+                     return str;
+                 }
+-                return emnapiString.utf8Decoder.decode(((typeof SharedArrayBuffer === "function" && HEAPU8.buffer instanceof SharedArrayBuffer) || (Object.prototype.toString.call(HEAPU8.buffer.constructor) === "[object SharedArrayBuffer]")) ? HEAPU8.slice(ptr, end) : HEAPU8.subarray(ptr, end));
++                var decodeFromSharedBuffer = (sharedBuffer) => {
++                    const decoder = new TextDecoder()
++                    const copyLength = sharedBuffer.byteLength
++
++                    const tempBuffer = new ArrayBuffer(copyLength)
++                    const tempView = new Uint8Array(tempBuffer)
++
++                    let sharedView = new Uint8Array(sharedBuffer)
++                    if (sharedBuffer.byteLength != copyLength) {
++                        sharedView = sharedView.subarray(0, copyLength)
++                    }
++                    tempView.set(sharedView)
++
++                    return decoder.decode(tempBuffer)
++                }
++                return decodeFromSharedBuffer(((typeof SharedArrayBuffer === "function" && HEAPU8.buffer instanceof SharedArrayBuffer) || (Object.prototype.toString.call(HEAPU8.buffer.constructor) === "[object SharedArrayBuffer]")) ? HEAPU8.slice(ptr, end) : HEAPU8.subarray(ptr, end));
+             },
+             stringToUTF8: function (str, outPtr, maxBytesToWrite) {
+                 var HEAPU8 = new Uint8Array(wasmMemory.buffer);

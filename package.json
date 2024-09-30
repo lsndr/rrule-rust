@@ -2,8 +2,7 @@
   "name": "rrule-rust",
   "version": "0.0.0",
   "main": "dist/node/index.js",
-  "types": "dist/node/index.d.ts",
-  "browser": "dist/node/browser.js",
+  "browser": "dist/browser/index.js",
   "keywords": [
     "rrule",
     "icalendar",
@@ -83,7 +82,7 @@
     "build:node": "tsc -p ./tsconfig.build.json --outDir dist/node",
     "postbuild:node": "cpy ./src/lib/* ./dist/node/lib --flat && tsc-alias -p tsconfig.replacer.json --replacer ./node.replacer.js",
     "prebuild:browser": "rimraf ./dist/browser",
-    "build:browser": "tsc -p ./tsconfig.build.json --outDir dist/browser",
+    "build:browser": "tsc -p ./tsconfig.browser.json --outDir dist/browser",
     "postbuild:browser": "cpy ./src/lib/* ./dist/browser/lib --flat && tsc-alias -p tsconfig.replacer.json --replacer ./browser.replacer.js",
     "build": "npm run build:node && npm run build:browser",
     "prepublishOnly": "napi prepublish -t npm",

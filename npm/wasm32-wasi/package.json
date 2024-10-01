@@ -7,7 +7,8 @@
     "rrule-rust.wasi.cjs",
     "rrule-rust.wasi-browser.js",
     "wasi-worker.mjs",
-    "wasi-worker-browser.mjs"
+    "wasi-worker-browser.mjs",
+    "patches/**/*"
   ],
   "author": {
     "name": "lsndr",

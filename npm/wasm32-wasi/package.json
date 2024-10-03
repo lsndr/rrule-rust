@@ -7,6 +7,7 @@
     "rrule-rust.wasi.cjs",
     "rrule-rust.wasi-browser.js",
     "wasi-worker.mjs",
+    "runtime.js",
     "wasi-worker-browser.mjs",
     "patches/**/*"
   ],

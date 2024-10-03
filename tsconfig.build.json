@@ -4,5 +4,5 @@
   },
   "extends": "./tsconfig.json",
   "include": ["./src/**/*"],
-  "exclude": ["**/*.spec.ts"]
+  "exclude": ["**/*.spec.ts", "src/lib/runtime.js"]
 }

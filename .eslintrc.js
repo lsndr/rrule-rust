@@ -9,7 +9,13 @@ module.exports = {
     'prettier',
   ],
   plugins: ['@typescript-eslint'],
-  ignorePatterns: ['node_modules', '/target', '/dist/**/*', 'src/lib/**/*'],
+  ignorePatterns: [
+    'node_modules',
+    '/target',
+    '/dist/**/*',
+    'src/lib/**/*',
+    'npm/wasm32-wasi/runtime.js',
+  ],
   env: {
     node: true,
   },

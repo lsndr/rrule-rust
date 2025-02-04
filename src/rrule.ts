@@ -65,19 +65,103 @@ export interface RRuleLike {
 }
 
 export class RRule {
+  /**
+   * The type of the recurrence rule.
+   */
   public readonly frequency: Frequency;
+
+  /**
+   * Contains a positive integer representing at which intervals the recurrence rule repeats.
+   *
+   * If nothing is set, default value "1" is used.
+   *
+   * @default 1
+   */
   public readonly interval?: number;
+
+  /**
+   * End date of rrule, that bounds the recurrence rule in an inclusive manner
+   */
   public readonly until?: DateTime;
+
+  /**
+   * Number of occurrences at which to range-bound the recurrence.
+   *
+   * The "DTSTART" property value always counts as the first occurrence.
+   * TODO: Check if this is correct.
+   *
+   * If nothing is set and "UNTIL" is not set, the "RRULE" is considered to repeat forever.
+   */
   public readonly count?: number;
   public readonly byWeekday: readonly (NWeekday | Weekday)[];
+
+  /**
+   * Array of hours within a day.
+   *
+   * Possible values are 0 to 23.
+   */
   public readonly byHour: readonly number[];
+
+  /**
+   * Array of minutes within a hour.
+   *
+   * Possible values are 0 to 59.
+   */
   public readonly byMinute: readonly number[];
+
+  /**
+   * Array of seconds within a minute.
+   *
+   * Possible values are 0 to 60.
+   */
   public readonly bySecond: readonly number[];
+
+  /**
+   * Array of days of the month.
+   *
+   * Valid values are 1 to 31 or -31 to -1.
+   *
+   * For example, -10 represents the tenth to the last day of the month.
+   */
   public readonly byMonthday: readonly number[];
+
+  /**
+   * Array of numbers that corresponds to the nth occurrence within the set of recurrence instances specified by the rule.
+   *
+   * Possible values are 1 to 366 or -366 to -1.
+   */
   public readonly bySetpos: readonly number[];
+
+  /**
+   * Array of months of the year that the rule applies to.
+   *
+   * Possible values are 1 to 12.
+   */
   public readonly byMonth: readonly Month[];
+
+  /**
+   * Array of ordinals specifying weeks of the year.
+   *
+   * Possible values are 1 to 53 or -53 to -1. Week number one of the calendar year is the first week
+   * that contains at least four (4) days in that calendar year.
+   */
   public readonly byWeekno: readonly number[];
+
+  /**
+   * Array of days of the year.
+   *
+   * Possible values are 1 to 366 or -366 to -1.
+   *
+   * For example, -1 represents the last day of the year (December 31st) and -306 represents the 306th to the last day of the year (March 1st).
+   */
   public readonly byYearday: readonly number[];
+
+  /**
+   * The day on which the workweek starts.
+   * If nothing is set, the week starts on Monday.
+   *
+   * @default Weekday.Monday
+   */
   public readonly weekstart?: Weekday;
 
   /** @internal */
@@ -116,7 +200,12 @@ export class RRule {
   }
 
   /**
-   * Parses a string into an RRule.
+   * Parses a rrule string into an object.
+   *
+   * Examples:
+   *
+   * RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR;WKST=SU
+   * RRULE:FREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=1SU,-1SU
    */
   public static parse(str: string): RRule {
     const rust = Rust.parse(str);
@@ -150,14 +239,30 @@ export class RRule {
     return rrule;
   }
 
+  /**
+   * Sets type of recurrence.
+   */
   public setFrequency(frequency: Frequency): RRule {
     return new RRule({ ...this.toObject(), frequency });
   }
 
+  /**
+   * Sets a number at which intervals the recurrence rule repeats.
+   * Only positive integers are allowed.
+   *
+   * @param {number} interval
+   * @returns {RRule}
+   */
   public setInterval(interval: number): RRule {
     return new RRule({ ...this.toObject(), interval });
   }
 
+  /**
+   * Sets the number of occurrences at which to range-bound the recurrence.
+   *
+   * The "DTSTART" property value always counts as the first occurrence.
+   * TODO: Check if this is correct.
+   */
   public setCount(count: number): RRule {
     return new RRule({ ...this.toObject(), count });
   }
@@ -166,48 +271,153 @@ export class RRule {
     return new RRule({ ...this.toObject(), byWeekday: weekdays });
   }
 
+  /**
+   * Sets array of hours within a day.
+   *
+   * Valid values are 0 to 23
+   */
   public setByHour(hours: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), byHour: hours });
   }
 
+  /**
+   * Sets array of minutes within a hour.
+   *
+   * Valid values are 0 to 59
+   */
   public setByMinute(minutes: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), byMinute: minutes });
   }
 
+  /**
+   * Sets array of seconds within a minute.
+   *
+   * Valid values are 0 to 60
+   */
   public setBySecond(seconds: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), bySecond: seconds });
   }
 
+  /**
+   * Sets array of days of the month.
+   *
+   * Valid values are 1 to 31 or -31 to -1.
+   *
+   * For example, -10 represents the tenth to the last day of the month.
+   * The BYMONTHDAY rule part MUST NOT be specified when the FREQ rule part is set to WEEKLY.
+   */
   public setByMonthday(days: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), byMonthday: days });
   }
 
+  /**
+   * Sets array of numbers that corresponds to the nth occurrence within the set of recurrence instances specified by the rule.
+   *
+   * Valid values are 1 to 366 or -366 to -1.
+   *
+   * A set of recurrence instances starts at the beginning of the interval defined by the FREQ rule part.
+   * It must only be used in conjunction with another BYxxx rule part.
+   *
+   * For example "the last work day of the month" could be represented as:
+   *
+   * ```
+   * FREQ=MONTHLY;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1
+   * ```
+   */
   public setBySetpos(poses: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), bySetpos: poses });
   }
 
+  /**
+   * Sets the months of the year that the rule applies to.
+   */
   public setByMonth(months: readonly Month[]): RRule {
     return new RRule({ ...this.toObject(), byMonth: months });
   }
 
+  /**
+   * Sets an array of ordinals specifying weeks of the year.
+   *
+   * Valid values are 1 to 53 or -53 to -1. This corresponds to weeks according to week numbering as defined in [ISO.8601.2004].
+   * A week is defined as a seven day period, starting on the day of the week defined to be the week start.
+   * Week number one of the calendar year is the first week that contains at least four (4) days in that calendar year.
+   *
+   * This rule part MUST NOT be used when the FREQ rule part is set to anything other than YEARLY.
+   */
   public setByWeekno(weekNumbers: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), byWeekno: weekNumbers });
   }
 
+  /**
+   * Sets arrays of days of the year.
+   *
+   * Valid values are 1 to 366 or -366 to -1.
+   * For example, -1 represents the last day of the year (December 31st) and -306 represents the 306th to the last day of the year (March 1st).
+   *
+   * The BYYEARDAY rule part MUST NOT be specified when the FREQ rule part is set to DAILY, WEEKLY, or MONTHLY.
+   */
   public setByYearday(days: readonly number[]): RRule {
     return new RRule({ ...this.toObject(), byYearday: days });
   }
 
+  /**
+   * Sets the day on which the workweek starts.
+   *
+   * This is significant when a WEEKLY "RRULE" has an interval greater than 1, and a BYDAY rule part is specified.
+   * This is also significant when in a YEARLY "RRULE" when a BYWEEKNO rule part is specified.
+   *
+   * If nothing is set, the week starts on Monday.
+   */
   public setWeekstart(day: Weekday): RRule {
     return new RRule({ ...this.toObject(), weekstart: day });
   }
 
+  /**
+   * Sets the end date of the RRule value that bounds
+   * the recurrence rule in an inclusive manner
+   *
+   * If not present, and the COUNT rule part is also not present, the "RRULE" is considered to repeat forever.
+   */
   public setUntil(datetime: DateTime): RRule {
     return new RRule({ ...this.toObject(), until: datetime });
   }
 
+  /**
+   * Creates a string representation of the RRule:
+   *
+   * Examples:
+   *
+   * RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR;WKST=SU
+   * RRULE: FREQ=MONTHLY;INTERVAL=2;COUNT=10;BYDAY=1SU,-1SU
+   * */
   public toString(): string {
     return this.toRust().toString();
+  }
+
+  /**
+   * Converts RRule into a plain object, which is fully compatible with Luxon:
+   *
+   * ```typescript
+   * luxon.DateTime.fromObject(rrule.toObject());
+   * ```
+   */
+  public toObject(): RRuleLike {
+    return {
+      frequency: this.frequency,
+      interval: this.interval,
+      count: this.count,
+      byWeekday: this.byWeekday,
+      byHour: this.byHour,
+      byMinute: this.byMinute,
+      bySecond: this.bySecond,
+      byMonthday: this.byMonthday,
+      bySetpos: this.bySetpos,
+      byMonth: this.byMonth,
+      byWeekno: this.byWeekno,
+      byYearday: this.byYearday,
+      weekstart: this.weekstart,
+      until: this.until,
+    };
   }
 
   /**
@@ -234,24 +444,5 @@ export class RRule {
     }
 
     return this.rust;
-  }
-
-  public toObject(): RRuleLike {
-    return {
-      frequency: this.frequency,
-      interval: this.interval,
-      count: this.count,
-      byWeekday: this.byWeekday,
-      byHour: this.byHour,
-      byMinute: this.byMinute,
-      bySecond: this.bySecond,
-      byMonthday: this.byMonthday,
-      bySetpos: this.bySetpos,
-      byMonth: this.byMonth,
-      byWeekno: this.byWeekno,
-      byYearday: this.byYearday,
-      weekstart: this.weekstart,
-      until: this.until,
-    };
   }
 }

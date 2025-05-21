@@ -42,7 +42,7 @@ jobs:
         run: |
           npm run lint
   build-tests:
-    name: Lint
+    name: Build Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

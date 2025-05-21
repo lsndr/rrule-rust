@@ -1,25 +1,62 @@
 import tseslint from 'typescript-eslint';
+import { defineConfig } from 'eslint/config';
+import globals from 'globals';
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
+import eslintJs from '@eslint/js';
+import * as importPlugin from 'eslint-plugin-import-x';
 import commentsPluginConfigs from '@eslint-community/eslint-plugin-eslint-comments/configs';
-import importPlugin from 'eslint-plugin-import';
 
-export default tseslint.config(
+export default defineConfig(
   {
-    ignores: ['node_modules', './dist', './target', 'src/lib/**/*'],
+    ignores: [
+      'node_modules',
+      './dist',
+      './coverage',
+      '/target',
+      './src/lib/**',
+    ],
   },
-  tseslint.configs.recommendedTypeChecked,
-  tseslint.configs.stylisticTypeChecked,
-  importPlugin.flatConfigs.recommended,
-  importPlugin.flatConfigs.typescript,
+  {
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
   commentsPluginConfigs.recommended,
   {
-    plugins: {
-      importPlugin: importPlugin,
+    files: ['**/*.{js,mjs,cjs}'],
+    extends: [
+      eslintJs.configs.recommended,
+      importPlugin.flatConfigs.recommended,
+    ],
+    languageOptions: {
+      ecmaVersion: 'latest',
     },
+    settings: {
+      'import-x/resolver-next': [importPlugin.createNodeResolver()],
+    },
+  },
+  {
+    files: ['**/*.ts'],
     languageOptions: {
       parserOptions: {
         project: './tsconfig.eslint.json',
         tsconfigRootDir: import.meta.dirname,
       },
+    },
+    extends: [
+      tseslint.configs.recommendedTypeChecked,
+      tseslint.configs.stylisticTypeChecked,
+      importPlugin.flatConfigs.recommended,
+      importPlugin.flatConfigs.typescript,
+    ],
+    settings: {
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
+          tsconfig: './tsconfig.eslint.json',
+        }),
+      ],
     },
     rules: {
       '@typescript-eslint/explicit-module-boundary-types': 'error',
@@ -28,7 +65,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
-      'import/no-default-export': 'error',
+      'import-x/no-default-export': 'error',
       '@eslint-community/eslint-comments/require-description': 'error',
       '@typescript-eslint/consistent-type-imports': [
         'error',
@@ -67,13 +104,5 @@ export default tseslint.config(
         },
       ],
     },
-    settings: {
-      'import/resolver': {
-        typescript: {
-          project: './tsconfig.eslint.json',
-        },
-      },
-    },
   },
-  {},
 );

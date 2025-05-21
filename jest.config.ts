@@ -1,4 +1,4 @@
-/* eslint-disable import/no-default-export -- Required by Jest */
+/* eslint-disable import-x/no-default-export -- Required by Jest */
 import type { JestConfigWithTsJest } from 'ts-jest';
 
 export default {
@@ -12,4 +12,4 @@ export default {
     ],
   },
 } satisfies JestConfigWithTsJest;
-/* eslint-enable import/no-default-export -- Required by Jest */
+/* eslint-enable import-x/no-default-export -- Required by Jest */

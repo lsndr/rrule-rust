@@ -385,7 +385,6 @@ describe('Monthly', () => {
 
   it('errors on invalid by-weekday', () => {
     expect(() =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Required for testing
       new RRule(Frequency.Monthly).setByWeekday(['invalid' as any]).toString(),
     ).toThrow('Value is non of these types `NWeekday`, `Weekday`');
   });

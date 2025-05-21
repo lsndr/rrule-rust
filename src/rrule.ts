@@ -127,12 +127,12 @@ export class RRule {
   /**
    * @internal
    */
-  public static fromRust(rust: Rust) {
+  public static fromRust(rust: Rust): RRule {
     const rrule = new this({
       frequency: rust.frequency,
       interval: rust.interval ?? undefined,
       until: rust.until === null ? undefined : DateTime.fromNumeric(rust.until),
-      count: rust.count === null ? undefined : rust.count,
+      count: rust.count ?? undefined,
       byWeekday: rust.byWeekday,
       byHour: rust.byHour,
       byMinute: rust.byMinute,
@@ -214,24 +214,22 @@ export class RRule {
    * @internal
    */
   public toRust(): Rust {
-    if (!this.rust) {
-      this.rust = new Rust(
-        this.frequency,
-        this.interval,
-        this.count,
-        this.weekstart,
-        this.until?.toNumeric(),
-        this.byWeekday,
-        this.byHour,
-        this.byMinute,
-        this.bySecond,
-        this.byMonthday,
-        this.bySetpos,
-        this.byMonth,
-        this.byWeekno,
-        this.byYearday,
-      );
-    }
+    this.rust ??= new Rust(
+      this.frequency,
+      this.interval,
+      this.count,
+      this.weekstart,
+      this.until?.toNumeric(),
+      this.byWeekday,
+      this.byHour,
+      this.byMinute,
+      this.bySecond,
+      this.byMonthday,
+      this.bySetpos,
+      this.byMonth,
+      this.byWeekno,
+      this.byYearday,
+    );
 
     return this.rust;
   }

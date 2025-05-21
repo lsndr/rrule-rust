@@ -3,9 +3,9 @@ import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { rimrafSync } from 'rimraf';
 import * as path from 'path';
 
-export type SandboxOptions = {
+export interface SandboxOptions {
   esm: boolean;
-};
+}
 
 export class Sandbox {
   private readonly projectPath: string;
@@ -15,7 +15,7 @@ export class Sandbox {
     this.esm = options.esm;
   }
 
-  public install() {
+  public install(): void {
     rimrafSync(path.resolve(this.projectPath));
     mkdirSync(this.projectPath);
     execSync(`npm init -y`, { cwd: this.projectPath });
@@ -29,7 +29,7 @@ export class Sandbox {
     });
   }
 
-  public uninstall() {
+  public uninstall(): void {
     rimrafSync(path.resolve(this.projectPath));
   }
 
@@ -43,7 +43,7 @@ export class Sandbox {
           : `const src_1 = require('rrule-rust');`
       }
 
-    const code = ${code.toString()}; 
+    const code = ${code.toString()};
 
     console.log(JSON.stringify(code()));
 `,

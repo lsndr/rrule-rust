@@ -1,4 +1,4 @@
-import b from 'benny';
+import * as b from 'benny';
 import * as node from 'rrule';
 import * as rust from '../src';
 

@@ -12,11 +12,19 @@
 
 ## Quick Start
 
-See [test folder](https://github.com/lsndr/rrule-rust/tree/master/tests) to find more use cases
-
 ```
   npm i rrule-rust
 ```
+
+If you need browser-compatible version with wasm support, install it from `alpha` channel:
+
+```
+  npm i rrule-rust@alpha
+```
+
+Wasm package is distributed via `alpha` channel because it is based on alpha version of [napi.rs](https://napi.rs/). Once [napi.rs](https://napi.rs/) v3 get released, we will add wasm support to `latest` channel.
+
+See [test folder](https://github.com/lsndr/rrule-rust/tree/master/tests) to find more use cases
 
 ```typescript
 import { RRule, RRuleSet, Frequency, DateTime } from 'rrule-rust';

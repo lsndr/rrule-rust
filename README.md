@@ -5,7 +5,7 @@
 [![npm downloads](https://img.shields.io/npm/dt/rrule-rust.svg)](https://www.npmjs.com/package/rrule-rust)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/lsndr/rrule-rust/blob/master/LICENSE.md)
 
-`rrule-rust` is a JavaScript/TypeScript library for handling recurrence rules, powered by Rust's high-performance [rrule](https://crates.io/crates/rrule) crate.
+`rrule-rust` is a library for handling recurrence rules, powered by Rust's high-performance [rrule](https://crates.io/crates/rrule) crate.
 
 1. [Quick Start](#quick-start)
 2. [Performance](#performance)
@@ -22,7 +22,7 @@ If you need a browser-compatible version with WASM support, install it from the 
   npm i rrule-rust@alpha
 ```
 
-The WebAssembly (WASM) version is currently available on the `alpha` channel, as it relies on an alpha release of [napi.rs](https://napi.rs/). Once napi.rs v3 is officially released, WASM support will be included in the main (`latest`) release channel.
+> The WebAssembly (WASM) version is currently available on the `alpha` channel, as it relies on an alpha release of [napi.rs](https://napi.rs/). Once napi.rs v3 is officially released, WASM support will be included in the main (`latest`) release channel.
 
 For more usage examples and advanced scenarios, see the [tests directory](https://github.com/lsndr/rrule-rust/tree/master/tests) in the repository.
 

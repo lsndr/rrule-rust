@@ -5,7 +5,7 @@
 [![npm downloads](https://img.shields.io/npm/dt/rrule-rust.svg)](https://www.npmjs.com/package/rrule-rust)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/lsndr/rrule-rust/blob/master/LICENSE.md)
 
-`rrule-rust` is a library for working with recurrence rules based on Rust's [rrule](https://crates.io/crates/rrule) crate
+`rrule-rust` is a library for handling recurrence rules, powered by Rust's high-performance [rrule](https://crates.io/crates/rrule) crate.
 
 1. [Quick Start](#quick-start)
 2. [Performance](#performance)
@@ -16,15 +16,15 @@
   npm i rrule-rust
 ```
 
-If you need browser-compatible version with wasm support, install it from `alpha` channel:
+If you need a browser-compatible version with WASM support, install it from the `alpha` channel:
 
 ```
   npm i rrule-rust@alpha
 ```
 
-Wasm package is distributed via `alpha` channel because it is based on alpha version of [napi.rs](https://napi.rs/). Once [napi.rs](https://napi.rs/) v3 get released, we will add wasm support to `latest` channel.
+> The WebAssembly (WASM) version is currently available on the `alpha` channel, as it relies on an alpha release of [napi.rs](https://napi.rs/). Once napi.rs v3 is officially released, WASM support will be included in the main (`latest`) release channel.
 
-See [test folder](https://github.com/lsndr/rrule-rust/tree/master/tests) to find more use cases
+For more usage examples and advanced scenarios, see the [tests directory](https://github.com/lsndr/rrule-rust/tree/master/tests) in the repository.
 
 ```typescript
 import { RRule, RRuleSet, Frequency, DateTime } from 'rrule-rust';
@@ -40,7 +40,7 @@ const set = new RRuleSet({
 });
 
 const dates = set.all(); // [ DateTime, DateTime, DateTime, DateTime, DateTime ]
-const asString = set.toString(); // DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=daily;COUNT=5;BYHOUR=9;BYMINUTE=0;BYSECOND=0
+const asString = set.toString(); // DTSTART;TZID=US/Eastern:19970902T090000\nFREQ=DAILY;COUNT=5;BYHOUR=9;BYMINUTE=0;BYSECOND=0
 ```
 
 ## Performance
@@ -57,7 +57,7 @@ const asString = set.toString(); // DTSTART;TZID=US/Eastern:19970902T090000\nFRE
 | UTC TZ   | 15 904 ops/s | 108 538 ops/s | ~6x faster   |
 | Other TZ | 260 ops/s    | 106 034 ops/s | ~400x faster |
 
-You can run benchmarks using `npm run benchmark`
+You can run benchmarks using `npm run benchmark`.
 
 ## License
 

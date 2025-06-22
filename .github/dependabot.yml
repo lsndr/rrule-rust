@@ -4,9 +4,9 @@ updates:
     target-branch: 'next'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
   - package-ecosystem: 'cargo'
     target-branch: 'next'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'

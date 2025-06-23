@@ -1,4 +1,4 @@
-import b from 'benny';
+import * as b from 'benny';
 import * as node from 'rrule';
 import * as rust from '../src';
 
@@ -30,6 +30,7 @@ function suite(tzid: string) {
         rrules: [rrule],
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Required for benchmark
       [...set];
     }),
     b.add('RRule.all() (node)', () => {
@@ -62,5 +63,7 @@ function suite(tzid: string) {
   ];
 }
 
-b.suite('UTC TZ', ...suite('UTC'));
-b.suite('Other TZ', ...suite('Pacific/Kiritimati'));
+Promise.all([
+  b.suite('UTC TZ', ...suite('UTC')).then(console.log),
+  b.suite('Other TZ', ...suite('Pacific/Kiritimati')),
+]).catch(console.error);

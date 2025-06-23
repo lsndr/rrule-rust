@@ -22,11 +22,11 @@ export class RRuleSet implements Iterable<DateTime> {
   /** @internal */
   private rust?: Rust;
 
-  public constructor(dtstart: DateTime, tzid: string | undefined);
+  public constructor(dtstart: DateTime, tzid?: string);
   public constructor(options: Partial<RRuleSetLike>);
   public constructor(
     setOrDtstart?: DateTime | Partial<RRuleSetLike>,
-    tzid?: string | undefined,
+    tzid?: string,
   ) {
     if (!(setOrDtstart instanceof DateTime)) {
       if (setOrDtstart?.dtstart) {
@@ -67,7 +67,7 @@ export class RRuleSet implements Iterable<DateTime> {
   /**
    * Parses a string into an RRuleSet.
    */
-  public static parse(str: string) {
+  public static parse(str: string): RRuleSet {
     const rust = Rust.parse(str);
 
     return this.fromRust(rust);
@@ -202,16 +202,14 @@ export class RRuleSet implements Iterable<DateTime> {
    * @internal
    */
   public toRust(): Rust {
-    if (!this.rust) {
-      this.rust = new Rust(
-        this.dtstart.toNumeric(),
-        this.tzid,
-        this.rrules.map((rrule) => rrule.toRust()),
-        this.exrules.map((rrule) => rrule.toRust()),
-        this.exdates.map((datetime) => datetime.toNumeric()),
-        this.rdates.map((datetime) => datetime.toNumeric()),
-      );
-    }
+    this.rust ??= new Rust(
+      this.dtstart.toNumeric(),
+      this.tzid,
+      this.rrules.map((rrule) => rrule.toRust()),
+      this.exrules.map((rrule) => rrule.toRust()),
+      this.exdates.map((datetime) => datetime.toNumeric()),
+      this.rdates.map((datetime) => datetime.toNumeric()),
+    );
 
     return this.rust;
   }
@@ -234,7 +232,7 @@ export class RRuleSet implements Iterable<DateTime> {
     };
   }
 
-  public [Symbol.iterator]() {
+  public [Symbol.iterator](): Iterator<DateTime, any, any> {
     const iter = this.toRust().iterator();
 
     return {

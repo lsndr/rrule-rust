@@ -210,7 +210,7 @@ describe(RRuleSet, () => {
       },
     },
   ])(
-    'should parse rdate property when dtstart is $dtstart and rdate is $exdate',
+    'should parse rdate property when dtstart is $dtstart and rdate is $rdate',
     ({ dtstart, rdate, expected }) => {
       const set = RRuleSet.parse(
         `${dtstart}\n${rdate}\nRRULE:FREQ=WEEKLY;UNTIL=20190208T045959Z;INTERVAL=2;BYDAY=FR`,

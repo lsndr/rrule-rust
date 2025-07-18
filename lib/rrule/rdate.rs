@@ -27,7 +27,7 @@ impl RDate {
 
     if let Some(tzid) = self.tzid {
       // UTC datetimes MUST NOT contain a TZID
-      if tzid != chrono_tz::Tz::UTC {
+      if !self.datetimes.iter().any(|datetime| datetime.utc()) {
         parameters.insert("TZID".to_string(), tzid.to_string());
       }
     }

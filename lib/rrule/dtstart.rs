@@ -34,7 +34,10 @@ impl DtStart {
     let mut parameters = Parameters::new();
 
     if let Some(tzid) = self.tzid {
-      parameters.insert("TZID".to_string(), tzid.to_string());
+      // UTC datetimes MUST NOT contain a TZID
+      if tzid != chrono_tz::Tz::UTC {
+        parameters.insert("TZID".to_string(), tzid.to_string());
+      }
     }
 
     let value: String = self.datetime.to_string();

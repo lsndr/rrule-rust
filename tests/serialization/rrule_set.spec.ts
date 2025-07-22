@@ -1,4 +1,4 @@
-import { RRuleSet, DateTime } from '../../src';
+import { RRuleSet, DateTime, RRule } from '../../src';
 
 describe(RRuleSet, () => {
   it('should properly parse weekly recurrence', () => {
@@ -210,7 +210,7 @@ describe(RRuleSet, () => {
       },
     },
   ])(
-    'should parse rdate property when dtstart is $dtstart and rdate is $exdate',
+    'should parse rdate property when dtstart is $dtstart and rdate is $rdate',
     ({ dtstart, rdate, expected }) => {
       const set = RRuleSet.parse(
         `${dtstart}\n${rdate}\nRRULE:FREQ=WEEKLY;UNTIL=20190208T045959Z;INTERVAL=2;BYDAY=FR`,
@@ -221,4 +221,23 @@ describe(RRuleSet, () => {
       expect(set.toString()).toContain(rdate);
     },
   );
+
+  // see https://icalendar.org/iCalendar-RFC-5545/3-2-19-time-zone-identifier.html
+  it('should not add TZID=UTC to dates if they are in UTC', () => {
+    const utcDate = DateTime.fromObject(
+      { year: 2025, month: 1, day: 1, hour: 0, minute: 0, second: 0 },
+      { utc: true },
+    );
+
+    const set = new RRuleSet({
+      dtstart: utcDate,
+      rrules: [new RRule(1)],
+      exdates: [utcDate],
+      rdates: [utcDate],
+    });
+
+    expect(set.toString()).toBe(
+      'DTSTART:20250101T000000Z\nRRULE:FREQ=MONTHLY\nEXDATE:20250101T000000Z\nRDATE:20250101T000000Z',
+    );
+  });
 });

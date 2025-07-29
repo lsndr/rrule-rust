@@ -9,17 +9,17 @@ path = "lib/lib.rs"
 
 [dependencies]
 chrono = "0.4.41"
-chrono-tz = "0.9.0"
-indexmap = "2.9.0"
+chrono-tz = "0.10.4"
+indexmap = "2.10.0"
 itertools = "0.14.0"
 # Default enable napi5 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
 napi = { version = "2.16.17", default-features = false, features = ["napi5"] }
 napi-derive = "2.16.13"
 replace_with = "0.1.8"
-rrule = { version = "0.13.0", features = ["exrule"] }
+rrule = { version = "0.14.0", features = ["exrule"] }
 
 [build-dependencies]
-napi-build = "2.2.0"
+napi-build = "2.2.2"
 
 [profile.release]
 lto = true

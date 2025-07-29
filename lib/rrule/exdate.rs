@@ -26,7 +26,10 @@ impl ExDate {
     let mut parameters = Parameters::new();
 
     if let Some(tzid) = self.tzid {
-      parameters.insert("TZID".to_string(), tzid.to_string());
+      // UTC datetimes MUST NOT contain a TZID
+      if !self.datetimes.iter().any(|datetime| datetime.utc()) {
+        parameters.insert("TZID".to_string(), tzid.to_string());
+      }
     }
 
     let value: String = self

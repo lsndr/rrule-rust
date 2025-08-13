@@ -171,6 +171,7 @@ impl RRuleSet {
       return Ok(iter.take(limit as usize).collect());
     }
 
+    // TDO: use array instead
     Ok(iter.collect())
   }
 
@@ -199,13 +200,13 @@ impl RRuleSet {
   }
 
   #[napi(ts_return_type = "number[]")]
-  pub fn between(
-    &self,
-    env: Env,
+  pub fn between<'a>(
+    &'a self,
+    env: &'a Env,
     after_datetime: i64,
     before_datetime: i64,
     inclusive: Option<bool>,
-  ) -> napi::Result<Array> {
+  ) -> napi::Result<Array<'a>> {
     let mut arr = env.create_array(0).unwrap();
     let timezone = self.rrule_set.dtstart().timezone();
     let after_timestamp = DateTime::from(after_datetime)

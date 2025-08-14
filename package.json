@@ -80,7 +80,6 @@
     "build": "tsc -p ./tsconfig.build.json",
     "build:tests": "tsc -p ./tsconfig.test.json",
     "postbuild": "cpy ./src/lib/* ./dist/lib --flat",
-    "prepublishOnly": "napi prepublish -t npm",
     "test": "cross-env TZ=Europe/Moscow jest --testPathIgnorePatterns=\\.e2e\\.spec\\.ts",
     "test:e2e": "jest --testMatch='**/*.e2e.spec.ts' --runInBand",
     "universal": "napi universal",
@@ -90,6 +89,7 @@
     "format:fix": "cargo fmt --all && prettier --write .",
     "lint": "eslint --max-warnings=0",
     "lint:fix": "npm run lint -- --fix",
-    "prepare": "husky && npm run build"
+    "prepare": "husky",
+    "prepublishOnly": "npm run build && napi prepublish -t npm"
   }
 }

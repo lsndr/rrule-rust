@@ -1,3 +1,3 @@
-# `rrule-rust-android-arm-eabi`
+# `@rrule-rust/lib-android-arm-eabi`
 
-This is the **armv7-linux-androideabi** binary for `rrule-rust`
+This is the **armv7-linux-androideabi** binary for `@rrule-rust/lib`

@@ -78,7 +78,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-android-arm64')
+        return require('@rrule-rust/lib-android-arm64')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -89,7 +89,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-android-arm-eabi')
+        return require('@rrule-rust/lib-android-arm-eabi')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -104,7 +104,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-win32-x64-msvc')
+        return require('@rrule-rust/lib-win32-x64-msvc')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -115,7 +115,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-win32-ia32-msvc')
+        return require('@rrule-rust/lib-win32-ia32-msvc')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -126,7 +126,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-win32-arm64-msvc')
+        return require('@rrule-rust/lib-win32-arm64-msvc')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -140,7 +140,7 @@ function requireNative() {
       loadErrors.push(e)
     }
     try {
-      return require('rrule-rust-darwin-universal')
+      return require('@rrule-rust/lib-darwin-universal')
     } catch (e) {
       loadErrors.push(e)
     }
@@ -151,7 +151,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-darwin-x64')
+        return require('@rrule-rust/lib-darwin-x64')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -162,7 +162,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-darwin-arm64')
+        return require('@rrule-rust/lib-darwin-arm64')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -177,7 +177,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-freebsd-x64')
+        return require('@rrule-rust/lib-freebsd-x64')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -188,7 +188,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-freebsd-arm64')
+        return require('@rrule-rust/lib-freebsd-arm64')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -204,7 +204,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          return require('rrule-rust-linux-x64-musl')
+          return require('@rrule-rust/lib-linux-x64-musl')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -215,7 +215,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          return require('rrule-rust-linux-x64-gnu')
+          return require('@rrule-rust/lib-linux-x64-gnu')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -228,7 +228,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          return require('rrule-rust-linux-arm64-musl')
+          return require('@rrule-rust/lib-linux-arm64-musl')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -239,7 +239,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          return require('rrule-rust-linux-arm64-gnu')
+          return require('@rrule-rust/lib-linux-arm64-gnu')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -252,7 +252,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          return require('rrule-rust-linux-arm-musleabihf')
+          return require('@rrule-rust/lib-linux-arm-musleabihf')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -263,7 +263,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          return require('rrule-rust-linux-arm-gnueabihf')
+          return require('@rrule-rust/lib-linux-arm-gnueabihf')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -276,7 +276,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          return require('rrule-rust-linux-riscv64-musl')
+          return require('@rrule-rust/lib-linux-riscv64-musl')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -287,7 +287,7 @@ function requireNative() {
           loadErrors.push(e)
         }
         try {
-          return require('rrule-rust-linux-riscv64-gnu')
+          return require('@rrule-rust/lib-linux-riscv64-gnu')
         } catch (e) {
           loadErrors.push(e)
         }
@@ -299,7 +299,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-linux-ppc64-gnu')
+        return require('@rrule-rust/lib-linux-ppc64-gnu')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -310,7 +310,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-linux-s390x-gnu')
+        return require('@rrule-rust/lib-linux-s390x-gnu')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -325,7 +325,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-linux-arm64-ohos')
+        return require('@rrule-rust/lib-linux-arm64-ohos')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -336,7 +336,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-linux-x64-ohos')
+        return require('@rrule-rust/lib-linux-x64-ohos')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -347,7 +347,7 @@ function requireNative() {
         loadErrors.push(e)
       }
       try {
-        return require('rrule-rust-linux-arm-ohos')
+        return require('@rrule-rust/lib-linux-arm-ohos')
       } catch (e) {
         loadErrors.push(e)
       }
@@ -371,7 +371,7 @@ if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
   }
   if (!nativeBinding) {
     try {
-      nativeBinding = require('rrule-rust-wasm32-wasi')
+      nativeBinding = require('@rrule-rust/lib-wasm32-wasi')
     } catch (err) {
       if (process.env.NAPI_RS_FORCE_WASI) {
         loadErrors.push(err)

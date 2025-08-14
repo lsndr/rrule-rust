@@ -18,9 +18,7 @@
   },
   "napi": {
     "binaryName": "rrule-rust",
-    "package": {
-      "name": "@rrule-rust/lib"
-    },
+    "packageName": "@rrule-rust/lib",
     "targets": [
       "x86_64-pc-windows-msvc",
       "x86_64-apple-darwin",

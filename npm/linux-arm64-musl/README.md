@@ -1,3 +1,3 @@
-# `rrule-rust-linux-arm64-musl`
+# `@rrule-rust/lib-linux-arm64-musl`
 
-This is the **aarch64-unknown-linux-musl** binary for `rrule-rust`
+This is the **aarch64-unknown-linux-musl** binary for `@rrule-rust/lib`

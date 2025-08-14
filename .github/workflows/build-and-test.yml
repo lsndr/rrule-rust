@@ -165,7 +165,6 @@ jobs:
             target: x86_64-apple-darwin
             architecture: x64
         node:
-          - '18'
           - '20'
           - '22'
     runs-on: ${{ matrix.settings.host }}

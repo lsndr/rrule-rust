@@ -64,6 +64,6 @@ function suite(tzid: string) {
 }
 
 Promise.all([
-  b.suite('UTC TZ', ...suite('UTC')).then(console.log),
+  b.suite('UTC TZ', ...suite('UTC')),
   b.suite('Other TZ', ...suite('Pacific/Kiritimati')),
 ]).catch(console.error);

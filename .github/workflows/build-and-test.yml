@@ -165,7 +165,6 @@ jobs:
             target: x86_64-apple-darwin
             architecture: x64
         node:
-          - '16'
           - '18'
           - '20'
           - '22'
@@ -204,7 +203,6 @@ jobs:
           - aarch64-unknown-linux-musl
           - armv7-unknown-linux-gnueabihf
         node:
-          - '16'
           - '18'
           - '20'
           - '22'

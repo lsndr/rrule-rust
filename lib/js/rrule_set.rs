@@ -171,7 +171,7 @@ impl RRuleSet {
       return Ok(iter.take(limit as usize).collect());
     }
 
-    // TDO: use array instead
+    // TODO: use array instead
     Ok(iter.collect())
   }
 

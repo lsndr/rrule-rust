@@ -276,11 +276,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: bindings-wasm32-wasip1-threads
-          path: .
+          path: src/lib
       - name: List packages
         run: ls -R .
         shell: bash
       - name: Test bindings
-        run: yarn test
+        run: npm run test
         env:
           NAPI_RS_FORCE_WASI: 1

@@ -1,8 +1,8 @@
 {
   "name": "rrule-rust",
   "version": "0.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/node/index.js",
+  "browser": "dist/browser/index.js",
   "keywords": [
     "rrule",
     "icalendar",
@@ -38,6 +38,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@atao60/fse-cli": "^0.1.9",
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
@@ -50,16 +51,17 @@
     "@types/node": "^22.1.0",
     "benny": "^3.7.1",
     "conventional-changelog-conventionalcommits": "^7.0.2",
-    "cpy-cli": "^5.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-import-resolver-typescript": "^4.3.5",
     "eslint-plugin-import-x": "^4.12.2",
     "husky": "^9.0.11",
+    "i": "^0.3.7",
     "jest": "^29.5.0",
     "luxon": "^3.4.4",
     "mkdirp": "^3.0.1",
+    "npm": "^11.5.2",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
     "rrule": "^2.7.2",
@@ -75,10 +77,13 @@
   "scripts": {
     "artifacts": "napi artifacts",
     "build:lib": "napi build --no-const-enum --platform --release --output-dir src/lib",
-    "prebuild": "rimraf ./dist && npm run build:lib",
-    "build": "tsc -p ./tsconfig.build.json",
+    "prebuild": "fse remove --quiet ./dist",
+    "build": "npm run build:lib && npm run build:node && npm run build:browser",
+    "prebuild:node": "fse remove --quiet ./dist/node",
+    "build:node": "tsc -p ./tsconfig.node.json && fse copy --quiet ./src/lib/index.js ./dist/node/lib/index.js && fse copy --quiet ./src/lib/rrule-rust.wasi.cjs ./dist/node/lib/rrule-rust.wasi.cjs",
+    "prebuild:browser": "fse remove --quiet ./dist/browser",
+    "build:browser": "tsc -p ./tsconfig.browser.json && fse copy --quiet ./src/lib/browser.js ./dist/browser/lib/index.js",
     "build:tests": "tsc -p ./tsconfig.test.json",
-    "postbuild": "cpy ./src/lib/* ./dist/lib --flat",
     "test": "cross-env TZ=Europe/Moscow jest --testPathIgnorePatterns=\\.e2e\\.spec\\.ts",
     "test:e2e": "jest --testMatch='**/*.e2e.spec.ts' --runInBand",
     "universal": "napi universal",
@@ -90,5 +95,8 @@
     "lint:fix": "npm run lint -- --fix",
     "prepare": "husky",
     "prepublishOnly": "npm run build && napi prepublish -t npm"
+  },
+  "dependencies": {
+    "del-cli": "^6.0.0"
   }
 }

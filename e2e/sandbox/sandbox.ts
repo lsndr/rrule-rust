@@ -4,15 +4,19 @@ import { rimrafSync } from 'rimraf';
 import * as path from 'path';
 
 export interface SandboxOptions {
-  esm: boolean;
+  esm?: boolean;
+  cpu?: string[];
 }
 
 export class Sandbox {
   private readonly projectPath: string;
   private readonly esm: boolean;
-  public constructor(options: SandboxOptions) {
+  private readonly cpu: string[];
+
+  public constructor(options?: SandboxOptions) {
     this.projectPath = path.resolve(__dirname, 'app');
-    this.esm = options.esm;
+    this.esm = options?.esm ?? false;
+    this.cpu = options?.cpu ?? [];
   }
 
   public install(): void {
@@ -24,7 +28,13 @@ export class Sandbox {
       execSync(`npm pkg set type=module`, { cwd: this.projectPath });
     }
 
-    execSync(`npm install rrule-rust@${this.getVersion()}`, {
+    let cmd = `npm install rrule-rust@${this.getVersion()}`;
+
+    if (this.cpu.length > 0) {
+      cmd += ` --cpu ${this.cpu.join(' --cpu ')}`;
+    }
+
+    execSync(cmd, {
       cwd: this.projectPath,
     });
   }

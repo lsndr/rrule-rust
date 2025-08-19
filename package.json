@@ -1,15 +1,16 @@
 {
   "name": "rrule-rust",
   "version": "0.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/node/index.js",
+  "browser": "dist/browser/index.js",
   "keywords": [
     "rrule",
     "icalendar",
     "rust",
+    "wasm",
     "rs"
   ],
-  "description": "RRule implementation for Node.js written in Rust",
+  "description": "RRule implementation for browsers and Node.js written in Rust",
   "repository": "lsndr/rrule-rust",
   "author": {
     "name": "lsndr",
@@ -32,11 +33,13 @@
       "x86_64-unknown-freebsd",
       "aarch64-unknown-linux-musl",
       "aarch64-pc-windows-msvc",
-      "armv7-linux-androideabi"
+      "armv7-linux-androideabi",
+      "wasm32-wasip1-threads"
     ]
   },
   "license": "MIT",
   "devDependencies": {
+    "@atao60/fse-cli": "^0.1.9",
     "@commitlint/cli": "^19.3.0",
     "@commitlint/config-conventional": "^19.2.2",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
@@ -49,7 +52,6 @@
     "@types/node": "^22.1.0",
     "benny": "^3.7.1",
     "conventional-changelog-conventionalcommits": "^7.0.2",
-    "cpy-cli": "^5.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
@@ -74,10 +76,13 @@
   "scripts": {
     "artifacts": "napi artifacts",
     "build:lib": "napi build --no-const-enum --platform --release --output-dir src/lib",
-    "prebuild": "rimraf ./dist && npm run build:lib",
-    "build": "tsc -p ./tsconfig.build.json",
+    "prebuild": "fse remove --quiet ./dist",
+    "build": "npm run build:lib && npm run build:node && npm run build:browser",
+    "prebuild:node": "fse remove --quiet ./dist/node",
+    "build:node": "tsc -p ./tsconfig.node.json && fse copy --quiet ./src/lib/index.js ./dist/node/lib/index.js && fse copy --quiet ./src/lib/rrule-rust.wasi.cjs ./dist/node/lib/rrule-rust.wasi.cjs",
+    "prebuild:browser": "fse remove --quiet ./dist/browser",
+    "build:browser": "tsc -p ./tsconfig.browser.json && fse copy --quiet ./src/lib/browser.js ./dist/browser/lib/index.js",
     "build:tests": "tsc -p ./tsconfig.test.json",
-    "postbuild": "cpy ./src/lib/* ./dist/lib --flat",
     "test": "cross-env TZ=Europe/Moscow jest --testPathIgnorePatterns=\\.e2e\\.spec\\.ts",
     "test:e2e": "jest --testMatch='**/*.e2e.spec.ts' --runInBand",
     "universal": "napi universal",

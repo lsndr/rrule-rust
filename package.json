@@ -94,8 +94,5 @@
     "lint:fix": "npm run lint -- --fix",
     "prepare": "husky",
     "prepublishOnly": "npm run build && napi prepublish -t npm"
-  },
-  "dependencies": {
-    "del-cli": "^6.0.0"
   }
 }

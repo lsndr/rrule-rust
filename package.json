@@ -74,7 +74,7 @@
     "node": ">= 10"
   },
   "scripts": {
-    "artifacts": "napi artifacts",
+    "artifacts": "napi artifacts --build-output-dir src/lib",
     "build:lib": "napi build --no-const-enum --platform --release --output-dir src/lib",
     "prebuild": "fse remove --quiet ./dist",
     "build": "npm run build:lib && npm run build:node && npm run build:browser",

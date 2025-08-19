@@ -7,9 +7,10 @@
     "rrule",
     "icalendar",
     "rust",
+    "wasm",
     "rs"
   ],
-  "description": "RRule implementation for Node.js written in Rust",
+  "description": "RRule implementation for browsers and Node.js written in Rust",
   "repository": "lsndr/rrule-rust",
   "author": {
     "name": "lsndr",
@@ -57,7 +58,6 @@
     "eslint-import-resolver-typescript": "^4.3.5",
     "eslint-plugin-import-x": "^4.12.2",
     "husky": "^9.0.11",
-    "i": "^0.3.7",
     "jest": "^29.5.0",
     "luxon": "^3.4.4",
     "mkdirp": "^3.0.1",

@@ -1,6 +1,6 @@
 (The MIT License)
 
-Copyright (c) 2025 lsndr <https://lsndr.com>
+Copyright (c) 2023 lsndr <https://lsndr.me>
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

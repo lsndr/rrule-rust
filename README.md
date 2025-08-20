@@ -16,13 +16,11 @@
   npm i rrule-rust
 ```
 
-If you need a browser-compatible version with WASM support, install it from the `alpha` channel:
+If you need a browser-compatible version with WASM support:
 
 ```
-  npm i rrule-rust@alpha
+  npm i rrule-rust --cpu "wasm32"
 ```
-
-> The WebAssembly (WASM) version is currently available on the `alpha` channel, as it relies on an alpha release of [napi.rs](https://napi.rs/). Once napi.rs v3 is officially released, WASM support will be included in the main (`latest`) release channel.
 
 For more usage examples and advanced scenarios, see the [tests directory](https://github.com/lsndr/rrule-rust/tree/master/tests) in the repository.
 

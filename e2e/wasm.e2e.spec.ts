@@ -21,10 +21,10 @@ describe('WASM', () => {
         byMonth: [Month.June, Month.July],
         count: 10,
       });
-      const set = new RRuleSet(
-        DateTime.create(1997, 6, 10, 9, 0, 0, false),
-        'US/Eastern',
-      ).addRrule(rrule);
+      const set = new RRuleSet({
+        datetime: DateTime.create(1997, 6, 10, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }).addRrule(rrule);
 
       return {
         asString: set.toString(),

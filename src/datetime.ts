@@ -5,10 +5,13 @@ export interface DateTimeLike {
   readonly hour: number;
   readonly minute: number;
   readonly second: number;
+  readonly utc: boolean;
 }
 
-export interface FromObjectOptions {
-  utc?: boolean;
+export type DateTimeLikeWithoutUtc = Omit<DateTimeLike, 'utc'>;
+
+export interface ToPlainOptions {
+  stripUtc?: boolean;
 }
 
 /**
@@ -104,18 +107,15 @@ export class DateTime implements DateTimeLike {
   /**
    * Creates a new DateTime object from the given plain object.
    */
-  public static fromObject(
-    object: DateTimeLike,
-    options?: FromObjectOptions,
-  ): DateTime {
+  public static fromPlain(plain: DateTimeLike): DateTime {
     return DateTime.create(
-      object.year,
-      object.month,
-      object.day,
-      object.hour,
-      object.minute,
-      object.second,
-      !!options?.utc,
+      plain.year,
+      plain.month,
+      plain.day,
+      plain.hour,
+      plain.minute,
+      plain.second,
+      plain.utc,
     );
   }
 
@@ -156,10 +156,25 @@ export class DateTime implements DateTimeLike {
     return new DateTime(numeric);
   }
 
+  /** @internal */
+  public static fromPlainOrInstance(
+    datetime: DateTime | DateTimeLike,
+  ): DateTime {
+    return datetime instanceof DateTime ? datetime : this.fromPlain(datetime);
+  }
+
   /**
    * Converts DateTime into a plain object.
    */
-  public toObject(): DateTimeLike {
+
+  public toPlain(options: { stripUtc: false } & ToPlainOptions): DateTimeLike;
+  public toPlain(
+    options: { stripUtc: true } & ToPlainOptions,
+  ): DateTimeLikeWithoutUtc;
+  public toPlain(): DateTimeLike;
+  public toPlain(
+    options?: ToPlainOptions,
+  ): DateTimeLikeWithoutUtc | DateTimeLike {
     return {
       year: this.year,
       month: this.month,
@@ -167,6 +182,7 @@ export class DateTime implements DateTimeLike {
       hour: this.hour,
       minute: this.minute,
       second: this.second,
+      utc: options?.stripUtc ? undefined : this.utc,
     };
   }
 

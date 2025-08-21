@@ -1,4 +1,4 @@
-import { DateTime } from './datetime';
+import { DateTime, type DateTimeLike } from './datetime';
 import { RRule as Rust } from './lib';
 
 export interface NWeekday {
@@ -47,11 +47,28 @@ export enum Weekday {
   Sunday = 6,
 }
 
+export interface RRuleOptions {
+  readonly frequency: Frequency;
+  readonly interval?: number;
+  readonly count?: number;
+  readonly until?: DateTime | DateTimeLike;
+  readonly byWeekday?: readonly (NWeekday | Weekday)[];
+  readonly byHour?: readonly number[];
+  readonly byMinute?: readonly number[];
+  readonly bySecond?: readonly number[];
+  readonly byMonthday?: readonly number[];
+  readonly bySetpos?: readonly number[];
+  readonly byMonth?: readonly Month[];
+  readonly byWeekno?: readonly number[];
+  readonly byYearday?: readonly number[];
+  readonly weekstart?: Weekday;
+}
+
 export interface RRuleLike {
   readonly frequency: Frequency;
   readonly interval?: number;
   readonly count?: number;
-  readonly until?: DateTime;
+  readonly until?: DateTimeLike;
   readonly byWeekday: readonly (NWeekday | Weekday)[];
   readonly byHour: readonly number[];
   readonly byMinute: readonly number[];
@@ -84,25 +101,27 @@ export class RRule {
   private rust?: Rust;
 
   public constructor(frequency: Frequency);
-  public constructor(rrule?: Partial<RRuleLike>);
-  public constructor(rruleOrFrequency: Frequency | Partial<RRuleLike> = {}) {
-    if (typeof rruleOrFrequency === 'object' && rruleOrFrequency !== null) {
-      this.frequency = rruleOrFrequency.frequency ?? Frequency.Daily;
-      this.interval = rruleOrFrequency.interval;
-      this.until = rruleOrFrequency.until;
-      this.count = rruleOrFrequency.count;
-      this.byWeekday = rruleOrFrequency.byWeekday ?? [];
-      this.byHour = rruleOrFrequency.byHour ?? [];
-      this.byMinute = rruleOrFrequency.byMinute ?? [];
-      this.bySecond = rruleOrFrequency.bySecond ?? [];
-      this.byMonthday = rruleOrFrequency.byMonthday ?? [];
-      this.bySetpos = rruleOrFrequency.bySetpos ?? [];
-      this.byMonth = rruleOrFrequency.byMonth ?? [];
-      this.byWeekno = rruleOrFrequency.byWeekno ?? [];
-      this.byYearday = rruleOrFrequency.byYearday ?? [];
-      this.weekstart = rruleOrFrequency.weekstart;
+  public constructor(options: RRuleOptions);
+  public constructor(frequencyOrOptions: Frequency | RRuleOptions) {
+    if (typeof frequencyOrOptions === 'object' && frequencyOrOptions !== null) {
+      this.frequency = frequencyOrOptions.frequency;
+      this.interval = frequencyOrOptions.interval;
+      this.until =
+        frequencyOrOptions.until &&
+        DateTime.fromPlain(frequencyOrOptions.until);
+      this.count = frequencyOrOptions.count;
+      this.byWeekday = frequencyOrOptions.byWeekday ?? [];
+      this.byHour = frequencyOrOptions.byHour ?? [];
+      this.byMinute = frequencyOrOptions.byMinute ?? [];
+      this.bySecond = frequencyOrOptions.bySecond ?? [];
+      this.byMonthday = frequencyOrOptions.byMonthday ?? [];
+      this.bySetpos = frequencyOrOptions.bySetpos ?? [];
+      this.byMonth = frequencyOrOptions.byMonth ?? [];
+      this.byWeekno = frequencyOrOptions.byWeekno ?? [];
+      this.byYearday = frequencyOrOptions.byYearday ?? [];
+      this.weekstart = frequencyOrOptions.weekstart;
     } else {
-      this.frequency = rruleOrFrequency;
+      this.frequency = frequencyOrOptions;
       this.byWeekday = [];
       this.byHour = [];
       this.byMinute = [];
@@ -122,6 +141,25 @@ export class RRule {
     const rust = Rust.parse(str);
 
     return this.fromRust(rust);
+  }
+
+  public static fromPlain(rrule: RRuleLike): RRule {
+    return new this({
+      frequency: rrule.frequency,
+      interval: rrule.interval,
+      until: rrule.until,
+      count: rrule.count,
+      byWeekday: rrule.byWeekday,
+      byHour: rrule.byHour,
+      byMinute: rrule.byMinute,
+      bySecond: rrule.bySecond,
+      byMonthday: rrule.byMonthday,
+      bySetpos: rrule.bySetpos,
+      byMonth: rrule.byMonth,
+      byWeekno: rrule.byWeekno,
+      byYearday: rrule.byYearday,
+      weekstart: rrule.weekstart,
+    });
   }
 
   /**
@@ -150,60 +188,67 @@ export class RRule {
     return rrule;
   }
 
+  /**
+   * @internal
+   */
+  public static fromPlainOrInstance(rrule: RRule | RRuleLike): RRule {
+    return rrule instanceof RRule ? rrule : this.fromPlain(rrule);
+  }
+
   public setFrequency(frequency: Frequency): RRule {
-    return new RRule({ ...this.toObject(), frequency });
+    return new RRule({ ...this.toPlain(), frequency });
   }
 
   public setInterval(interval: number): RRule {
-    return new RRule({ ...this.toObject(), interval });
+    return new RRule({ ...this.toPlain(), interval });
   }
 
   public setCount(count: number): RRule {
-    return new RRule({ ...this.toObject(), count });
+    return new RRule({ ...this.toPlain(), count });
   }
 
   public setByWeekday(weekdays: readonly (NWeekday | Weekday)[]): RRule {
-    return new RRule({ ...this.toObject(), byWeekday: weekdays });
+    return new RRule({ ...this.toPlain(), byWeekday: weekdays });
   }
 
   public setByHour(hours: readonly number[]): RRule {
-    return new RRule({ ...this.toObject(), byHour: hours });
+    return new RRule({ ...this.toPlain(), byHour: hours });
   }
 
   public setByMinute(minutes: readonly number[]): RRule {
-    return new RRule({ ...this.toObject(), byMinute: minutes });
+    return new RRule({ ...this.toPlain(), byMinute: minutes });
   }
 
   public setBySecond(seconds: readonly number[]): RRule {
-    return new RRule({ ...this.toObject(), bySecond: seconds });
+    return new RRule({ ...this.toPlain(), bySecond: seconds });
   }
 
   public setByMonthday(days: readonly number[]): RRule {
-    return new RRule({ ...this.toObject(), byMonthday: days });
+    return new RRule({ ...this.toPlain(), byMonthday: days });
   }
 
   public setBySetpos(poses: readonly number[]): RRule {
-    return new RRule({ ...this.toObject(), bySetpos: poses });
+    return new RRule({ ...this.toPlain(), bySetpos: poses });
   }
 
   public setByMonth(months: readonly Month[]): RRule {
-    return new RRule({ ...this.toObject(), byMonth: months });
+    return new RRule({ ...this.toPlain(), byMonth: months });
   }
 
   public setByWeekno(weekNumbers: readonly number[]): RRule {
-    return new RRule({ ...this.toObject(), byWeekno: weekNumbers });
+    return new RRule({ ...this.toPlain(), byWeekno: weekNumbers });
   }
 
   public setByYearday(days: readonly number[]): RRule {
-    return new RRule({ ...this.toObject(), byYearday: days });
+    return new RRule({ ...this.toPlain(), byYearday: days });
   }
 
   public setWeekstart(day: Weekday): RRule {
-    return new RRule({ ...this.toObject(), weekstart: day });
+    return new RRule({ ...this.toPlain(), weekstart: day });
   }
 
-  public setUntil(datetime: DateTime): RRule {
-    return new RRule({ ...this.toObject(), until: datetime });
+  public setUntil(datetime: DateTime | DateTimeLike): RRule {
+    return new RRule({ ...this.toPlain(), until: datetime });
   }
 
   public toString(): string {
@@ -234,7 +279,7 @@ export class RRule {
     return this.rust;
   }
 
-  public toObject(): RRuleLike {
+  public toPlain(): RRuleLike {
     return {
       frequency: this.frequency,
       interval: this.interval,
@@ -249,7 +294,7 @@ export class RRule {
       byWeekno: this.byWeekno,
       byYearday: this.byYearday,
       weekstart: this.weekstart,
-      until: this.until,
+      until: this.until?.toPlain(),
     };
   }
 }

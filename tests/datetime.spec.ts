@@ -59,17 +59,8 @@ describe(DateTime, () => {
     });
   });
 
-  describe('fromObject', () => {
+  describe('fromPlain', () => {
     test.each([
-      {
-        year: 1997,
-        month: 9,
-        day: 7,
-        hour: 4,
-        minute: 0,
-        second: 0,
-        utc: undefined,
-      },
       {
         year: 1997,
         month: 9,
@@ -89,7 +80,7 @@ describe(DateTime, () => {
         utc: true,
       },
     ])('should create datetime from %j', (input) => {
-      const datetime = DateTime.fromObject(input, { utc: input.utc });
+      const datetime = DateTime.fromPlain(input);
 
       expect(datetime.year).toBe(input.year);
       expect(datetime.month).toBe(input.month);
@@ -101,7 +92,7 @@ describe(DateTime, () => {
     });
   });
 
-  describe('toObject', () => {
+  describe('toPlain', () => {
     test.each([
       {
         year: 1997,
@@ -131,7 +122,49 @@ describe(DateTime, () => {
         input.second,
         input.utc,
       );
-      const object = datetime.toObject();
+      const object = datetime.toPlain();
+
+      expect(object).toEqual({
+        year: input.year,
+        month: input.month,
+        day: input.day,
+        hour: input.hour,
+        minute: input.minute,
+        second: input.second,
+        utc: input.utc,
+      });
+    });
+
+    test.each([
+      {
+        year: 1997,
+        month: 9,
+        day: 3,
+        hour: 9,
+        minute: 0,
+        second: 0,
+        utc: false,
+      },
+      {
+        year: 2005,
+        month: 9,
+        day: 4,
+        hour: 9,
+        minute: 1,
+        second: 22,
+        utc: true,
+      },
+    ])('should convert %j to plain object (strip utc)', (input) => {
+      const datetime = DateTime.create(
+        input.year,
+        input.month,
+        input.day,
+        input.hour,
+        input.minute,
+        input.second,
+        input.utc,
+      );
+      const object = datetime.toPlain({ stripUtc: true });
 
       expect(object).toEqual({
         year: input.year,
@@ -145,7 +178,7 @@ describe(DateTime, () => {
 
     test("should be be compatible with Luxon's DateTime.fromObject", () => {
       const datetime = DateTime.create(1997, 9, 3, 9, 4, 7, false);
-      const object = datetime.toObject();
+      const object = datetime.toPlain({ stripUtc: true });
 
       const luxonDateTime = luxon.DateTime.fromObject(object);
 
@@ -202,7 +235,7 @@ describe(DateTime, () => {
 
     test("should be be compatible with Luxon's DateTime.fromObject", () => {
       const datetime = DateTime.create(1997, 9, 3, 9, 4, 7, false);
-      const object = datetime.toObject();
+      const object = datetime.toPlain({ stripUtc: true });
 
       const luxonDateTime = luxon.DateTime.fromObject(object);
 

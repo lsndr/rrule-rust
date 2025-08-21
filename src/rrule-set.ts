@@ -1,10 +1,10 @@
 import { RRule, type RRuleLike } from './rrule';
 import { RRuleSet as Rust } from './lib';
 import { DateTime, type DateTimeLike } from './datetime';
+import { DtStart, type DtStartLike } from './dtstart';
 
 export interface RRuleSetOptions {
-  readonly dtstart: DateTime | DateTimeLike;
-  readonly tzid?: string;
+  readonly dtstart: DtStart | DtStartLike;
   readonly rrules?: readonly (RRule | RRuleLike)[];
   readonly exrules?: readonly (RRule | RRuleLike)[];
   readonly exdates?: readonly (DateTime | DateTimeLike)[];
@@ -12,8 +12,7 @@ export interface RRuleSetOptions {
 }
 
 export interface RRuleSetLike {
-  readonly dtstart: DateTimeLike;
-  readonly tzid?: string;
+  readonly dtstart: DtStartLike;
   readonly rrules: readonly RRuleLike[];
   readonly exrules: readonly RRuleLike[];
   readonly exdates: readonly DateTimeLike[];
@@ -21,8 +20,7 @@ export interface RRuleSetLike {
 }
 
 export class RRuleSet implements Iterable<DateTime> {
-  public readonly dtstart: DateTime;
-  public readonly tzid: string;
+  public readonly dtstart: DtStart;
   public readonly rrules: readonly RRule[];
   public readonly exrules: readonly RRule[];
   public readonly exdates: readonly DateTime[];
@@ -31,21 +29,13 @@ export class RRuleSet implements Iterable<DateTime> {
   /** @internal */
   private rust?: Rust;
 
-  public constructor(dtstart: DateTime | DateTimeLike, tzid?: string);
+  public constructor(dtstart: DtStart | DtStartLike);
   public constructor(options: RRuleSetOptions);
   public constructor(
-    optionsOrDtstart?: DateTime | DateTimeLike | RRuleSetOptions,
-    tzid?: string,
+    optionsOrDtstart: DtStart | DtStartLike | RRuleSetOptions,
   ) {
-    if (
-      optionsOrDtstart !== undefined &&
-      !(optionsOrDtstart instanceof DateTime) &&
-      'dtstart' in optionsOrDtstart
-    ) {
-      this.dtstart = DateTime.fromPlainOrInstance(optionsOrDtstart.dtstart);
-
-      this.tzid = optionsOrDtstart.tzid ?? 'UTC';
-
+    if ('dtstart' in optionsOrDtstart) {
+      this.dtstart = DtStart.fromPlainOrInstance(optionsOrDtstart.dtstart);
       this.rrules = (optionsOrDtstart?.rrules ?? []).map(
         RRule.fromPlainOrInstance.bind(RRule),
       );
@@ -58,16 +48,12 @@ export class RRuleSet implements Iterable<DateTime> {
       this.rdates = (optionsOrDtstart?.rdates ?? []).map(
         DateTime.fromPlainOrInstance.bind(DateTime),
       );
-    } else if (optionsOrDtstart instanceof DateTime) {
-      this.dtstart = optionsOrDtstart;
-      this.tzid = tzid ?? 'UTC';
-
+    } else {
+      this.dtstart = DtStart.fromPlainOrInstance(optionsOrDtstart);
       this.rrules = [];
       this.exrules = [];
       this.exdates = [];
       this.rdates = [];
-    } else {
-      throw new TypeError('Invalid arguments');
     }
   }
 
@@ -89,8 +75,10 @@ export class RRuleSet implements Iterable<DateTime> {
    */
   public static fromRust(rust: Rust): RRuleSet {
     const set = new RRuleSet({
-      dtstart: DateTime.fromNumeric(rust.dtstart),
-      tzid: rust.tzid ?? undefined,
+      dtstart: new DtStart({
+        datetime: DateTime.fromNumeric(rust.dtstart),
+        tzid: rust.tzid ?? undefined,
+      }),
       rrules: rust.rrules.map((rrule) => RRule.fromRust(rrule)),
       exrules: rust.exrules.map((rrule) => RRule.fromRust(rrule)),
       exdates: rust.exdates.map((datetime) => DateTime.fromNumeric(datetime)),
@@ -102,17 +90,10 @@ export class RRuleSet implements Iterable<DateTime> {
     return set;
   }
 
-  public setDtstart(dtstart: DateTime | DateTimeLike): RRuleSet {
+  public setDtstart(dtstart: DtStart | DtStartLike): RRuleSet {
     return new RRuleSet({
       ...this.toPlain(),
       dtstart: dtstart,
-    });
-  }
-
-  public setTzid(tzid: string): RRuleSet {
-    return new RRuleSet({
-      ...this.toPlain(),
-      tzid: tzid,
     });
   }
 
@@ -214,8 +195,8 @@ export class RRuleSet implements Iterable<DateTime> {
    */
   public toRust(): Rust {
     this.rust ??= new Rust(
-      this.dtstart.toNumeric(),
-      this.tzid,
+      this.dtstart.datetime.toNumeric(),
+      this.dtstart.tzid,
       this.rrules.map((rrule) => rrule.toRust()),
       this.exrules.map((rrule) => rrule.toRust()),
       this.exdates.map((datetime) => datetime.toNumeric()),
@@ -235,7 +216,6 @@ export class RRuleSet implements Iterable<DateTime> {
   public toPlain(): RRuleSetLike {
     return {
       dtstart: this.dtstart.toPlain(),
-      tzid: this.tzid,
       rrules: this.rrules.map((rrule) => rrule.toPlain()),
       exrules: this.exrules.map((rrule) => rrule.toPlain()),
       exdates: this.exdates.map((rrule) => rrule.toPlain()),

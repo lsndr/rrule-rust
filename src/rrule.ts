@@ -52,15 +52,15 @@ export interface RRuleOptions {
   readonly interval?: number;
   readonly count?: number;
   readonly until?: DateTime | DateTimeLike;
-  readonly byWeekday: readonly (NWeekday | Weekday)[];
-  readonly byHour: readonly number[];
-  readonly byMinute: readonly number[];
-  readonly bySecond: readonly number[];
-  readonly byMonthday: readonly number[];
-  readonly bySetpos: readonly number[];
-  readonly byMonth: readonly Month[];
-  readonly byWeekno: readonly number[];
-  readonly byYearday: readonly number[];
+  readonly byWeekday?: readonly (NWeekday | Weekday)[];
+  readonly byHour?: readonly number[];
+  readonly byMinute?: readonly number[];
+  readonly bySecond?: readonly number[];
+  readonly byMonthday?: readonly number[];
+  readonly bySetpos?: readonly number[];
+  readonly byMonth?: readonly Month[];
+  readonly byWeekno?: readonly number[];
+  readonly byYearday?: readonly number[];
   readonly weekstart?: Weekday;
 }
 
@@ -100,11 +100,11 @@ export class RRule {
   /** @internal */
   private rust?: Rust;
 
-  public constructor(options: RRuleOptions);
   public constructor(frequency: Frequency);
+  public constructor(options: RRuleOptions);
   public constructor(frequencyOrOptions: Frequency | RRuleOptions) {
     if (typeof frequencyOrOptions === 'object' && frequencyOrOptions !== null) {
-      this.frequency = frequencyOrOptions.frequency ?? Frequency.Daily;
+      this.frequency = frequencyOrOptions.frequency;
       this.interval = frequencyOrOptions.interval;
       this.until =
         frequencyOrOptions.until &&

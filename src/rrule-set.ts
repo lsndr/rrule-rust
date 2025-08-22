@@ -3,12 +3,12 @@ import { RRuleSet as Rust } from './lib';
 import { DateTime, type DateTimeLike } from './datetime';
 
 export interface RRuleSetOptions {
-  readonly dtstart: DateTime | DateTimeLike;
+  readonly dtstart: DateTime;
   readonly tzid?: string;
-  readonly rrules?: readonly (RRule | RRuleLike)[];
-  readonly exrules?: readonly (RRule | RRuleLike)[];
-  readonly exdates?: readonly (DateTime | DateTimeLike)[];
-  readonly rdates?: readonly (DateTime | DateTimeLike)[];
+  readonly rrules?: readonly RRule[];
+  readonly exrules?: readonly RRule[];
+  readonly exdates?: readonly DateTime[];
+  readonly rdates?: readonly DateTime[];
 }
 
 export interface RRuleSetLike {
@@ -42,22 +42,14 @@ export class RRuleSet implements Iterable<DateTime> {
       !(optionsOrDtstart instanceof DateTime) &&
       'dtstart' in optionsOrDtstart
     ) {
-      this.dtstart = DateTime.fromPlainOrInstance(optionsOrDtstart.dtstart);
+      this.dtstart = optionsOrDtstart.dtstart;
 
       this.tzid = optionsOrDtstart.tzid ?? 'UTC';
 
-      this.rrules = (optionsOrDtstart?.rrules ?? []).map(
-        RRule.fromPlainOrInstance.bind(RRule),
-      );
-      this.exrules = (optionsOrDtstart?.exrules ?? []).map(
-        RRule.fromPlainOrInstance.bind(RRule),
-      );
-      this.exdates = (optionsOrDtstart?.exdates ?? []).map(
-        DateTime.fromPlainOrInstance.bind(DateTime),
-      );
-      this.rdates = (optionsOrDtstart?.rdates ?? []).map(
-        DateTime.fromPlainOrInstance.bind(DateTime),
-      );
+      this.rrules = optionsOrDtstart?.rrules ?? [];
+      this.exrules = optionsOrDtstart?.exrules ?? [];
+      this.exdates = optionsOrDtstart?.exdates ?? [];
+      this.rdates = optionsOrDtstart?.rdates ?? [];
     } else if (optionsOrDtstart instanceof DateTime) {
       this.dtstart = optionsOrDtstart;
       this.tzid = tzid ?? 'UTC';
@@ -81,7 +73,14 @@ export class RRuleSet implements Iterable<DateTime> {
   }
 
   public static fromPlain(plain: RRuleSetLike): RRuleSet {
-    return new RRuleSet(plain);
+    return new RRuleSet({
+      dtstart: DateTime.fromPlain(plain.dtstart),
+      tzid: plain.tzid,
+      rrules: plain.rrules.map((rrule) => RRule.fromPlain(rrule)),
+      exrules: plain.exrules.map((rrule) => RRule.fromPlain(rrule)),
+      exdates: plain.exdates.map((datetime) => DateTime.fromPlain(datetime)),
+      rdates: plain.rdates.map((datetime) => DateTime.fromPlain(datetime)),
+    });
   }
 
   /**
@@ -102,72 +101,72 @@ export class RRuleSet implements Iterable<DateTime> {
     return set;
   }
 
-  public setDtstart(dtstart: DateTime | DateTimeLike): RRuleSet {
+  public setDtstart(dtstart: DateTime): RRuleSet {
     return new RRuleSet({
-      ...this.toPlain(),
+      ...this.toOptions(),
       dtstart: dtstart,
     });
   }
 
   public setTzid(tzid: string): RRuleSet {
     return new RRuleSet({
-      ...this.toPlain(),
+      ...this.toOptions(),
       tzid: tzid,
     });
   }
 
-  public addRrule(rrule: RRule | RRuleLike): RRuleSet {
+  public addRrule(rrule: RRule): RRuleSet {
     return new RRuleSet({
-      ...this.toPlain(),
+      ...this.toOptions(),
       rrules: [...this.rrules, rrule],
     });
   }
 
-  public setRrules(rrules: readonly (RRule | RRuleLike)[]): RRuleSet {
+  public setRrules(rrules: readonly RRule[]): RRuleSet {
     return new RRuleSet({
-      ...this.toPlain(),
+      ...this.toOptions(),
       rrules: rrules,
     });
   }
 
-  public addExrule(rrule: RRule | RRuleLike): RRuleSet {
+  public addExrule(rrule: RRule): RRuleSet {
     return new RRuleSet({
-      ...this.toPlain(),
+      ...this.toOptions(),
       exrules: [...this.exrules, rrule],
     });
   }
 
-  public setExrules(rrules: readonly (RRule | RRuleLike)[]): RRuleSet {
+  public setExrules(rrules: readonly RRule[]): RRuleSet {
     return new RRuleSet({
-      ...this.toPlain(),
+      ...this.toOptions(),
       exrules: rrules,
     });
   }
 
-  public addExdate(datetime: DateTime | DateTimeLike): RRuleSet {
+  public addExdate(datetime: DateTime): RRuleSet {
     return new RRuleSet({
-      ...this.toPlain(),
+      ...this.toOptions(),
       exdates: [...this.exdates, datetime],
     });
   }
 
-  public setExdates(datetimes: readonly (DateTime | DateTimeLike)[]): RRuleSet {
+  public setExdates(datetimes: readonly DateTime[]): RRuleSet {
     return new RRuleSet({
-      ...this.toPlain(),
+      ...this.toOptions(),
       exdates: datetimes,
     });
   }
 
-  public addRdate(datetime: DateTime | DateTimeLike): RRuleSet {
+  public addRdate(datetime: DateTime): RRuleSet {
     return new RRuleSet({
-      ...this.toPlain(),
+      ...this.toOptions(),
       rdates: [...this.rdates, datetime],
     });
   }
 
-  public setRdates(datetimes: readonly (DateTime | DateTimeLike)[]): RRuleSet {
+  public setRdates(datetimes: readonly DateTime[]): RRuleSet {
     return new RRuleSet({
-      ...this.toPlain(),
+      ...this.toOptions(),
       rdates: datetimes,
     });
   }
@@ -262,6 +261,17 @@ export class RRuleSet implements Iterable<DateTime> {
           value: DateTime.fromNumeric(result),
         };
       },
+    };
+  }
+
+  private toOptions(): RRuleSetOptions {
+    return {
+      dtstart: this.dtstart,
+      tzid: this.tzid,
+      rrules: this.rrules,
+      exrules: this.exrules,
+      exdates: this.exdates,
+      rdates: this.rdates,
     };
   }
 }

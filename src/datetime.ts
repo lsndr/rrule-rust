@@ -156,17 +156,9 @@ export class DateTime implements DateTimeLike {
     return new DateTime(numeric);
   }
 
-  /** @internal */
-  public static fromPlainOrInstance(
-    datetime: DateTime | DateTimeLike,
-  ): DateTime {
-    return datetime instanceof DateTime ? datetime : this.fromPlain(datetime);
-  }
-
   /**
    * Converts DateTime into a plain object.
    */
-
   public toPlain(options: { stripUtc: false } & ToPlainOptions): DateTimeLike;
   public toPlain(
     options: { stripUtc: true } & ToPlainOptions,

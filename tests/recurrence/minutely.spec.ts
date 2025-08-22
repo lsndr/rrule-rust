@@ -1,12 +1,14 @@
-import { RRule, RRuleSet, Frequency, DateTime } from '../../src';
+import { RRule, RRuleSet, Frequency, DateTime, DtStart } from '../../src';
 
 describe('Minutely', () => {
   it('minutely for 5 occurrences', () => {
     const rrule = new RRule(Frequency.Minutely).setCount(5);
-    const set = new RRuleSet({
-      datetime: DateTime.create(2024, 6, 8, 4, 0, 0, false),
-      tzid: 'America/Cancun',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(2024, 6, 8, 4, 0, 0, false),
+        tzid: 'America/Cancun',
+      }),
+    ).addRrule(rrule);
 
     const dates = set.all();
     const asString = set.toString();

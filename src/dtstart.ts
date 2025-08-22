@@ -1,7 +1,7 @@
 import { DateTime, type DateTimeLike } from './datetime';
 
 export interface DtStartOptions {
-  datetime: DateTime | DateTimeLike;
+  datetime: DateTime;
   tzid?: string;
 }
 
@@ -14,26 +14,26 @@ export class DtStart {
   public readonly datetime: DateTime;
   public readonly tzid?: string;
 
-  public constructor(datetime: DateTime | DateTimeLike);
+  public constructor(datetime: DateTime, tzid?: string);
   public constructor(options: DtStartOptions);
   public constructor(
-    datetimeOrOptions: DateTime | DateTimeLike | DtStartOptions,
+    datetimeOrOptions: DateTime | DtStartOptions,
+    tzid?: string,
   ) {
     if ('datetime' in datetimeOrOptions) {
-      this.datetime = DateTime.fromPlainOrInstance(datetimeOrOptions.datetime);
+      this.datetime = datetimeOrOptions.datetime;
       this.tzid = datetimeOrOptions.tzid;
     } else {
-      this.datetime = DateTime.fromPlainOrInstance(datetimeOrOptions);
+      this.datetime = datetimeOrOptions;
+      this.tzid = tzid;
     }
   }
 
   public static fromPlain(plain: DtStartLike): DtStart {
-    return new this(plain);
-  }
-
-  /** @internal */
-  public static fromPlainOrInstance(dtstart: DtStart | DtStartLike): DtStart {
-    return dtstart instanceof DtStart ? dtstart : this.fromPlain(dtstart);
+    return new this({
+      datetime: DateTime.fromPlain(plain.datetime),
+      tzid: plain.tzid,
+    });
   }
 
   public setTzid(tzid: string): DtStart {
@@ -43,9 +43,9 @@ export class DtStart {
     });
   }
 
-  public setDatetime(datetime: DateTime | DateTimeLike): DtStart {
+  public setDatetime(datetime: DateTime): DtStart {
     return new DtStart({
-      datetime: DateTime.fromPlainOrInstance(datetime),
+      datetime: datetime,
       tzid: this.tzid,
     });
   }

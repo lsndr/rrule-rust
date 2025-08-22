@@ -5,6 +5,7 @@ import {
   Month,
   Weekday,
   DateTime,
+  DtStart,
 } from '../../src';
 
 describe('Yearly', () => {
@@ -12,10 +13,12 @@ describe('Yearly', () => {
     const rrule = new RRule(Frequency.Yearly)
       .setCount(10)
       .setByMonth([Month.June, Month.July]);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 6, 10, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 6, 10, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -43,10 +46,12 @@ describe('Yearly', () => {
       .setInterval(2)
       .setCount(10)
       .setByMonth([Month.January, Month.February, Month.March]);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 3, 10, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 3, 10, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -74,10 +79,12 @@ describe('Yearly', () => {
       .setCount(10)
       .setInterval(3)
       .setByYearday([1, 100, 200]);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 1, 1, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 1, 1, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -104,10 +111,12 @@ describe('Yearly', () => {
     const rrule = new RRule(Frequency.Yearly)
       .setByWeekday([Weekday.Monday])
       .setBySetpos([20]);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 5, 12, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 5, 12, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const asString = set.toString();
     const dates = set.all(3);
@@ -127,10 +136,12 @@ describe('Yearly', () => {
       .setWeekstart(Weekday.Monday)
       .setByWeekday([Weekday.Monday])
       .setByWeekno([20]);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 5, 12, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 5, 12, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const asString = set.toString();
     const dates = set.all(3);
@@ -149,10 +160,12 @@ describe('Yearly', () => {
     const rrule = new RRule(Frequency.Yearly)
       .setByMonth([Month.March])
       .setByWeekday([Weekday.Thursday]);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 3, 13, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 3, 13, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const asString = set.toString();
     const dates = set.all(11);
@@ -179,10 +192,12 @@ describe('Yearly', () => {
     const rrule = new RRule(Frequency.Yearly)
       .setByWeekday([Weekday.Friday])
       .setByMonthday([13]);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    })
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    )
       .addExdate(DateTime.create(1998, 3, 13, 9, 0, 0, false))
       .addRrule(rrule);
 
@@ -209,10 +224,12 @@ describe('Yearly', () => {
       .setByMonth([Month.November])
       .setByWeekday([Weekday.Tuesday])
       .setByMonthday([2, 3, 4, 5, 6, 7, 8]);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1996, 11, 5, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1996, 11, 5, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const asString = set.toString();
     const dates = set.all(3);

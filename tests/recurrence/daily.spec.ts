@@ -5,15 +5,18 @@ import {
   Month,
   Weekday,
   DateTime,
+  DtStart,
 } from '../../src';
 
 describe('Daily', () => {
   it('daily for 10 occurrences', () => {
     const rrule = new RRule(Frequency.Daily).setCount(10);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const dates = set.all();
     const asString = set.toString();
@@ -38,10 +41,12 @@ describe('Daily', () => {
 
   it('daily for 10 occurrences between 873550800000 and 873723600000 inclusively', () => {
     const rrule = new RRule(Frequency.Daily).setCount(10);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const dates = set.between(
       DateTime.create(1997, 9, 6, 9, 0, 0, false),
@@ -62,10 +67,12 @@ describe('Daily', () => {
 
   it('daily for 10 occurrences between 873550800000 and 873723600000 exclusively', () => {
     const rrule = new RRule(Frequency.Daily).setCount(10);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const dates = set.between(
       DateTime.create(1997, 9, 6, 9, 0, 0, false),
@@ -84,10 +91,12 @@ describe('Daily', () => {
     const rrule = new RRule(Frequency.Daily).setUntil(
       DateTime.create(1997, 9, 6, 9, 0, 0, false),
     );
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const dates = set.all();
     const asString = set.toString();
@@ -107,10 +116,12 @@ describe('Daily', () => {
 
   it('every other day', () => {
     const rrule = new RRule(Frequency.Daily).setCount(6).setInterval(2);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const dates = set.all();
     const asString = set.toString();
@@ -131,10 +142,12 @@ describe('Daily', () => {
 
   it('every 10 days, 5 occurrences', () => {
     const rrule = new RRule(Frequency.Daily).setCount(5).setInterval(10);
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const dates = set.all();
     const asString = set.toString();
@@ -157,10 +170,12 @@ describe('Daily', () => {
       .setByMonth([Month.January])
       .setByWeekday([Weekday.Monday])
       .setUntil(DateTime.create(2000, 1, 31, 14, 0, 0, false));
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).addRrule(rrule);
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -192,10 +207,12 @@ describe('Daily', () => {
       .setByWeekday([Weekday.Monday])
       .setUntil(DateTime.create(2000, 1, 31, 14, 0, 0, false));
 
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'Asia/Tbilisi',
-    })
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'Asia/Tbilisi',
+      }),
+    )
       .addRrule(rrule)
       .addExdate(DateTime.create(2000, 1, 31, 9, 0, 0, false));
 

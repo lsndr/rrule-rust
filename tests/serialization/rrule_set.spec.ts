@@ -1,4 +1,4 @@
-import { RRuleSet, DateTime, RRule } from '../../src';
+import { RRuleSet, DateTime, RRule, DtStart } from '../../src';
 
 describe(RRuleSet, () => {
   it('should properly parse weekly recurrence', () => {
@@ -92,10 +92,12 @@ describe(RRuleSet, () => {
   });
 
   it('should be able to parse rule set without dtstart', () => {
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).setFromString(
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).setFromString(
       'RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
     );
 
@@ -105,10 +107,12 @@ describe(RRuleSet, () => {
   });
 
   it('should parse dtstart from string', () => {
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).setFromString(
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).setFromString(
       'DTSTART;TZID=Asia/Tbilisi:20060101T010000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
     );
 
@@ -118,10 +122,12 @@ describe(RRuleSet, () => {
   });
 
   it('should add rrule with until', () => {
-    const set = new RRuleSet({
-      datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      tzid: 'US/Eastern',
-    }).setFromString(
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
+    ).setFromString(
       'RRULE:FREQ=WEEKLY;WKST=MO;UNTIL=20220513T000000;BYDAY=FR,TH,TU,WE',
     );
 
@@ -235,9 +241,9 @@ describe(RRuleSet, () => {
     });
 
     const set = new RRuleSet({
-      dtstart: {
+      dtstart: new DtStart({
         datetime: utcDate,
-      },
+      }),
       rrules: [new RRule(1)],
       exdates: [utcDate],
       rdates: [utcDate],

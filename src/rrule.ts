@@ -51,7 +51,7 @@ export interface RRuleOptions {
   readonly frequency: Frequency;
   readonly interval?: number;
   readonly count?: number;
-  readonly until?: DateTime | DateTimeLike;
+  readonly until?: DateTime;
   readonly byWeekday?: readonly (NWeekday | Weekday)[];
   readonly byHour?: readonly number[];
   readonly byMinute?: readonly number[];
@@ -147,7 +147,7 @@ export class RRule {
     return new this({
       frequency: rrule.frequency,
       interval: rrule.interval,
-      until: rrule.until,
+      until: rrule.until && DateTime.fromPlain(rrule.until),
       count: rrule.count,
       byWeekday: rrule.byWeekday,
       byHour: rrule.byHour,
@@ -188,67 +188,60 @@ export class RRule {
     return rrule;
   }
 
-  /**
-   * @internal
-   */
-  public static fromPlainOrInstance(rrule: RRule | RRuleLike): RRule {
-    return rrule instanceof RRule ? rrule : this.fromPlain(rrule);
-  }
-
   public setFrequency(frequency: Frequency): RRule {
-    return new RRule({ ...this.toPlain(), frequency });
+    return new RRule({ ...this.toOptions(), frequency });
   }
 
   public setInterval(interval: number): RRule {
-    return new RRule({ ...this.toPlain(), interval });
+    return new RRule({ ...this.toOptions(), interval });
   }
 
   public setCount(count: number): RRule {
-    return new RRule({ ...this.toPlain(), count });
+    return new RRule({ ...this.toOptions(), count });
   }
 
   public setByWeekday(weekdays: readonly (NWeekday | Weekday)[]): RRule {
-    return new RRule({ ...this.toPlain(), byWeekday: weekdays });
+    return new RRule({ ...this.toOptions(), byWeekday: weekdays });
   }
 
   public setByHour(hours: readonly number[]): RRule {
-    return new RRule({ ...this.toPlain(), byHour: hours });
+    return new RRule({ ...this.toOptions(), byHour: hours });
   }
 
   public setByMinute(minutes: readonly number[]): RRule {
-    return new RRule({ ...this.toPlain(), byMinute: minutes });
+    return new RRule({ ...this.toOptions(), byMinute: minutes });
   }
 
   public setBySecond(seconds: readonly number[]): RRule {
-    return new RRule({ ...this.toPlain(), bySecond: seconds });
+    return new RRule({ ...this.toOptions(), bySecond: seconds });
   }
 
   public setByMonthday(days: readonly number[]): RRule {
-    return new RRule({ ...this.toPlain(), byMonthday: days });
+    return new RRule({ ...this.toOptions(), byMonthday: days });
   }
 
   public setBySetpos(poses: readonly number[]): RRule {
-    return new RRule({ ...this.toPlain(), bySetpos: poses });
+    return new RRule({ ...this.toOptions(), bySetpos: poses });
   }
 
   public setByMonth(months: readonly Month[]): RRule {
-    return new RRule({ ...this.toPlain(), byMonth: months });
+    return new RRule({ ...this.toOptions(), byMonth: months });
   }
 
   public setByWeekno(weekNumbers: readonly number[]): RRule {
-    return new RRule({ ...this.toPlain(), byWeekno: weekNumbers });
+    return new RRule({ ...this.toOptions(), byWeekno: weekNumbers });
   }
 
   public setByYearday(days: readonly number[]): RRule {
-    return new RRule({ ...this.toPlain(), byYearday: days });
+    return new RRule({ ...this.toOptions(), byYearday: days });
   }
 
   public setWeekstart(day: Weekday): RRule {
-    return new RRule({ ...this.toPlain(), weekstart: day });
+    return new RRule({ ...this.toOptions(), weekstart: day });
   }
 
-  public setUntil(datetime: DateTime | DateTimeLike): RRule {
-    return new RRule({ ...this.toPlain(), until: datetime });
+  public setUntil(datetime: DateTime): RRule {
+    return new RRule({ ...this.toOptions(), until: datetime });
   }
 
   public toString(): string {
@@ -295,6 +288,25 @@ export class RRule {
       byYearday: this.byYearday,
       weekstart: this.weekstart,
       until: this.until?.toPlain(),
+    };
+  }
+
+  private toOptions(): RRuleOptions {
+    return {
+      frequency: this.frequency,
+      interval: this.interval,
+      count: this.count,
+      byWeekday: this.byWeekday,
+      byHour: this.byHour,
+      byMinute: this.byMinute,
+      bySecond: this.bySecond,
+      byMonthday: this.byMonthday,
+      bySetpos: this.bySetpos,
+      byMonth: this.byMonth,
+      byWeekno: this.byWeekno,
+      byYearday: this.byYearday,
+      weekstart: this.weekstart,
+      until: this.until,
     };
   }
 }

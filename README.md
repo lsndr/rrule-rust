@@ -25,15 +25,14 @@ If you need a browser-compatible version with WASM support:
 For more usage examples and advanced scenarios, see the [tests directory](https://github.com/lsndr/rrule-rust/tree/master/tests) in the repository.
 
 ```typescript
-import { RRule, RRuleSet, Frequency, DateTime } from 'rrule-rust';
+import { RRule, RRuleSet, Frequency, DateTime, DtStart } from 'rrule-rust';
 
 const rrule = new RRule({
   frequency: Frequency.Daily,
   count: 5,
 });
 const set = new RRuleSet({
-  dtstart: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-  tzid: 'US/Eastern',
+  dtstart: new DtStart(DateTime.local(1997, 9, 2, 9, 0, 0), 'US/Eastern'),
   rrules: [rrule],
 });
 

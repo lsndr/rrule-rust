@@ -1,4 +1,4 @@
-import { RRuleSet, DateTime, RRule } from '../../src';
+import { RRuleSet, DateTime, RRule, DtStart } from '../../src';
 
 describe(RRuleSet, () => {
   it('should properly parse weekly recurrence', () => {
@@ -93,8 +93,10 @@ describe(RRuleSet, () => {
 
   it('should be able to parse rule set without dtstart', () => {
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).setFromString(
       'RRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
     );
@@ -106,8 +108,10 @@ describe(RRuleSet, () => {
 
   it('should parse dtstart from string', () => {
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).setFromString(
       'DTSTART;TZID=Asia/Tbilisi:20060101T010000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
     );
@@ -119,8 +123,10 @@ describe(RRuleSet, () => {
 
   it('should add rrule with until', () => {
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).setFromString(
       'RRULE:FREQ=WEEKLY;WKST=MO;UNTIL=20220513T000000;BYDAY=FR,TH,TU,WE',
     );
@@ -135,7 +141,7 @@ describe(RRuleSet, () => {
       dtstart: 'DTSTART:20240323T170000Z',
       exdate: 'EXDATE;TZID=America/New_York:20240921T130000',
       expected: {
-        tzid: 'UTC',
+        tzid: undefined,
         exdates: [DateTime.create(2024, 9, 21, 17, 0, 0, true)],
       },
     },
@@ -170,7 +176,7 @@ describe(RRuleSet, () => {
         `${dtstart}\n${exdate}\nRRULE:FREQ=WEEKLY;UNTIL=20190208T045959Z;INTERVAL=2;BYDAY=FR`,
       );
 
-      expect(set.tzid).toBe(expected.tzid);
+      expect(set.dtstart.tzid).toBe(expected.tzid);
       expect(set.exdates).toEqual(expected.exdates);
       expect(set.toString()).toContain(exdate);
     },
@@ -181,7 +187,7 @@ describe(RRuleSet, () => {
       dtstart: 'DTSTART:20240323T170000Z',
       rdate: 'RDATE;TZID=America/New_York:20240921T130000',
       expected: {
-        tzid: 'UTC',
+        tzid: undefined,
         rdates: [DateTime.create(2024, 9, 21, 17, 0, 0, true)],
       },
     },
@@ -216,7 +222,7 @@ describe(RRuleSet, () => {
         `${dtstart}\n${rdate}\nRRULE:FREQ=WEEKLY;UNTIL=20190208T045959Z;INTERVAL=2;BYDAY=FR`,
       );
 
-      expect(set.tzid).toBe(expected.tzid);
+      expect(set.dtstart.tzid).toBe(expected.tzid);
       expect(set.rdates).toEqual(expected.rdates);
       expect(set.toString()).toContain(rdate);
     },
@@ -235,7 +241,9 @@ describe(RRuleSet, () => {
     });
 
     const set = new RRuleSet({
-      dtstart: utcDate,
+      dtstart: new DtStart({
+        datetime: utcDate,
+      }),
       rrules: [new RRule(1)],
       exdates: [utcDate],
       rdates: [utcDate],

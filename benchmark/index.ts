@@ -11,8 +11,10 @@ function suite(tzid: string) {
         interval: 1,
       });
       const set = new rust.RRuleSet({
-        dtstart: rust.DateTime.create(2023, 2, 21, 23, 59, 0, false),
-        tzid,
+        dtstart: new rust.DtStart(
+          rust.DateTime.local(2023, 2, 21, 23, 59, 0),
+          tzid,
+        ),
         rrules: [rrule],
       });
 
@@ -25,8 +27,10 @@ function suite(tzid: string) {
         interval: 1,
       });
       const set = new rust.RRuleSet({
-        dtstart: rust.DateTime.create(2023, 2, 21, 23, 59, 0, false),
-        tzid,
+        dtstart: new rust.DtStart(
+          rust.DateTime.local(2023, 2, 21, 23, 59, 0),
+          tzid,
+        ),
         rrules: [rrule],
       });
 

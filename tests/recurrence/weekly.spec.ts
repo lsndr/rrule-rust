@@ -1,11 +1,20 @@
-import { RRule, RRuleSet, Frequency, Weekday, DateTime } from '../../src';
+import {
+  RRule,
+  RRuleSet,
+  Frequency,
+  Weekday,
+  DateTime,
+  DtStart,
+} from '../../src';
 
 describe('Weekly', () => {
   it('weekly for 10 occurrences', () => {
     const rrule = new RRule(Frequency.Weekly).setCount(10);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -34,8 +43,10 @@ describe('Weekly', () => {
       DateTime.create(1997, 12, 24, 0, 0, 0, false),
     );
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -71,8 +82,10 @@ describe('Weekly', () => {
       .setInterval(2)
       .setWeekstart(Weekday.Sunday);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -102,8 +115,10 @@ describe('Weekly', () => {
       .setWeekstart(Weekday.Sunday)
       .setByWeekday([Weekday.Monday, Weekday.Wednesday, Weekday.Friday]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -149,8 +164,10 @@ describe('Weekly', () => {
       .setByWeekday([Weekday.Tuesday, Weekday.Sunday])
       .setWeekstart(Weekday.Monday);
     const set = new RRuleSet(
-      DateTime.create(1997, 8, 5, 9, 0, 0, false),
-      'America/New_York',
+      new DtStart({
+        datetime: DateTime.create(1997, 8, 5, 9, 0, 0, false),
+        tzid: 'America/New_York',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -175,8 +192,10 @@ describe('Weekly', () => {
       .setByWeekday([Weekday.Tuesday, Weekday.Sunday])
       .setWeekstart(Weekday.Sunday);
     const set = new RRuleSet(
-      DateTime.create(1997, 8, 5, 9, 0, 0, false),
-      'America/New_York',
+      new DtStart({
+        datetime: DateTime.create(1997, 8, 5, 9, 0, 0, false),
+        tzid: 'America/New_York',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();

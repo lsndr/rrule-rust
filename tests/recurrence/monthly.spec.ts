@@ -1,4 +1,11 @@
-import { RRule, RRuleSet, Frequency, Weekday, DateTime } from '../../src';
+import {
+  RRule,
+  RRuleSet,
+  Frequency,
+  Weekday,
+  DateTime,
+  DtStart,
+} from '../../src';
 
 describe('Monthly', () => {
   it('monthly on the 1st Friday for 10 occurrences', () => {
@@ -7,8 +14,10 @@ describe('Monthly', () => {
       .setByWeekday([Weekday.Friday])
       .setBySetpos([1]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -38,8 +47,10 @@ describe('Monthly', () => {
       .setByWeekday([Weekday.Friday])
       .setBySetpos([1]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -64,8 +75,10 @@ describe('Monthly', () => {
       .setByWeekday([Weekday.Sunday, Weekday.Sunday])
       .setBySetpos([1, -1]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -95,8 +108,10 @@ describe('Monthly', () => {
       .setByWeekday([Weekday.Friday])
       .setByMonthday([13]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'America/New_York',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'America/New_York',
+      }),
     )
       .addRrule(rrule)
       .addExdate(DateTime.create(1998, 11, 13, 9, 0, 0, false));
@@ -128,8 +143,10 @@ describe('Monthly', () => {
       ])
       .setBySetpos([-2]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 29, 9, 0, 0, false),
-      'America/New_York',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 29, 9, 0, 0, false),
+        tzid: 'America/New_York',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -156,8 +173,10 @@ describe('Monthly', () => {
       .setByWeekday([Weekday.Monday])
       .setBySetpos([-2]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -180,8 +199,10 @@ describe('Monthly', () => {
   it('monthly on the third to the last day of the month, limit 6', () => {
     const rrule = new RRule(Frequency.Monthly).setByMonthday([-3]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -205,8 +226,10 @@ describe('Monthly', () => {
       .setCount(10)
       .setByMonthday([2, 15]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -235,8 +258,10 @@ describe('Monthly', () => {
       .setCount(10)
       .setByMonthday([1, -1]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -266,8 +291,10 @@ describe('Monthly', () => {
       .setInterval(18)
       .setByMonthday([10, 11, 12, 13, 14, 15]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -294,8 +321,10 @@ describe('Monthly', () => {
   it('monthly 5 times with two rdates and one exdate', () => {
     const rrule = new RRule(Frequency.Monthly).setCount(5);
     const set = new RRuleSet(
-      DateTime.create(2012, 2, 1, 2, 30, 0, false),
-      'UTC',
+      new DtStart({
+        datetime: DateTime.create(2012, 2, 1, 2, 30, 0, false),
+        tzid: 'UTC',
+      }),
     )
       .addRrule(rrule)
       .addRdate(DateTime.create(2012, 7, 1, 2, 30, 0, false))
@@ -310,6 +339,7 @@ describe('Monthly', () => {
     ]);
     expect(set.exdates).toEqual([DateTime.create(2012, 6, 1, 2, 30, 0, false)]);
     expect(dates).toEqual([
+      // TODO: Verify whether it should marked as utc. Think about returning tzid
       DateTime.create(2012, 2, 1, 2, 30, 0, true),
       DateTime.create(2012, 3, 1, 2, 30, 0, true),
       DateTime.create(2012, 4, 1, 2, 30, 0, true),
@@ -325,8 +355,10 @@ describe('Monthly', () => {
       .setInterval(2)
       .setByWeekday([Weekday.Tuesday]);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 2, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();
@@ -362,8 +394,10 @@ describe('Monthly', () => {
       .setByWeekday([{ weekday: Weekday.Monday, n: -2 }])
       .setCount(6);
     const set = new RRuleSet(
-      DateTime.create(1997, 9, 22, 9, 0, 0, false),
-      'US/Eastern',
+      new DtStart({
+        datetime: DateTime.create(1997, 9, 22, 9, 0, 0, false),
+        tzid: 'US/Eastern',
+      }),
     ).addRrule(rrule);
 
     const asString = set.toString();

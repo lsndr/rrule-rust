@@ -1,4 +1,9 @@
-import { DateTime, type DateTimeLike } from './datetime';
+import {
+  type Time,
+  DateTime,
+  type DateTimeLike,
+  type DateLike,
+} from './datetime';
 import { RRule as Rust } from './lib';
 
 export interface NWeekday {
@@ -51,7 +56,7 @@ export interface RRuleOptions {
   readonly frequency: Frequency;
   readonly interval?: number;
   readonly count?: number;
-  readonly until?: DateTime;
+  readonly until?: DateTime<Time> | DateTime<undefined>;
   readonly byWeekday?: readonly (NWeekday | Weekday)[];
   readonly byHour?: readonly number[];
   readonly byMinute?: readonly number[];
@@ -68,7 +73,7 @@ export interface RRuleLike {
   readonly frequency: Frequency;
   readonly interval?: number;
   readonly count?: number;
-  readonly until?: DateTimeLike;
+  readonly until?: DateTimeLike | DateLike;
   readonly byWeekday: readonly (NWeekday | Weekday)[];
   readonly byHour: readonly number[];
   readonly byMinute: readonly number[];
@@ -84,7 +89,7 @@ export interface RRuleLike {
 export class RRule {
   public readonly frequency: Frequency;
   public readonly interval?: number;
-  public readonly until?: DateTime;
+  public readonly until?: DateTime<Time> | DateTime<undefined>;
   public readonly count?: number;
   public readonly byWeekday: readonly (NWeekday | Weekday)[];
   public readonly byHour: readonly number[];

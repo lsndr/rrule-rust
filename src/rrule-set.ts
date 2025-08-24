@@ -1,30 +1,37 @@
 import { RRule, type RRuleLike } from './rrule';
 import { RRuleSet as Rust } from './lib';
-import { DateTime, type DateTimeLike } from './datetime';
+import {
+  type Time,
+  DateTime,
+  type DateTimeLike,
+  type DateLike,
+} from './datetime';
 import { DtStart, type DtStartLike } from './dtstart';
 
 export interface RRuleSetOptions {
   readonly dtstart: DtStart;
   readonly rrules?: readonly RRule[];
   readonly exrules?: readonly RRule[];
-  readonly exdates?: readonly DateTime[];
-  readonly rdates?: readonly DateTime[];
+  readonly exdates?: readonly (DateTime<Time> | DateTime<undefined>)[];
+  readonly rdates?: readonly (DateTime<Time> | DateTime<undefined>)[];
 }
 
 export interface RRuleSetLike {
   readonly dtstart: DtStartLike;
   readonly rrules: readonly RRuleLike[];
   readonly exrules: readonly RRuleLike[];
-  readonly exdates: readonly DateTimeLike[];
-  readonly rdates: readonly DateTimeLike[];
+  readonly exdates: readonly (DateTimeLike | DateLike)[];
+  readonly rdates: readonly (DateTimeLike | DateLike)[];
 }
 
-export class RRuleSet implements Iterable<DateTime> {
+export class RRuleSet
+  implements Iterable<DateTime<Time> | DateTime<undefined>>
+{
   public readonly dtstart: DtStart;
   public readonly rrules: readonly RRule[];
   public readonly exrules: readonly RRule[];
-  public readonly exdates: readonly DateTime[];
-  public readonly rdates: readonly DateTime[];
+  public readonly exdates: readonly (DateTime<Time> | DateTime<undefined>)[];
+  public readonly rdates: readonly (DateTime<Time> | DateTime<undefined>)[];
 
   /** @internal */
   private rust?: Rust;
@@ -121,28 +128,32 @@ export class RRuleSet implements Iterable<DateTime> {
     });
   }
 
-  public addExdate(datetime: DateTime): RRuleSet {
+  public addExdate(datetime: DateTime<Time> | DateTime<undefined>): RRuleSet {
     return new RRuleSet({
       ...this.toOptions(),
       exdates: [...this.exdates, datetime],
     });
   }
 
-  public setExdates(datetimes: readonly DateTime[]): RRuleSet {
+  public setExdates(
+    datetimes: readonly (DateTime<Time> | DateTime<undefined>)[],
+  ): RRuleSet {
     return new RRuleSet({
       ...this.toOptions(),
       exdates: datetimes,
     });
   }
 
-  public addRdate(datetime: DateTime): RRuleSet {
+  public addRdate(datetime: DateTime<Time> | DateTime<undefined>): RRuleSet {
     return new RRuleSet({
       ...this.toOptions(),
       rdates: [...this.rdates, datetime],
     });
   }
 
-  public setRdates(datetimes: readonly DateTime[]): RRuleSet {
+  public setRdates(
+    datetimes: readonly (DateTime<Time> | DateTime<undefined>)[],
+  ): RRuleSet {
     return new RRuleSet({
       ...this.toOptions(),
       rdates: datetimes,
@@ -154,7 +165,7 @@ export class RRuleSet implements Iterable<DateTime> {
    *
    * @param limit - The maximum number of occurrences to return.
    */
-  public all(limit?: number): DateTime[] {
+  public all(limit?: number): (DateTime<Time> | DateTime<undefined>)[] {
     return this.toRust()
       .all(limit)
       .map((datetime) => DateTime.fromNumeric(datetime));
@@ -168,10 +179,10 @@ export class RRuleSet implements Iterable<DateTime> {
    * @param inclusive - Whether to include after and before in the list of occurrences.
    */
   public between(
-    after: DateTime,
-    before: DateTime,
+    after: DateTime<Time> | DateTime<undefined>,
+    before: DateTime<Time> | DateTime<undefined>,
     inclusive?: boolean,
-  ): DateTime[] {
+  ): (DateTime<Time> | DateTime<undefined>)[] {
     return this.toRust()
       .between(after.toNumeric(), before.toNumeric(), inclusive)
       .map((datetime) => DateTime.fromNumeric(datetime));
@@ -219,7 +230,11 @@ export class RRuleSet implements Iterable<DateTime> {
     };
   }
 
-  public [Symbol.iterator](): Iterator<DateTime, any, any> {
+  public [Symbol.iterator](): Iterator<
+    DateTime<Time> | DateTime<undefined>,
+    any,
+    any
+  > {
     const iter = this.toRust().iterator();
 
     return {

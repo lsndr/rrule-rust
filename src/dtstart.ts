@@ -1,23 +1,31 @@
-import { DateTime, type DateTimeLike } from './datetime';
+import {
+  DateTime,
+  type Time,
+  type DateTimeLike,
+  type DateLike,
+} from './datetime';
 
 export interface DtStartOptions {
-  datetime: DateTime;
+  datetime: DateTime<Time> | DateTime<undefined>;
   tzid?: string;
 }
 
 export interface DtStartLike {
-  datetime: DateTimeLike;
+  datetime: DateTimeLike | DateLike;
   tzid?: string;
 }
 
 export class DtStart {
-  public readonly datetime: DateTime;
+  public readonly datetime: DateTime<Time> | DateTime<undefined>;
   public readonly tzid?: string;
 
-  public constructor(datetime: DateTime, tzid?: string);
+  public constructor(
+    datetime: DateTime<Time> | DateTime<undefined>,
+    tzid?: string,
+  );
   public constructor(options: DtStartOptions);
   public constructor(
-    datetimeOrOptions: DateTime | DtStartOptions,
+    datetimeOrOptions: DateTime<Time> | DateTime<undefined> | DtStartOptions,
     tzid?: string,
   ) {
     if ('datetime' in datetimeOrOptions) {
@@ -43,7 +51,7 @@ export class DtStart {
     });
   }
 
-  public setDatetime(datetime: DateTime): DtStart {
+  public setDatetime(datetime: DateTime<Time> | DateTime<undefined>): DtStart {
     return new DtStart({
       datetime: datetime,
       tzid: this.tzid,

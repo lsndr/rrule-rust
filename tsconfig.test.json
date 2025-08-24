@@ -4,5 +4,5 @@
     "noEmit": true
   },
   "extends": "./tsconfig.json",
-  "include": ["**/*.spec.ts", "benchmark"]
+  "include": ["**/*.spec.ts", "benchmark", "jest.setup.ts"]
 }

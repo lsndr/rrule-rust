@@ -106,9 +106,7 @@ export class RRule {
     if (typeof frequencyOrOptions === 'object' && frequencyOrOptions !== null) {
       this.frequency = frequencyOrOptions.frequency;
       this.interval = frequencyOrOptions.interval;
-      this.until =
-        frequencyOrOptions.until &&
-        DateTime.fromPlain(frequencyOrOptions.until);
+      this.until = frequencyOrOptions.until;
       this.count = frequencyOrOptions.count;
       this.byWeekday = frequencyOrOptions.byWeekday ?? [];
       this.byHour = frequencyOrOptions.byHour ?? [];
@@ -240,8 +238,8 @@ export class RRule {
     return new RRule({ ...this.toOptions(), weekstart: day });
   }
 
-  public setUntil(datetime: DateTime): RRule {
-    return new RRule({ ...this.toOptions(), until: datetime });
+  public setUntil(until: DateTime): RRule {
+    return new RRule({ ...this.toOptions(), until });
   }
 
   public toString(): string {

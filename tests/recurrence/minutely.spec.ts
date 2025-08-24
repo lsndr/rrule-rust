@@ -16,13 +16,13 @@ describe('Minutely', () => {
     expect(asString).toBe(
       'DTSTART;TZID=America/Cancun:20240608T040000\nRRULE:FREQ=MINUTELY;COUNT=5',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(2024, 6, 8, 4, 0, 0, false),
       DateTime.create(2024, 6, 8, 4, 1, 0, false),
       DateTime.create(2024, 6, 8, 4, 2, 0, false),
       DateTime.create(2024, 6, 8, 4, 3, 0, false),
       DateTime.create(2024, 6, 8, 4, 4, 0, false),
     ]);
-    expect([...set]).toEqual(dates);
+    expect([...set]).toEqualPlain(dates);
   });
 });

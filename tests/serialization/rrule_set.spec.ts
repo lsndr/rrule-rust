@@ -177,7 +177,7 @@ describe(RRuleSet, () => {
       );
 
       expect(set.dtstart.tzid).toBe(expected.tzid);
-      expect(set.exdates).toEqual(expected.exdates);
+      expect(set.exdates).toEqualPlain(expected.exdates);
       expect(set.toString()).toContain(exdate);
     },
   );
@@ -223,7 +223,7 @@ describe(RRuleSet, () => {
       );
 
       expect(set.dtstart.tzid).toBe(expected.tzid);
-      expect(set.rdates).toEqual(expected.rdates);
+      expect(set.rdates).toEqualPlain(expected.rdates);
       expect(set.toString()).toContain(rdate);
     },
   );

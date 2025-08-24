@@ -24,7 +24,7 @@ describe('Daily', () => {
     expect(asString).toBe(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=10',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1997, 9, 2, 9, 0, 0, false),
       DateTime.create(1997, 9, 3, 9, 0, 0, false),
       DateTime.create(1997, 9, 4, 9, 0, 0, false),
@@ -36,7 +36,7 @@ describe('Daily', () => {
       DateTime.create(1997, 9, 10, 9, 0, 0, false),
       DateTime.create(1997, 9, 11, 9, 0, 0, false),
     ]);
-    expect([...set]).toEqual(dates);
+    expect([...set]).toEqualPlain(dates);
   });
 
   it('daily for 10 occurrences between 873550800000 and 873723600000 inclusively', () => {
@@ -58,7 +58,7 @@ describe('Daily', () => {
     expect(asString).toBe(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=10',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1997, 9, 6, 9, 0, 0, false),
       DateTime.create(1997, 9, 7, 9, 0, 0, false),
       DateTime.create(1997, 9, 8, 9, 0, 0, false),
@@ -84,7 +84,7 @@ describe('Daily', () => {
     expect(asString).toBe(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=10',
     );
-    expect(dates).toEqual([DateTime.create(1997, 9, 7, 9, 0, 0, false)]);
+    expect(dates).toEqualPlain([DateTime.create(1997, 9, 7, 9, 0, 0, false)]);
   });
 
   it('daily until September 6, 1997', () => {
@@ -104,14 +104,14 @@ describe('Daily', () => {
     expect(asString).toBe(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;UNTIL=19970906T090000',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1997, 9, 2, 9, 0, 0, false),
       DateTime.create(1997, 9, 3, 9, 0, 0, false),
       DateTime.create(1997, 9, 4, 9, 0, 0, false),
       DateTime.create(1997, 9, 5, 9, 0, 0, false),
       DateTime.create(1997, 9, 6, 9, 0, 0, false),
     ]);
-    expect([...set]).toEqual(dates);
+    expect([...set]).toEqualPlain(dates);
   });
 
   it('every other day', () => {
@@ -129,7 +129,7 @@ describe('Daily', () => {
     expect(asString).toBe(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;INTERVAL=2;COUNT=6',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1997, 9, 2, 9, 0, 0, false),
       DateTime.create(1997, 9, 4, 9, 0, 0, false),
       DateTime.create(1997, 9, 6, 9, 0, 0, false),
@@ -137,7 +137,7 @@ describe('Daily', () => {
       DateTime.create(1997, 9, 10, 9, 0, 0, false),
       DateTime.create(1997, 9, 12, 9, 0, 0, false),
     ]);
-    expect([...set]).toEqual(dates);
+    expect([...set]).toEqualPlain(dates);
   });
 
   it('every 10 days, 5 occurrences', () => {
@@ -155,14 +155,14 @@ describe('Daily', () => {
     expect(asString).toBe(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;INTERVAL=10;COUNT=5',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1997, 9, 2, 9, 0, 0, false),
       DateTime.create(1997, 9, 12, 9, 0, 0, false),
       DateTime.create(1997, 9, 22, 9, 0, 0, false),
       DateTime.create(1997, 10, 2, 9, 0, 0, false),
       DateTime.create(1997, 10, 12, 9, 0, 0, false),
     ]);
-    expect([...set]).toEqual(dates);
+    expect([...set]).toEqualPlain(dates);
   });
 
   it('every Monday in January, for 3 years', () => {
@@ -183,7 +183,7 @@ describe('Daily', () => {
     expect(asString).toBe(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;UNTIL=20000131T140000;BYMONTH=1;BYDAY=MO',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1998, 1, 5, 9, 0, 0, false),
       DateTime.create(1998, 1, 12, 9, 0, 0, false),
       DateTime.create(1998, 1, 19, 9, 0, 0, false),
@@ -198,7 +198,7 @@ describe('Daily', () => {
       DateTime.create(2000, 1, 24, 9, 0, 0, false),
       DateTime.create(2000, 1, 31, 9, 0, 0, false),
     ]);
-    expect([...set]).toEqual(dates);
+    expect([...set]).toEqualPlain(dates);
   });
 
   it('every Monday in January, for 3 years except Jan 31 2000', () => {
@@ -218,7 +218,7 @@ describe('Daily', () => {
 
     const dates = set.all();
 
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1998, 1, 5, 9, 0, 0, false),
       DateTime.create(1998, 1, 12, 9, 0, 0, false),
       DateTime.create(1998, 1, 19, 9, 0, 0, false),
@@ -235,7 +235,7 @@ describe('Daily', () => {
     expect(set.rrules.map((rrule) => rrule.toString())).toEqual([
       'RRULE:FREQ=DAILY;UNTIL=20000131T140000;BYMONTH=1;BYDAY=MO',
     ]);
-    expect(set.exrules).toEqual([]);
-    expect([...set]).toEqual(dates);
+    expect(set.exrules).toEqualPlain([]);
+    expect([...set]).toEqualPlain(dates);
   });
 });

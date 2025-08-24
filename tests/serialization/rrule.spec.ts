@@ -37,7 +37,7 @@ describe(RRule, () => {
 
     expect(rule.frequency).toBe(expected.frequency);
     expect(rule.interval).toBe(expected.interval);
-    expect(rule.until).toEqual(expected.until);
+    expect(rule.until).toEqualPlain(expected.until);
     expect(rule.weekstart).toBe(expected.weekstart);
     expect(rule.byWeekday).toEqual(expected.byWeekday);
     expect(rule.toString()).toBe(expected.asString);

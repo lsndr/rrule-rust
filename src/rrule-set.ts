@@ -58,9 +58,7 @@ export class RRuleSet
    * Parses a string into an RRuleSet.
    */
   public static parse(str: string): RRuleSet {
-    const rust = Rust.parse(str);
-
-    return this.fromRust(rust);
+    return this.fromRust(Rust.parse(str));
   }
 
   public static fromPlain(plain: RRuleSetLike): RRuleSet {

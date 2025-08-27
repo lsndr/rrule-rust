@@ -28,7 +28,7 @@ export interface ToPlainDateTimeOptions {
 /**
  * Represents a date and time. Either local or UTC.
  */
-export class DateTime<T extends Time | undefined = Time> {
+export class DateTime<T extends Time | undefined> {
   private readonly state: {
     numeric: number;
     year?: number;

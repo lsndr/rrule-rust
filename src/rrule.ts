@@ -243,7 +243,7 @@ export class RRule {
     return new RRule({ ...this.toOptions(), weekstart: day });
   }
 
-  public setUntil(until: DateTime): RRule {
+  public setUntil(until: DateTime<Time> | DateTime<undefined>): RRule {
     return new RRule({ ...this.toOptions(), until });
   }
 

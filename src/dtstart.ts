@@ -33,7 +33,7 @@ export class DtStart {
       this.tzid = datetimeOrOptions.tzid;
     } else {
       this.datetime = datetimeOrOptions;
-      this.tzid = tzid;
+      this.tzid = tzid!;
     }
   }
 
@@ -44,18 +44,12 @@ export class DtStart {
     });
   }
 
-  public setTzid(tzid: string): DtStart {
-    return new DtStart({
-      datetime: this.datetime,
-      tzid,
-    });
+  public setTzid(tzid: string | undefined): DtStart {
+    return new DtStart(this.datetime, tzid);
   }
 
   public setDatetime(datetime: DateTime<Time> | DateTime<undefined>): DtStart {
-    return new DtStart({
-      datetime: datetime,
-      tzid: this.tzid,
-    });
+    return new DtStart(datetime, this.tzid);
   }
 
   public toPlain(): DtStartLike {

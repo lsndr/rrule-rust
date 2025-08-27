@@ -112,7 +112,7 @@ describe(DateTime, () => {
         second: 22,
         utc: true,
       },
-    ])('should convert %j to plain object', (input) => {
+    ])('should convert datetime %j to plain object', (input) => {
       const datetime = DateTime.create(
         input.year,
         input.month,
@@ -132,6 +132,23 @@ describe(DateTime, () => {
         minute: input.minute,
         second: input.second,
         utc: input.utc,
+      });
+    });
+
+    test.each([
+      {
+        year: 2005,
+        month: 9,
+        day: 4,
+      },
+    ])('should convert date %j to plain object', (input) => {
+      const datetime = DateTime.create(input.year, input.month, input.day);
+      const object = datetime.toPlain();
+
+      expect(object).toEqual({
+        year: input.year,
+        month: input.month,
+        day: input.day,
       });
     });
 

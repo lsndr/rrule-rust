@@ -236,32 +236,27 @@ export class DateTime<T extends Time | undefined> {
   }
 
   /** @internal */
-  public static fromNumeric(
+  public static fromNumeric<DT extends DateTime<Time> | DateTime<undefined>>(
     numeric: number,
-  ): DateTime<Time> | DateTime<undefined> {
-    return new DateTime(numeric) as DateTime<Time> | DateTime<undefined>;
+  ): DT {
+    return new DateTime(numeric) as DT;
   }
 
   /**
    * Converts DateTime into a plain object.
    */
-  public toPlain(
-    options: T extends Time
-      ? ToPlainDateTimeOptions & { stripUtc: false }
-      : never,
-  ): DateTimeLike;
-  public toPlain(
-    options: T extends Time
-      ? ToPlainDateTimeOptions & { stripUtc: true }
-      : never,
-  ): Omit<DateTimeLike, 'utc'>;
-  public toPlain(): T extends Time ? DateTimeLike : DateLike;
-  public toPlain(
-    options?: ToPlainDateTimeOptions,
-  ):
-    | (T extends Time ? DateTimeLike : DateLike)
-    | DateTimeLike
-    | Omit<DateTimeLike, 'utc'> {
+  public toPlain<DTL extends DateTimeLike>(
+    options?: ToPlainDateTimeOptions & { stripUtc: false },
+  ): DTL;
+  public toPlain<DTL extends Omit<DateTimeLike, 'utc'>>(
+    options?: ToPlainDateTimeOptions & { stripUtc: true },
+  ): DTL;
+  public toPlain<DTL extends DateLike>(): DTL;
+  public toPlain<
+    DTL extends DateTimeLike | DateLike = T extends Time
+      ? DateTimeLike | Omit<DateTimeLike, 'utc'>
+      : DateLike,
+  >(options?: ToPlainDateTimeOptions): DTL {
     let plain: unknown;
 
     if (this.time) {
@@ -291,7 +286,7 @@ export class DateTime<T extends Time | undefined> {
       };
     }
 
-    return plain as T extends Time ? DateTimeLike : DateLike;
+    return plain as DTL;
   }
 
   /**

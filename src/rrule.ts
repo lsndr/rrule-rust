@@ -52,11 +52,11 @@ export enum Weekday {
   Sunday = 6,
 }
 
-export interface RRuleOptions {
+export interface RRuleOptions<DT extends DateTime<Time> | DateTime<undefined>> {
   readonly frequency: Frequency;
   readonly interval?: number;
   readonly count?: number;
-  readonly until?: DateTime<Time> | DateTime<undefined>;
+  readonly until?: DT;
   readonly byWeekday?: readonly (NWeekday | Weekday)[];
   readonly byHour?: readonly number[];
   readonly byMinute?: readonly number[];
@@ -69,11 +69,11 @@ export interface RRuleOptions {
   readonly weekstart?: Weekday;
 }
 
-export interface RRuleLike {
+export interface RRuleLike<DT extends DateTimeLike | DateLike> {
   readonly frequency: Frequency;
   readonly interval?: number;
   readonly count?: number;
-  readonly until?: DateTimeLike | DateLike;
+  readonly until?: DT;
   readonly byWeekday: readonly (NWeekday | Weekday)[];
   readonly byHour: readonly number[];
   readonly byMinute: readonly number[];
@@ -86,10 +86,12 @@ export interface RRuleLike {
   readonly weekstart?: Weekday;
 }
 
-export class RRule {
+export class RRule<
+  DT extends DateTime<Time> | DateTime<undefined> = DateTime<Time>,
+> {
   public readonly frequency: Frequency;
   public readonly interval?: number;
-  public readonly until?: DateTime<Time> | DateTime<undefined>;
+  public readonly until?: DT;
   public readonly count?: number;
   public readonly byWeekday: readonly (NWeekday | Weekday)[];
   public readonly byHour: readonly number[];
@@ -106,8 +108,8 @@ export class RRule {
   private rust?: Rust;
 
   public constructor(frequency: Frequency);
-  public constructor(options: RRuleOptions);
-  public constructor(frequencyOrOptions: Frequency | RRuleOptions) {
+  public constructor(options: RRuleOptions<DT>);
+  public constructor(frequencyOrOptions: Frequency | RRuleOptions<DT>) {
     if (typeof frequencyOrOptions === 'object' && frequencyOrOptions !== null) {
       this.frequency = frequencyOrOptions.frequency;
       this.interval = frequencyOrOptions.interval;
@@ -140,13 +142,23 @@ export class RRule {
   /**
    * Parses a string into an RRule.
    */
-  public static parse(str: string): RRule {
+  public static parse<DT extends DateTime<Time> | DateTime<undefined>>(
+    str: string,
+  ): RRule<DT> {
     const rust = Rust.parse(str);
 
     return this.fromRust(rust);
   }
 
-  public static fromPlain(rrule: RRuleLike): RRule {
+  public static fromPlain(
+    rrule: RRuleLike<DateTimeLike>,
+  ): RRule<DateTime<Time>>;
+  public static fromPlain(
+    rrule: RRuleLike<DateLike>,
+  ): RRule<DateTime<undefined>>;
+  public static fromPlain(
+    rrule: RRuleLike<DateTimeLike> | RRuleLike<DateLike>,
+  ): RRule<DateTime<Time>> | RRule<DateTime<undefined>> {
     return new this({
       frequency: rrule.frequency,
       interval: rrule.interval,
@@ -168,11 +180,14 @@ export class RRule {
   /**
    * @internal
    */
-  public static fromRust(rust: Rust): RRule {
+  public static fromRust<DT extends DateTime<Time> | DateTime<undefined>>(
+    rust: Rust,
+  ): RRule<DT> {
     const rrule = new this({
       frequency: rust.frequency,
       interval: rust.interval ?? undefined,
-      until: rust.until === null ? undefined : DateTime.fromNumeric(rust.until),
+      until:
+        rust.until === null ? undefined : DateTime.fromNumeric<DT>(rust.until),
       count: rust.count ?? undefined,
       byWeekday: rust.byWeekday,
       byHour: rust.byHour,
@@ -191,59 +206,59 @@ export class RRule {
     return rrule;
   }
 
-  public setFrequency(frequency: Frequency): RRule {
+  public setFrequency(frequency: Frequency): RRule<DT> {
     return new RRule({ ...this.toOptions(), frequency });
   }
 
-  public setInterval(interval: number): RRule {
+  public setInterval(interval: number): RRule<DT> {
     return new RRule({ ...this.toOptions(), interval });
   }
 
-  public setCount(count: number): RRule {
+  public setCount(count: number): RRule<DT> {
     return new RRule({ ...this.toOptions(), count });
   }
 
-  public setByWeekday(weekdays: readonly (NWeekday | Weekday)[]): RRule {
+  public setByWeekday(weekdays: readonly (NWeekday | Weekday)[]): RRule<DT> {
     return new RRule({ ...this.toOptions(), byWeekday: weekdays });
   }
 
-  public setByHour(hours: readonly number[]): RRule {
+  public setByHour(hours: readonly number[]): RRule<DT> {
     return new RRule({ ...this.toOptions(), byHour: hours });
   }
 
-  public setByMinute(minutes: readonly number[]): RRule {
+  public setByMinute(minutes: readonly number[]): RRule<DT> {
     return new RRule({ ...this.toOptions(), byMinute: minutes });
   }
 
-  public setBySecond(seconds: readonly number[]): RRule {
+  public setBySecond(seconds: readonly number[]): RRule<DT> {
     return new RRule({ ...this.toOptions(), bySecond: seconds });
   }
 
-  public setByMonthday(days: readonly number[]): RRule {
+  public setByMonthday(days: readonly number[]): RRule<DT> {
     return new RRule({ ...this.toOptions(), byMonthday: days });
   }
 
-  public setBySetpos(poses: readonly number[]): RRule {
+  public setBySetpos(poses: readonly number[]): RRule<DT> {
     return new RRule({ ...this.toOptions(), bySetpos: poses });
   }
 
-  public setByMonth(months: readonly Month[]): RRule {
+  public setByMonth(months: readonly Month[]): RRule<DT> {
     return new RRule({ ...this.toOptions(), byMonth: months });
   }
 
-  public setByWeekno(weekNumbers: readonly number[]): RRule {
+  public setByWeekno(weekNumbers: readonly number[]): RRule<DT> {
     return new RRule({ ...this.toOptions(), byWeekno: weekNumbers });
   }
 
-  public setByYearday(days: readonly number[]): RRule {
+  public setByYearday(days: readonly number[]): RRule<DT> {
     return new RRule({ ...this.toOptions(), byYearday: days });
   }
 
-  public setWeekstart(day: Weekday): RRule {
+  public setWeekstart(day: Weekday): RRule<DT> {
     return new RRule({ ...this.toOptions(), weekstart: day });
   }
 
-  public setUntil(until: DateTime<Time> | DateTime<undefined>): RRule {
+  public setUntil(until: DT): RRule<DT> {
     return new RRule({ ...this.toOptions(), until });
   }
 
@@ -275,7 +290,9 @@ export class RRule {
     return this.rust;
   }
 
-  public toPlain(): RRuleLike {
+  public toPlain(): RRuleLike<
+    DT extends DateTime<Time> ? DateTimeLike : DateLike
+  > {
     return {
       frequency: this.frequency,
       interval: this.interval,
@@ -294,7 +311,7 @@ export class RRule {
     };
   }
 
-  private toOptions(): RRuleOptions {
+  private toOptions(): RRuleOptions<DT> {
     return {
       frequency: this.frequency,
       interval: this.interval,

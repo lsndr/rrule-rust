@@ -8,37 +8,39 @@ import {
 } from './datetime';
 import { DtStart, type DtStartLike } from './dtstart';
 
-export interface RRuleSetOptions {
-  readonly dtstart: DtStart;
-  readonly rrules?: readonly RRule[];
-  readonly exrules?: readonly RRule[];
-  readonly exdates?: readonly (DateTime<Time> | DateTime<undefined>)[];
-  readonly rdates?: readonly (DateTime<Time> | DateTime<undefined>)[];
+export interface RRuleSetOptions<
+  DT extends DateTime<Time> | DateTime<undefined> = DateTime<Time>,
+> {
+  readonly dtstart: DtStart<DT>;
+  readonly rrules?: readonly RRule<DT>[];
+  readonly exrules?: readonly RRule<DT>[];
+  readonly exdates?: readonly DT[];
+  readonly rdates?: readonly DT[];
 }
 
-export interface RRuleSetLike {
-  readonly dtstart: DtStartLike;
-  readonly rrules: readonly RRuleLike[];
-  readonly exrules: readonly RRuleLike[];
-  readonly exdates: readonly (DateTimeLike | DateLike)[];
-  readonly rdates: readonly (DateTimeLike | DateLike)[];
+export interface RRuleSetLike<DT extends DateTimeLike | DateLike> {
+  readonly dtstart: DtStartLike<DT>;
+  readonly rrules: readonly RRuleLike<DT>[];
+  readonly exrules: readonly RRuleLike<DT>[];
+  readonly exdates: readonly DT[];
+  readonly rdates: readonly DT[];
 }
 
-export class RRuleSet
+export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
   implements Iterable<DateTime<Time> | DateTime<undefined>>
 {
-  public readonly dtstart: DtStart;
-  public readonly rrules: readonly RRule[];
-  public readonly exrules: readonly RRule[];
-  public readonly exdates: readonly (DateTime<Time> | DateTime<undefined>)[];
-  public readonly rdates: readonly (DateTime<Time> | DateTime<undefined>)[];
+  public readonly dtstart: DtStart<DT>;
+  public readonly rrules: readonly RRule<DT>[];
+  public readonly exrules: readonly RRule<DT>[];
+  public readonly exdates: readonly DT[];
+  public readonly rdates: readonly DT[];
 
   /** @internal */
   private rust?: Rust;
 
-  public constructor(dtstart: DtStart);
-  public constructor(options: RRuleSetOptions);
-  public constructor(optionsOrDtstart: DtStart | RRuleSetOptions) {
+  public constructor(dtstart: DtStart<DT>);
+  public constructor(options: RRuleSetOptions<DT>);
+  public constructor(optionsOrDtstart: DtStart<DT> | RRuleSetOptions<DT>) {
     if ('dtstart' in optionsOrDtstart) {
       this.dtstart = optionsOrDtstart.dtstart;
       this.rrules = optionsOrDtstart?.rrules ?? [];
@@ -57,11 +59,21 @@ export class RRuleSet
   /**
    * Parses a string into an RRuleSet.
    */
-  public static parse(str: string): RRuleSet {
+  public static parse<DT extends DateTime<Time> | DateTime<undefined>>(
+    str: string,
+  ): RRuleSet<DT> {
     return this.fromRust(Rust.parse(str));
   }
 
-  public static fromPlain(plain: RRuleSetLike): RRuleSet {
+  public static fromPlain(
+    plain: RRuleSetLike<DateTimeLike>,
+  ): RRuleSet<DateTime<Time>>;
+  public static fromPlain(
+    plain: RRuleSetLike<DateLike>,
+  ): RRuleSet<DateTime<undefined>>;
+  public static fromPlain(
+    plain: RRuleSetLike<DateTimeLike> | RRuleSetLike<DateLike>,
+  ): RRuleSet<DateTime<Time>> | RRuleSet<DateTime<undefined>> {
     return new RRuleSet({
       dtstart: DtStart.fromPlain(plain.dtstart),
       rrules: plain.rrules.map((rrule) => RRule.fromPlain(rrule)),
@@ -74,16 +86,20 @@ export class RRuleSet
   /**
    * @internal
    */
-  public static fromRust(rust: Rust): RRuleSet {
-    const set = new RRuleSet({
-      dtstart: new DtStart({
-        datetime: DateTime.fromNumeric(rust.dtstart),
+  public static fromRust<DT extends DateTime<Time> | DateTime<undefined>>(
+    rust: Rust,
+  ): RRuleSet<DT> {
+    const set = new RRuleSet<DT>({
+      dtstart: new DtStart<DT>({
+        datetime: DateTime.fromNumeric<DT>(rust.dtstart),
         tzid: rust.tzid ?? undefined,
       }),
-      rrules: rust.rrules.map((rrule) => RRule.fromRust(rrule)),
-      exrules: rust.exrules.map((rrule) => RRule.fromRust(rrule)),
-      exdates: rust.exdates.map((datetime) => DateTime.fromNumeric(datetime)),
-      rdates: rust.rdates.map((datetime) => DateTime.fromNumeric(datetime)),
+      rrules: rust.rrules.map((rrule) => RRule.fromRust<DT>(rrule)),
+      exrules: rust.exrules.map((rrule) => RRule.fromRust<DT>(rrule)),
+      exdates: rust.exdates.map((datetime) =>
+        DateTime.fromNumeric<DT>(datetime),
+      ),
+      rdates: rust.rdates.map((datetime) => DateTime.fromNumeric<DT>(datetime)),
     });
 
     set.rust = rust;
@@ -91,67 +107,63 @@ export class RRuleSet
     return set;
   }
 
-  public setDtstart(dtstart: DtStart): RRuleSet {
+  public setDtstart(dtstart: DtStart<DT>): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       dtstart: dtstart,
     });
   }
 
-  public addRrule(rrule: RRule): RRuleSet {
+  public addRrule(rrule: RRule<DT>): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       rrules: [...this.rrules, rrule],
     });
   }
 
-  public setRrules(rrules: readonly RRule[]): RRuleSet {
+  public setRrules(rrules: readonly RRule<DT>[]): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       rrules: rrules,
     });
   }
 
-  public addExrule(rrule: RRule): RRuleSet {
+  public addExrule(rrule: RRule<DT>): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       exrules: [...this.exrules, rrule],
     });
   }
 
-  public setExrules(rrules: readonly RRule[]): RRuleSet {
+  public setExrules(rrules: readonly RRule<DT>[]): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       exrules: rrules,
     });
   }
 
-  public addExdate(datetime: DateTime<Time> | DateTime<undefined>): RRuleSet {
+  public addExdate(datetime: DT): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       exdates: [...this.exdates, datetime],
     });
   }
 
-  public setExdates(
-    datetimes: readonly (DateTime<Time> | DateTime<undefined>)[],
-  ): RRuleSet {
+  public setExdates(datetimes: readonly DT[]): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       exdates: datetimes,
     });
   }
 
-  public addRdate(datetime: DateTime<Time> | DateTime<undefined>): RRuleSet {
+  public addRdate(datetime: DT): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       rdates: [...this.rdates, datetime],
     });
   }
 
-  public setRdates(
-    datetimes: readonly (DateTime<Time> | DateTime<undefined>)[],
-  ): RRuleSet {
+  public setRdates(datetimes: readonly DT[]): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       rdates: datetimes,
@@ -163,7 +175,7 @@ export class RRuleSet
    *
    * @param limit - The maximum number of occurrences to return.
    */
-  public all(limit?: number): (DateTime<Time> | DateTime<undefined>)[] {
+  public all(limit?: number): DT[] {
     return this.toRust()
       .all(limit)
       .map((datetime) => DateTime.fromNumeric(datetime));
@@ -176,11 +188,7 @@ export class RRuleSet
    * @param before - The upper bound date.
    * @param inclusive - Whether to include after and before in the list of occurrences.
    */
-  public between(
-    after: DateTime<Time> | DateTime<undefined>,
-    before: DateTime<Time> | DateTime<undefined>,
-    inclusive?: boolean,
-  ): (DateTime<Time> | DateTime<undefined>)[] {
+  public between(after: DT, before: DT, inclusive?: boolean): DT[] {
     return this.toRust()
       .between(after.toNumeric(), before.toNumeric(), inclusive)
       .map((datetime) => DateTime.fromNumeric(datetime));
@@ -191,8 +199,10 @@ export class RRuleSet
    *
    * @param str - The string to parse.
    */
-  public setFromString(str: string): RRuleSet {
-    return RRuleSet.fromRust(this.toRust().setFromString(str));
+  public setFromString<NDT extends DateTime<Time> | DateTime<undefined> = DT>(
+    str: string,
+  ): RRuleSet<NDT> {
+    return RRuleSet.fromRust<NDT>(this.toRust().setFromString(str));
   }
 
   /**
@@ -218,7 +228,9 @@ export class RRuleSet
   /**
    * Converts the RRuleSet to a plain object.
    */
-  public toPlain(): RRuleSetLike {
+  public toPlain(): RRuleSetLike<
+    DT extends DateTime<Time> ? DateTimeLike : DateLike
+  > {
     return {
       dtstart: this.dtstart.toPlain(),
       rrules: this.rrules.map((rrule) => rrule.toPlain()),
@@ -228,11 +240,7 @@ export class RRuleSet
     };
   }
 
-  public [Symbol.iterator](): Iterator<
-    DateTime<Time> | DateTime<undefined>,
-    any,
-    any
-  > {
+  public [Symbol.iterator](): Iterator<DT, any, any> {
     const iter = this.toRust().iterator();
 
     return {
@@ -254,7 +262,7 @@ export class RRuleSet
     };
   }
 
-  private toOptions(): RRuleSetOptions {
+  private toOptions(): RRuleSetOptions<DT> {
     return {
       dtstart: this.dtstart,
       rrules: this.rrules,

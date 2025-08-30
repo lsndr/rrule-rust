@@ -34,10 +34,7 @@ impl DtStart {
     let mut parameters = Parameters::new();
 
     if let Some(tzid) = self.tzid {
-      // UTC datetimes MUST NOT contain a TZID
-      if !self.datetime.utc() {
-        parameters.insert("TZID".to_string(), tzid.to_string());
-      }
+      parameters.insert("TZID".to_string(), tzid.to_string());
     }
 
     let value: String = self.datetime.to_string();
@@ -46,8 +43,10 @@ impl DtStart {
   }
 
   pub fn new(datetime: DateTime, tzid: Option<chrono_tz::Tz>) -> Result<Self, String> {
-    if !datetime.utc() && tzid.is_none() {
-      return Err("TZID is requred for non-UTC DTSTART".to_string());
+    if let Some(time) = &datetime.time {
+      if !time.utc && tzid.is_none() {
+        return Err("TZID is requred for non-UTC DTSTART".to_string());
+      }
     }
 
     Ok(Self { datetime, tzid })

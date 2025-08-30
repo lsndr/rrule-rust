@@ -4,71 +4,61 @@ use chrono::Datelike;
 use chrono::TimeZone;
 use chrono::Timelike;
 
+use crate::rrule::time::Time;
+
 #[derive(Clone)]
 pub struct DateTime {
-  year: u32,
-  month: u32,
-  day: u32,
-  hour: u32,
-  minute: u32,
-  second: u32,
-  utc: bool,
+  pub year: u32,
+  pub month: u32,
+  pub day: u32,
+  pub time: Option<Time>,
 }
 
 impl DateTime {
-  pub fn utc(&self) -> bool {
-    self.utc
-  }
-
   pub fn to_datetime(
     &self,
     timezone: &chrono_tz::Tz,
   ) -> Result<chrono::DateTime<chrono_tz::Tz>, String> {
-    let timezone = match self.utc {
-      true => &chrono_tz::Tz::UTC,
-      false => &timezone,
+    let timezone = match &self.time {
+      Some(time) => match time.utc {
+        true => &chrono_tz::Tz::UTC,
+        false => &timezone,
+      },
+      None => &timezone,
+    };
+
+    let (hour, minute, second) = match &self.time {
+      Some(time) => (time.hour, time.minute, time.second),
+      None => (0, 0, 0),
     };
 
     match timezone
-      .with_ymd_and_hms(
-        self.year as i32,
-        self.month,
-        self.day,
-        self.hour,
-        self.minute,
-        self.second,
-      )
+      .with_ymd_and_hms(self.year as i32, self.month, self.day, hour, minute, second)
       .single()
     {
       Some(datetime) => Ok(datetime),
-      None => Err(format!(
-        "Invalid datetime: {}-{}-{} {}:{}:{} {}",
-        self.year,
-        self.month,
-        self.day,
-        self.hour,
-        self.minute,
-        self.second,
-        if self.utc { "UTC" } else { "Local" }
-      )),
+      None => Err(format!("Invalid datetime: {}", self.to_string())),
     }
   }
 
   pub fn to_string(&self) -> String {
-    format!(
-      "{:04}{:02}{:02}T{:02}{:02}{:02}{}",
-      self.year,
-      self.month,
-      self.day,
-      self.hour,
-      self.minute,
-      self.second,
-      if self.utc { "Z" } else { "" }
-    )
+    match &self.time {
+      Some(time) => format!(
+        "{:04}{:02}{:02}T{:02}{:02}{:02}{}",
+        self.year,
+        self.month,
+        self.day,
+        time.hour,
+        time.minute,
+        time.second,
+        if time.utc { "Z" } else { "" }
+      ),
+      None => format!("{:04}{:02}{:02}", self.year, self.month, self.day),
+    }
   }
 
   fn from_str(str: &str) -> Result<Self, String> {
-    if str.len() > 16 || str.len() < 15 {
+    if !(str.len() == 8 || (str.len() <= 16 && str.len() >= 15)) {
       return Err(format!("Invalid datetime string: {}", str));
     }
 
@@ -85,43 +75,53 @@ impl DateTime {
     let month: u32 = month
       .parse()
       .map_err(|_| format!("Invalid month: {}", month))?;
-
     let day = str
       .get(6..8)
       .ok_or(format!("Can not extract day from: {}", str))?;
     let day: u32 = day.parse().map_err(|_| format!("Invalid day: {}", day))?;
 
-    let hour = str
-      .get(9..11)
-      .ok_or(format!("Can not extract hour from: {}", str))?;
-    let hour: u32 = hour
-      .parse()
-      .map_err(|_| format!("Invalid hour: {}", hour))?;
+    if str.len() > 8 {
+      let hour = str
+        .get(9..11)
+        .ok_or(format!("Can not extract hour from: {}", str))?;
+      let hour: u32 = hour
+        .parse()
+        .map_err(|_| format!("Invalid hour: {}", hour))?;
 
-    let minute = str
-      .get(11..13)
-      .ok_or(format!("Can not extract minute from: {}", str))?;
-    let minute: u32 = minute
-      .parse()
-      .map_err(|_| format!("Invalid minute: {}", minute))?;
+      let minute = str
+        .get(11..13)
+        .ok_or(format!("Can not extract minute from: {}", str))?;
+      let minute: u32 = minute
+        .parse()
+        .map_err(|_| format!("Invalid minute: {}", minute))?;
 
-    let second = str
-      .get(13..15)
-      .ok_or(format!("Can not extract second from: {}", str))?;
-    let second: u32 = second
-      .parse()
-      .map_err(|_| format!("Invalid second: {}", second))?;
+      let second = str
+        .get(13..15)
+        .ok_or(format!("Can not extract second from: {}", str))?;
+      let second: u32 = second
+        .parse()
+        .map_err(|_| format!("Invalid second: {}", second))?;
 
-    let utc = str.get(15..16).unwrap_or("").to_uppercase() == "Z";
+      let utc = str.get(15..16).unwrap_or("").to_uppercase() == "Z";
+
+      return Ok(Self {
+        year,
+        month,
+        day,
+        time: Some(Time {
+          hour,
+          minute,
+          second,
+          utc,
+        }),
+      });
+    }
 
     Ok(Self {
       year,
       month,
       day,
-      hour,
-      minute,
-      second,
-      utc,
+      time: None,
     })
   }
 }
@@ -134,20 +134,36 @@ impl From<i64> for DateTime {
     let hour = ((numeric / 100000) % 100) as u32;
     let minute = ((numeric / 1000) % 100) as u32;
     let second = ((numeric / 10) % 100) as u32;
-    let utc = (numeric % 10) == 1;
+    let mode = (numeric % 10) as u32;
+
+    let time = match mode {
+      0 => Some(Time {
+        hour,
+        minute,
+        second,
+        utc: false,
+      }),
+      1 => Some(Time {
+        hour,
+        minute,
+        second,
+        utc: true,
+      }),
+      _ => None,
+    };
 
     DateTime {
       year,
       month,
       day,
-      hour,
-      minute,
-      second,
-      utc,
+      time,
     }
   }
 }
 
+// TODO: chrono datetime is alwats converted into DateTime with Time
+// Probabbly there should be a method to convert into DateTime without Time
+// And this trait must me removed
 impl From<&chrono::DateTime<chrono_tz::Tz>> for DateTime {
   fn from(datetime: &chrono::DateTime<chrono_tz::Tz>) -> Self {
     let year = datetime.year() as u32;
@@ -162,10 +178,12 @@ impl From<&chrono::DateTime<chrono_tz::Tz>> for DateTime {
       year,
       month,
       day,
-      hour,
-      minute,
-      second,
-      utc,
+      time: Some(Time {
+        hour,
+        minute,
+        second,
+        utc,
+      }),
     }
   }
 }
@@ -184,10 +202,12 @@ impl From<&chrono::DateTime<rrule::Tz>> for DateTime {
       year,
       month,
       day,
-      hour,
-      minute,
-      second,
-      utc,
+      time: Some(Time {
+        hour,
+        minute,
+        second,
+        utc,
+      }),
     }
   }
 }
@@ -197,10 +217,16 @@ impl Into<i64> for &DateTime {
     let year = self.year as i64;
     let month = self.month as i64;
     let day = self.day as i64;
-    let hour = self.hour as i64;
-    let minute = self.minute as i64;
-    let second = self.second as i64;
-    let utc = if self.utc { 1 } else { 0 };
+
+    let (hour, minute, second, utc) = match &self.time {
+      Some(time) => (
+        time.hour as i64,
+        time.minute as i64,
+        time.second as i64,
+        if time.utc { 1 } else { 0 },
+      ),
+      None => (0, 0, 0, 2),
+    };
 
     year * 100000000000
       + month * 1000000000

@@ -9,4 +9,5 @@ pub mod n_weekday;
 pub mod rdate;
 pub mod rrule;
 pub mod rrule_set;
+pub mod time;
 pub mod weekday;

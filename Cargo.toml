@@ -10,7 +10,7 @@ path = "lib/lib.rs"
 [dependencies]
 chrono = "0.4.42"
 chrono-tz = "0.10.4"
-indexmap = "2.11.1"
+indexmap = "2.11.4"
 itertools = "0.14.0"
 # Default enable napi5 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
 napi = { version = "2.16.17", default-features = false, features = ["napi5"] }

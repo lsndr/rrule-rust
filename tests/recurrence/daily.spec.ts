@@ -9,6 +9,35 @@ import {
 } from '../../src';
 
 describe('Daily', () => {
+  it('daily for 10 occurrences (date-only)', () => {
+    const set = new RRuleSet(
+      new DtStart({
+        datetime: DateTime.date(1997, 9, 2),
+        tzid: 'US/Eastern',
+      }),
+    ).addRrule(new RRule<DateTime<undefined>>(Frequency.Daily).setCount(10));
+
+    const dates = set.all();
+    const asString = set.toString();
+
+    expect(asString).toBe(
+      'DTSTART;TZID=US/Eastern:19970902\nRRULE:FREQ=DAILY;COUNT=10',
+    );
+    expect(dates).toEqualPlain([
+      DateTime.date(1997, 9, 2),
+      DateTime.date(1997, 9, 3),
+      DateTime.date(1997, 9, 4),
+      DateTime.date(1997, 9, 5),
+      DateTime.date(1997, 9, 6),
+      DateTime.date(1997, 9, 7),
+      DateTime.date(1997, 9, 8),
+      DateTime.date(1997, 9, 9),
+      DateTime.date(1997, 9, 10),
+      DateTime.date(1997, 9, 11),
+    ]);
+    expect([...set]).toEqualPlain(dates);
+  });
+
   it('daily for 10 occurrences', () => {
     const rrule = new RRule(Frequency.Daily).setCount(10);
     const set = new RRuleSet(

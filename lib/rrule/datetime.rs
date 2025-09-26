@@ -5,6 +5,7 @@ use chrono::TimeZone;
 use chrono::Timelike;
 
 use crate::rrule::time::Time;
+use crate::rrule::value_type::ValueType;
 
 #[derive(Clone)]
 pub struct DateTime {
@@ -38,6 +39,13 @@ impl DateTime {
     {
       Some(datetime) => Ok(datetime),
       None => Err(format!("Invalid datetime: {}", self.to_string())),
+    }
+  }
+
+  pub fn derive_value_type(&self) -> ValueType {
+    match &self.time {
+      Some(_) => ValueType::DateTime,
+      None => ValueType::Date,
     }
   }
 

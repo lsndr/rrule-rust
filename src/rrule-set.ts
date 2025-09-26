@@ -114,7 +114,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
     });
   }
 
-  public addRrule(rrule: RRule<DT>): RRuleSet<DT> {
+  public addRrule<RRDT extends DT>(rrule: RRule<RRDT>): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       rrules: [...this.rrules, rrule],
@@ -212,6 +212,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
     this.rust ??= new Rust(
       this.dtstart.datetime.toNumeric(),
       this.dtstart.tzid,
+      undefined,
       this.rrules.map((rrule) => rrule.toRust()),
       this.exrules.map((rrule) => rrule.toRust()),
       this.exdates.map((datetime) => datetime.toNumeric()),

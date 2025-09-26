@@ -1,6 +1,128 @@
 import { RRuleSet, DateTime, RRule, DtStart } from '../../src';
 
 describe(RRuleSet, () => {
+  describe('EXDATE', () => {
+    it('should throw when exdate datetimes value type do not match', () => {
+      const act = () =>
+        RRuleSet.parse('DTSTART:19970902\nEXDATE:20250101,20250102T000000Z');
+
+      expect(act).toThrow(
+        'All EXDATE instances must have the same value type as specified in EXDATE',
+      );
+    });
+
+    it('should throw when exdate value type and datetimes do not match', () => {
+      const act = () =>
+        RRuleSet.parse(
+          'DTSTART:19970902\nEXDATE;VALUE=DATE:20250101,20250102T000000Z',
+        );
+
+      expect(act).toThrow(
+        'All EXDATE instances must have the same value type as specified in EXDATE',
+      );
+    });
+
+    it('should throw when dtsart value type and exdate value type do not match', () => {
+      const act = () =>
+        RRuleSet.parse(
+          'DTSTART:19970902T090000Z\nEXDATE;VALUE=DATE:20250101,20250102',
+        );
+
+      expect(act).toThrow(
+        'EXDATE value type does not match DTSTART value type',
+      );
+    });
+  });
+
+  describe('RDATE', () => {
+    it('should throw when rdate datetimes value type do not match', () => {
+      const act = () =>
+        RRuleSet.parse('DTSTART:19970902\nRDATE:20250101,20250102T000000Z');
+
+      expect(act).toThrow(
+        'All RDATE instances must have the same value type as specified in RDATE',
+      );
+    });
+
+    it('should throw when rdate value type and datetimes do not match', () => {
+      const act = () =>
+        RRuleSet.parse(
+          'DTSTART:19970902\nRDATE;VALUE=DATE:20250101,20250102T000000Z',
+        );
+
+      expect(act).toThrow(
+        'All RDATE instances must have the same value type as specified in RDATE',
+      );
+    });
+
+    it('should throw when dtsart value type and rdate value type do not match', () => {
+      const act = () =>
+        RRuleSet.parse(
+          'DTSTART:19970902T090000Z\nRDATE;VALUE=DATE:20250101,20250102',
+        );
+
+      expect(act).toThrow('RDATE value type does not match DTSTART value type');
+    });
+  });
+
+  it('should throw when dtstart is datetime, but value type is date', () => {
+    const act = () =>
+      RRuleSet.parse(
+        'DTSTART;VALUE=DATE:19970902T090000Z\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR',
+      );
+
+    expect(act).toThrow('DTSTART value and value type do not match');
+  });
+
+  it('should throw when dtstart is date, but value type is datetime', () => {
+    const act = () =>
+      RRuleSet.parse(
+        'DTSTART;VALUE=DATE-TIME:19970902\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR',
+      );
+
+    expect(act).toThrow('DTSTART value and value type do not match');
+  });
+
+  it('should properly parse recurrence with date-only dtstart', () => {
+    const set = RRuleSet.parse(
+      'DTSTART:19970902\nRRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR',
+    );
+
+    expect(set.toString()).toBe(
+      'DTSTART:19970902\nRRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR',
+    );
+  });
+
+  it('should properly parse recurrence with date-only dtstart value and value type', () => {
+    const set = RRuleSet.parse(
+      'DTSTART;VALUE=DATE:19970902\nRRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR',
+    );
+
+    expect(set.toString()).toBe(
+      'DTSTART;VALUE=DATE:19970902\nRRULE:FREQ=WEEKLY;INTERVAL=2;BYDAY=MO,WE,FR',
+    );
+  });
+
+  it('should properly parse recurrence with date-time dtstart value and value type', () => {
+    const set = RRuleSet.parse(
+      'DTSTART;VALUE=DATE-TIME:19970902T090000Z\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR',
+    );
+
+    expect(set.toString()).toBe(
+      'DTSTART;VALUE=DATE-TIME:19970902T090000Z\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR',
+    );
+  });
+
+  it('should properly parse weekly recurrence', () => {
+    const set = RRuleSet.parse(
+      'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',
+    );
+
+    expect(set.toString()).toBe(
+      'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;BYDAY=MO,WE,FR;WKST=SU',
+    );
+  });
+
   it('should properly parse weekly recurrence', () => {
     const set = RRuleSet.parse(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000Z;WKST=SU;BYDAY=MO,WE,FR',

@@ -21,7 +21,7 @@ export declare class RRule {
 }
 
 export declare class RRuleSet {
-  constructor(dtstart: number, tzid?: string | undefined | null, rrules?: (readonly RRule[]) | undefined | null, exrules?: (readonly RRule[]) | undefined | null, exdates?: (readonly number[]) | undefined | null, rdates?: (readonly number[]) | undefined | null)
+  constructor(dtstart: number, tzid?: string | undefined | null, dtstartValue?: string | undefined | null, rrules?: (readonly RRule[]) | undefined | null, exrules?: (readonly RRule[]) | undefined | null, exdates?: (readonly number[]) | undefined | null, rdates?: (readonly number[]) | undefined | null)
   get tzid(): string | null
   get dtstart(): number
   get rrules(): RRule[]

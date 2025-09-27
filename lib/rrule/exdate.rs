@@ -1,24 +1,75 @@
 use super::{datetime::DateTime, dtstart::DtStart};
-use crate::serialization::{
-  parameters::Parameters,
-  property::{Property, Value},
+use crate::{
+  rrule::value_type::ValueType,
+  serialization::{
+    parameters::Parameters,
+    property::{Property, Value},
+  },
 };
 
 #[derive(Clone)]
 pub struct ExDate {
-  datetimes: Vec<DateTime>,
+  values: Vec<DateTime>,
   tzid: Option<chrono_tz::Tz>,
+  value_type: Option<ValueType>,
 }
 
 impl ExDate {
+  pub fn new(
+    datetimes: Vec<DateTime>,
+    tzid: Option<chrono_tz::Tz>,
+    value_type: Option<ValueType>,
+  ) -> Result<Self, String> {
+    let expected_value_type = match &value_type {
+      Some(vt) => Some(vt.clone()),
+      None => {
+        if datetimes.is_empty() {
+          None
+        } else {
+          Some(datetimes[0].derive_value_type().clone())
+        }
+      }
+    };
+
+    if let Some(vt) = &expected_value_type {
+      for dt in &datetimes {
+        if &dt.derive_value_type() != vt {
+          return Err(
+            "All EXDATE instances must have the same value type as specified in EXDATE".to_string(),
+          );
+        }
+      }
+    }
+
+    Ok(Self {
+      values: datetimes,
+      tzid,
+      value_type,
+    })
+  }
+
+  pub fn value_type(&self) -> &Option<ValueType> {
+    &self.value_type
+  }
+
+  pub fn derive_value_type(&self) -> Option<ValueType> {
+    if self.value_type.is_some() {
+      self.value_type.clone()
+    } else if self.values.is_empty() {
+      None
+    } else {
+      Some(self.values[0].derive_value_type())
+    }
+  }
+
   pub fn to_datetimes(
     &self,
     dtstart: &DtStart,
   ) -> Result<Vec<chrono::DateTime<chrono_tz::Tz>>, String> {
     self
-      .datetimes
+      .values
       .iter()
-      .map(|datetime| datetime.to_datetime(&self.tzid.unwrap_or(dtstart.timezone())))
+      .map(|datetime| datetime.to_datetime(&self.tzid.unwrap_or(dtstart.derive_timezone())))
       .collect()
   }
 
@@ -26,18 +77,19 @@ impl ExDate {
     let mut parameters = Parameters::new();
 
     if let Some(tzid) = self.tzid {
-      // UTC datetimes MUST NOT contain a TZID
-      if !self.datetimes.iter().any(|datetime| datetime.utc()) {
-        parameters.insert("TZID".to_string(), tzid.to_string());
-      }
+      parameters.insert("TZID".to_string(), tzid.to_string());
     }
 
     let value: String = self
-      .datetimes
+      .values
       .iter()
       .map(|datetime| datetime.to_string())
       .collect::<Vec<String>>()
       .join(",");
+
+    if let Some(value) = &self.value_type() {
+      parameters.insert("VALUE".to_string(), value.to_string());
+    }
 
     Property::new("EXDATE".to_string(), parameters, Value::Single(value))
   }
@@ -63,10 +115,18 @@ impl ExDate {
       None => None,
     };
 
-    Ok(Self {
-      datetimes: datetimes?,
-      tzid,
-    })
+    let value_type = match property.parameters().get("VALUE") {
+      Some(value) => {
+        let value: ValueType = value
+          .parse()
+          .map_err(|_| format!("Invalid value: {}", value))?;
+
+        Some(value)
+      }
+      None => None,
+    };
+
+    Self::new(datetimes?, tzid, value_type)
   }
 }
 
@@ -83,8 +143,9 @@ impl From<i64> for ExDate {
     let datetime: DateTime = numeric.into();
 
     ExDate {
-      datetimes: vec![datetime],
+      values: vec![datetime],
       tzid: None,
+      value_type: None,
     }
   }
 }

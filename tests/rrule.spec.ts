@@ -103,7 +103,7 @@ describe(RRule, () => {
       const newRrule = rrule.setUntil(until);
 
       expect(rrule.until).toBeUndefined();
-      expect(newRrule.until).toEqual(until);
+      expect(newRrule.until).toBe(until);
     });
   });
 

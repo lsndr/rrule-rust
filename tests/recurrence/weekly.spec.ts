@@ -23,7 +23,7 @@ describe('Weekly', () => {
     expect(asString).toBe(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;COUNT=10',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1997, 9, 2, 9, 0, 0, false),
       DateTime.create(1997, 9, 9, 9, 0, 0, false),
       DateTime.create(1997, 9, 16, 9, 0, 0, false),
@@ -35,7 +35,7 @@ describe('Weekly', () => {
       DateTime.create(1997, 10, 28, 9, 0, 0, false),
       DateTime.create(1997, 11, 4, 9, 0, 0, false),
     ]);
-    expect([...set]).toEqual(dates);
+    expect([...set]).toEqualPlain(dates);
   });
 
   it('weekly until December 24, 1997', () => {
@@ -55,7 +55,7 @@ describe('Weekly', () => {
     expect(asString).toBe(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;UNTIL=19971224T000000',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1997, 9, 2, 9, 0, 0, false),
       DateTime.create(1997, 9, 9, 9, 0, 0, false),
       DateTime.create(1997, 9, 16, 9, 0, 0, false),
@@ -74,7 +74,7 @@ describe('Weekly', () => {
       DateTime.create(1997, 12, 16, 9, 0, 0, false),
       DateTime.create(1997, 12, 23, 9, 0, 0, false),
     ]);
-    expect([...set]).toEqual(dates);
+    expect([...set]).toEqualPlain(dates);
   });
 
   it('every other week - limit 10', () => {
@@ -94,7 +94,7 @@ describe('Weekly', () => {
     expect(asString).toBe(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;WKST=SU',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1997, 9, 2, 9, 0, 0, false),
       DateTime.create(1997, 9, 16, 9, 0, 0, false),
       DateTime.create(1997, 9, 30, 9, 0, 0, false),
@@ -127,7 +127,7 @@ describe('Weekly', () => {
     expect(asString).toBe(
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;UNTIL=19971224T000000;BYDAY=MO,WE,FR;WKST=SU',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       // TODO: rrule crate does not include dtstart date (873205200000), create a bug report
       DateTime.create(1997, 9, 3, 9, 0, 0, false),
       DateTime.create(1997, 9, 5, 9, 0, 0, false),
@@ -154,7 +154,7 @@ describe('Weekly', () => {
       DateTime.create(1997, 12, 12, 9, 0, 0, false),
       DateTime.create(1997, 12, 22, 9, 0, 0, false),
     ]);
-    expect([...set]).toEqual(dates);
+    expect([...set]).toEqualPlain(dates);
   });
 
   it('every other week for 4 occurrences when week starts on Monday', () => {
@@ -176,13 +176,13 @@ describe('Weekly', () => {
     expect(asString).toBe(
       'DTSTART;TZID=America/New_York:19970805T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=4;BYDAY=TU,SU;WKST=MO',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1997, 8, 5, 9, 0, 0, false),
       DateTime.create(1997, 8, 10, 9, 0, 0, false),
       DateTime.create(1997, 8, 19, 9, 0, 0, false),
       DateTime.create(1997, 8, 24, 9, 0, 0, false),
     ]);
-    expect([...set]).toEqual(dates);
+    expect([...set]).toEqualPlain(dates);
   });
 
   it('every other week for 4 occurrences when week starts on Sunday', () => {
@@ -204,12 +204,12 @@ describe('Weekly', () => {
     expect(asString).toBe(
       'DTSTART;TZID=America/New_York:19970805T090000\nRRULE:FREQ=WEEKLY;INTERVAL=2;COUNT=4;BYDAY=TU,SU;WKST=SU',
     );
-    expect(dates).toEqual([
+    expect(dates).toEqualPlain([
       DateTime.create(1997, 8, 5, 9, 0, 0, false),
       DateTime.create(1997, 8, 17, 9, 0, 0, false),
       DateTime.create(1997, 8, 19, 9, 0, 0, false),
       DateTime.create(1997, 8, 31, 9, 0, 0, false),
     ]);
-    expect([...set]).toEqual(dates);
+    expect([...set]).toEqualPlain(dates);
   });
 });

@@ -1,64 +1,97 @@
 use super::datetime::DateTime;
-use crate::serialization::{
-  parameters::Parameters,
-  property::{Property, Value},
+use crate::{
+  rrule::value_type::ValueType,
+  serialization::{parameters::Parameters, property},
 };
 
 #[derive(Clone)]
 pub struct DtStart {
-  datetime: DateTime,
+  value: DateTime,
   tzid: Option<chrono_tz::Tz>,
+  value_type: Option<ValueType>,
 }
 
 impl DtStart {
-  pub fn datetime(&self) -> &DateTime {
-    &self.datetime
+  pub fn value(&self) -> &DateTime {
+    &self.value
+  }
+
+  pub fn value_type(&self) -> &Option<ValueType> {
+    &self.value_type
   }
 
   pub fn tzid(&self) -> Option<&chrono_tz::Tz> {
     self.tzid.as_ref()
   }
 
-  pub fn timezone(&self) -> chrono_tz::Tz {
+  pub fn derive_timezone(&self) -> chrono_tz::Tz {
     match self.tzid {
       Some(tz) => tz.clone(),
       None => chrono_tz::Tz::UTC,
     }
   }
 
-  pub fn to_datetime(&self) -> Result<chrono::DateTime<chrono_tz::Tz>, String> {
-    self.datetime.to_datetime(&self.timezone())
+  pub fn derive_value_type(&self) -> ValueType {
+    match self.value_type() {
+      Some(vt) => vt.clone(),
+      None => self.value.derive_value_type(),
+    }
   }
 
-  pub fn to_property(&self) -> Property {
+  pub fn to_datetime(&self) -> Result<chrono::DateTime<chrono_tz::Tz>, String> {
+    self.value.to_datetime(&self.derive_timezone())
+  }
+
+  pub fn to_property(&self) -> property::Property {
     let mut parameters = Parameters::new();
 
     if let Some(tzid) = self.tzid {
-      // UTC datetimes MUST NOT contain a TZID
-      if !self.datetime.utc() {
-        parameters.insert("TZID".to_string(), tzid.to_string());
+      parameters.insert("TZID".to_string(), tzid.to_string());
+    }
+
+    if let Some(value) = &self.value_type {
+      parameters.insert("VALUE".to_string(), value.to_string());
+    }
+
+    let value: String = self.value.to_string();
+
+    property::Property::new(
+      "DTSTART".to_string(),
+      parameters,
+      property::Value::Single(value),
+    )
+  }
+
+  pub fn new(
+    value: DateTime,
+    tzid: Option<chrono_tz::Tz>,
+    value_type: Option<ValueType>,
+  ) -> Result<Self, String> {
+    if let Some(time) = &value.time {
+      if !time.utc && tzid.is_none() {
+        return Err("TZID is requred for non-UTC DTSTART".to_string());
       }
     }
 
-    let value: String = self.datetime.to_string();
-
-    Property::new("DTSTART".to_string(), parameters, Value::Single(value))
-  }
-
-  pub fn new(datetime: DateTime, tzid: Option<chrono_tz::Tz>) -> Result<Self, String> {
-    if !datetime.utc() && tzid.is_none() {
-      return Err("TZID is requred for non-UTC DTSTART".to_string());
+    if let Some(vt) = &value_type {
+      if vt != &value.derive_value_type() {
+        return Err("DTSTART value and value type do not match".to_string());
+      }
     }
 
-    Ok(Self { datetime, tzid })
+    Ok(Self {
+      value,
+      tzid,
+      value_type,
+    })
   }
 
-  pub fn from_property(property: Property) -> Result<Self, String> {
-    let datetime = match property.value() {
-      Value::Single(value) => value,
+  pub fn from_property(property: property::Property) -> Result<Self, String> {
+    let value = match property.value() {
+      property::Value::Single(value) => value,
       _ => return Err("Invalid DTSTART value".to_string()),
     };
-    let datetime: DateTime = datetime.parse()?;
+    let value: DateTime = value.parse()?;
 
     let tzid = match property.parameters().get("TZID") {
       Some(value) => {
@@ -71,14 +104,25 @@ impl DtStart {
       None => None,
     };
 
-    Ok(Self { datetime, tzid })
+    let value_type = match property.parameters().get("VALUE") {
+      Some(value) => {
+        let value: ValueType = value
+          .parse()
+          .map_err(|_| format!("Invalid value: {}", value))?;
+
+        Some(value)
+      }
+      None => None,
+    };
+
+    Self::new(value, tzid, value_type)
   }
 }
 
-impl TryFrom<Property> for DtStart {
+impl TryFrom<property::Property> for DtStart {
   type Error = String;
 
-  fn try_from(property: Property) -> Result<Self, Self::Error> {
+  fn try_from(property: property::Property) -> Result<Self, Self::Error> {
     DtStart::from_property(property)
   }
 }

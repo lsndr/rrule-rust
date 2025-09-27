@@ -3,6 +3,7 @@ use crate::rrule::datetime::DateTime;
 use crate::rrule::dtstart::DtStart;
 use crate::rrule::exdate::ExDate;
 use crate::rrule::rdate::RDate;
+use crate::rrule::value_type::ValueType;
 use crate::rrule::{rrule, rrule_set};
 use napi::bindgen_prelude::{Array, Reference, SharedReference};
 use napi::Env;
@@ -20,6 +21,7 @@ impl RRuleSet {
   pub fn new(
     dtstart: i64,
     tzid: Option<String>,
+    dtstart_value: Option<String>,
     #[napi(ts_arg_type = "(readonly RRule[]) | undefined | null")] rrules: Option<Vec<&RRule>>,
     #[napi(ts_arg_type = "(readonly RRule[]) | undefined | null")] exrules: Option<Vec<&RRule>>,
     #[napi(ts_arg_type = "(readonly number[]) | undefined | null")] exdates: Option<Vec<i64>>,
@@ -34,7 +36,12 @@ impl RRuleSet {
       None => None,
     };
 
-    let dtstart = DtStart::new(dtstart.into(), tzid)
+    let dtstat_value = dtstart_value
+      .map(|value| value.parse::<ValueType>())
+      .transpose()
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+
+    let dtstart = DtStart::new(dtstart.into(), tzid, dtstat_value)
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
     let rrules: Vec<rrule::RRule> = rrules
@@ -63,9 +70,13 @@ impl RRuleSet {
 
     let rrule_set = rrule_set::RRuleSet::new(dtstart)
       .set_rrules(rrules)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
       .set_exrules(exrules)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
       .set_exdates(exdates)
-      .set_rdates(rdates);
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
+      .set_rdates(rdates)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
     Ok(Self { rrule_set })
   }
@@ -83,7 +94,7 @@ impl RRuleSet {
 
   #[napi(getter)]
   pub fn dtstart(&self) -> napi::Result<i64> {
-    Ok(self.rrule_set.dtstart().datetime().into())
+    Ok(self.rrule_set.dtstart().value().into())
   }
 
   #[napi(getter, ts_return_type = "RRule[]")]
@@ -120,7 +131,7 @@ impl RRuleSet {
         .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
       for datetime in datetimes.iter() {
-        let datetime = datetime.with_timezone(&self.rrule_set.dtstart().timezone());
+        let datetime = datetime.with_timezone(&self.rrule_set.dtstart().derive_timezone());
         let datetime = DateTime::from(&datetime);
 
         exdates.push((&datetime).into());
@@ -140,7 +151,7 @@ impl RRuleSet {
         .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
       for datetime in datetimes.iter() {
-        let datetime = datetime.with_timezone(&self.rrule_set.dtstart().timezone());
+        let datetime = datetime.with_timezone(&self.rrule_set.dtstart().derive_timezone());
         let datetime = DateTime::from(&datetime);
 
         rdates.push((&datetime).into());
@@ -208,7 +219,7 @@ impl RRuleSet {
     inclusive: Option<bool>,
   ) -> napi::Result<Array<'a>> {
     let mut arr = env.create_array(0).unwrap();
-    let timezone = self.rrule_set.dtstart().timezone();
+    let timezone = self.rrule_set.dtstart().derive_timezone();
     let after_timestamp = DateTime::from(after_datetime)
       .to_datetime(&timezone)
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?

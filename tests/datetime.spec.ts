@@ -36,10 +36,10 @@ describe(DateTime, () => {
       expect(datetime.year).toBe(input.year);
       expect(datetime.month).toBe(input.month);
       expect(datetime.day).toBe(input.day);
-      expect(datetime.hour).toBe(input.hour);
-      expect(datetime.minute).toBe(input.minute);
-      expect(datetime.second).toBe(input.second);
-      expect(datetime.utc).toBe(input.utc);
+      expect(datetime.time.hour).toBe(input.hour);
+      expect(datetime.time.minute).toBe(input.minute);
+      expect(datetime.time.second).toBe(input.second);
+      expect(datetime.time.utc).toBe(input.utc);
     });
   });
 
@@ -47,7 +47,7 @@ describe(DateTime, () => {
     test('should create utc object from', () => {
       const datetime = DateTime.utc(2005, 9, 4, 9, 1, 2);
 
-      expect(datetime.utc).toBeTruthy();
+      expect(datetime.time.utc).toBeTruthy();
     });
   });
 
@@ -55,7 +55,7 @@ describe(DateTime, () => {
     test('should create local object from', () => {
       const datetime = DateTime.local(2005, 9, 4, 9, 1, 2);
 
-      expect(datetime.utc).toBeFalsy();
+      expect(datetime.time.utc).toBeFalsy();
     });
   });
 
@@ -85,10 +85,10 @@ describe(DateTime, () => {
       expect(datetime.year).toBe(input.year);
       expect(datetime.month).toBe(input.month);
       expect(datetime.day).toBe(input.day);
-      expect(datetime.hour).toBe(input.hour);
-      expect(datetime.minute).toBe(input.minute);
-      expect(datetime.second).toBe(input.second);
-      expect(datetime.utc).toBe(!!input.utc);
+      expect(datetime.time.hour).toBe(input.hour);
+      expect(datetime.time.minute).toBe(input.minute);
+      expect(datetime.time.second).toBe(input.second);
+      expect(datetime.time.utc).toBe(!!input.utc);
     });
   });
 
@@ -112,7 +112,7 @@ describe(DateTime, () => {
         second: 22,
         utc: true,
       },
-    ])('should convert %j to plain object', (input) => {
+    ])('should convert datetime %j to plain object', (input) => {
       const datetime = DateTime.create(
         input.year,
         input.month,
@@ -132,6 +132,23 @@ describe(DateTime, () => {
         minute: input.minute,
         second: input.second,
         utc: input.utc,
+      });
+    });
+
+    test.each([
+      {
+        year: 2005,
+        month: 9,
+        day: 4,
+      },
+    ])('should convert date %j to plain object', (input) => {
+      const datetime = DateTime.create(input.year, input.month, input.day);
+      const object = datetime.toPlain();
+
+      expect(object).toEqual({
+        year: input.year,
+        month: input.month,
+        day: input.day,
       });
     });
 
@@ -292,10 +309,10 @@ describe(DateTime, () => {
       expect(datetime.year).toBe(expected.year);
       expect(datetime.month).toBe(expected.month);
       expect(datetime.day).toBe(expected.day);
-      expect(datetime.hour).toBe(expected.hour);
-      expect(datetime.minute).toBe(expected.minute);
-      expect(datetime.second).toBe(expected.second);
-      expect(datetime.utc).toBe(expected.utc);
+      expect(datetime.time?.hour).toBe(expected.hour);
+      expect(datetime.time?.minute).toBe(expected.minute);
+      expect(datetime.time?.second).toBe(expected.second);
+      expect(datetime.time?.utc).toBe(expected.utc);
     });
 
     test.each([
@@ -306,7 +323,7 @@ describe(DateTime, () => {
     ])('should fail create datetime from %s', (input) => {
       const act = () => DateTime.fromString(input);
 
-      expect(act).toThrow('Invalid date time string');
+      expect(act).toThrow('Invalid date');
     });
   });
 });

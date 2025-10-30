@@ -7,6 +7,8 @@ import {
   type DateLike,
 } from './datetime';
 import { DtStart, type DtStartLike } from './dtstart';
+import { ExDate, type ExDateLike } from './exdate';
+import { RDate, type RDateLike } from './rdate';
 
 export interface RRuleSetOptions<
   DT extends DateTime<Time> | DateTime<undefined> = DateTime<Time>,
@@ -14,16 +16,16 @@ export interface RRuleSetOptions<
   readonly dtstart: DtStart<DT>;
   readonly rrules?: readonly RRule<DT>[];
   readonly exrules?: readonly RRule<DT>[];
-  readonly exdates?: readonly DT[];
-  readonly rdates?: readonly DT[];
+  readonly exdates?: readonly ExDate<DT>[];
+  readonly rdates?: readonly RDate<DT>[];
 }
 
 export interface RRuleSetLike<DT extends DateTimeLike | DateLike> {
   readonly dtstart: DtStartLike<DT>;
   readonly rrules: readonly RRuleLike<DT>[];
   readonly exrules: readonly RRuleLike<DT>[];
-  readonly exdates: readonly DT[];
-  readonly rdates: readonly DT[];
+  readonly exdates: readonly ExDateLike<DT>[];
+  readonly rdates: readonly RDateLike<DT>[];
 }
 
 export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
@@ -32,8 +34,8 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
   public readonly dtstart: DtStart<DT>;
   public readonly rrules: readonly RRule<DT>[];
   public readonly exrules: readonly RRule<DT>[];
-  public readonly exdates: readonly DT[];
-  public readonly rdates: readonly DT[];
+  public readonly exdates: readonly ExDate<DT>[];
+  public readonly rdates: readonly RDate<DT>[];
 
   /** @internal */
   private rust?: Rust;
@@ -78,8 +80,8 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
       dtstart: DtStart.fromPlain(plain.dtstart),
       rrules: plain.rrules.map((rrule) => RRule.fromPlain(rrule)),
       exrules: plain.exrules.map((rrule) => RRule.fromPlain(rrule)),
-      exdates: plain.exdates.map((datetime) => DateTime.fromPlain(datetime)),
-      rdates: plain.rdates.map((datetime) => DateTime.fromPlain(datetime)),
+      exdates: plain.exdates.map((datetime) => ExDate.fromPlain(datetime)),
+      rdates: plain.rdates.map((datetime) => RDate.fromPlain(datetime)),
     });
   }
 
@@ -96,10 +98,8 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
       }),
       rrules: rust.rrules.map((rrule) => RRule.fromRust<DT>(rrule)),
       exrules: rust.exrules.map((rrule) => RRule.fromRust<DT>(rrule)),
-      exdates: rust.exdates.map((datetime) =>
-        DateTime.fromNumeric<DT>(datetime),
-      ),
-      rdates: rust.rdates.map((datetime) => DateTime.fromNumeric<DT>(datetime)),
+      exdates: rust.exdates.map((exdate) => ExDate.fromRust<DT>(exdate)),
+      rdates: rust.rdates.map((rdate) => RDate.fromRust<DT>(rdate)),
     });
 
     set.rust = rust;
@@ -142,28 +142,28 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
     });
   }
 
-  public addExdate(datetime: DT): RRuleSet<DT> {
+  public addExdate(exdate: ExDate<DT>): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
-      exdates: [...this.exdates, datetime],
+      exdates: [...this.exdates, exdate],
     });
   }
 
-  public setExdates(datetimes: readonly DT[]): RRuleSet<DT> {
+  public setExdates(exdates: readonly ExDate<DT>[]): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
-      exdates: datetimes,
+      exdates: exdates,
     });
   }
 
-  public addRdate(datetime: DT): RRuleSet<DT> {
+  public addRdate(datetime: RDate<DT>): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       rdates: [...this.rdates, datetime],
     });
   }
 
-  public setRdates(datetimes: readonly DT[]): RRuleSet<DT> {
+  public setRdates(datetimes: readonly RDate<DT>[]): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       rdates: datetimes,
@@ -215,8 +215,8 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
       undefined,
       this.rrules.map((rrule) => rrule.toRust()),
       this.exrules.map((rrule) => rrule.toRust()),
-      this.exdates.map((datetime) => datetime.toNumeric()),
-      this.rdates.map((datetime) => datetime.toNumeric()),
+      this.exdates.map((exdate) => exdate.toRust()),
+      this.rdates.map((rdate) => rdate.toRust()),
     );
 
     return this.rust;

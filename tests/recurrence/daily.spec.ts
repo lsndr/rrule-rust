@@ -6,6 +6,7 @@ import {
   Weekday,
   DateTime,
   DtStart,
+  ExDate,
 } from '../../src';
 
 describe('Daily', () => {
@@ -243,7 +244,7 @@ describe('Daily', () => {
       }),
     )
       .addRrule(rrule)
-      .addExdate(DateTime.create(2000, 1, 31, 9, 0, 0, false));
+      .addExdate(new ExDate([DateTime.create(2000, 1, 31, 9, 0, 0, false)]));
 
     const dates = set.all();
 

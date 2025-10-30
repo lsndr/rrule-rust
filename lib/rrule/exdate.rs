@@ -48,6 +48,14 @@ impl ExDate {
     })
   }
 
+  pub fn tzid(&self) -> &Option<chrono_tz::Tz> {
+    &self.tzid
+  }
+
+  pub fn values(&self) -> &Vec<DateTime> {
+    &self.values
+  }
+
   pub fn value_type(&self) -> &Option<ValueType> {
     &self.value_type
   }
@@ -62,14 +70,28 @@ impl ExDate {
     }
   }
 
+  pub fn derive_timezone(&self) -> chrono_tz::Tz {
+    match self.tzid {
+      Some(tz) => tz.clone(),
+      None => chrono_tz::Tz::UTC,
+    }
+  }
+
   pub fn to_datetimes(
     &self,
     dtstart: &DtStart,
   ) -> Result<Vec<chrono::DateTime<chrono_tz::Tz>>, String> {
+    self.to_datetimes_with_fallback_tzid(dtstart.derive_timezone())
+  }
+
+  pub fn to_datetimes_with_fallback_tzid(
+    &self,
+    tzid: chrono_tz::Tz,
+  ) -> Result<Vec<chrono::DateTime<chrono_tz::Tz>>, String> {
     self
       .values
       .iter()
-      .map(|datetime| datetime.to_datetime(&self.tzid.unwrap_or(dtstart.derive_timezone())))
+      .map(|datetime| datetime.to_datetime(&self.tzid.unwrap_or(tzid)))
       .collect()
   }
 
@@ -99,10 +121,10 @@ impl ExDate {
       Value::Single(value) => value,
       _ => return Err("Invalid EXDATE value".to_string()),
     };
-    let datetimes: Result<Vec<DateTime>, String> = datetimes
+    let datetimes = datetimes
       .split(',')
       .map(|date| date.parse::<DateTime>())
-      .collect();
+      .collect::<Result<Vec<DateTime>, String>>()?;
 
     let tzid = match property.parameters().get("TZID") {
       Some(value) => {
@@ -126,7 +148,7 @@ impl ExDate {
       None => None,
     };
 
-    Self::new(datetimes?, tzid, value_type)
+    Self::new(datetimes, tzid, value_type)
   }
 }
 

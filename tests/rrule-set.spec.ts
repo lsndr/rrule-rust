@@ -1,12 +1,20 @@
-import { DtStart, DateTime, Frequency, RRule, RRuleSet } from '../src';
+import {
+  DtStart,
+  DateTime,
+  Frequency,
+  RRule,
+  RRuleSet,
+  ExDate,
+  RDate,
+} from '../src';
 
 describe(RRuleSet, () => {
   describe('constructor', () => {
     it('should create rrule set from object', () => {
       const rrule = new RRule(Frequency.Weekly).setCount(10);
       const exrule = new RRule(Frequency.Weekly).setCount(10);
-      const exdate = DateTime.create(1997, 9, 2, 9, 0, 0, false);
-      const rdate = DateTime.create(1997, 9, 2, 9, 0, 0, false);
+      const exdate = new ExDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
+      const rdate = new RDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet({
         dtstart: new DtStart({
           datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -83,7 +91,7 @@ describe(RRuleSet, () => {
 
   describe('addExdate', () => {
     it('should add exdate', () => {
-      const exdate = DateTime.create(1997, 9, 2, 9, 0, 0, false);
+      const exdate = new ExDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet(
         new DtStart(DateTime.create(1997, 9, 2, 9, 0, 0, false)).setTzid(
           'Asia/Tbilisi',
@@ -99,7 +107,7 @@ describe(RRuleSet, () => {
 
   describe('addRdate', () => {
     it('should add rdate', () => {
-      const rdate = DateTime.create(1997, 9, 2, 9, 0, 0, false);
+      const rdate = new RDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet(
         new DtStart({
           datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -150,7 +158,7 @@ describe(RRuleSet, () => {
 
   describe('setExdates', () => {
     it('should set exdates', () => {
-      const exdate = DateTime.create(1997, 9, 2, 9, 0, 0, false);
+      const exdate = new ExDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet(
         new DtStart({
           datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -167,7 +175,7 @@ describe(RRuleSet, () => {
 
   describe('setRdates', () => {
     it('should set rdates', () => {
-      const rdate = DateTime.create(1997, 9, 2, 9, 0, 0, false);
+      const rdate = new RDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet(
         new DtStart({
           datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),

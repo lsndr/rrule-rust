@@ -10,7 +10,7 @@ path = "lib/lib.rs"
 [dependencies]
 chrono = "0.4.42"
 chrono-tz = "0.10.4"
-indexmap = "2.10.0"
+indexmap = "2.12.0"
 itertools = "0.14.0"
 napi = "3.2.3"
 napi-derive = "3.2.3"

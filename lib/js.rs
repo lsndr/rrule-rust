@@ -2,6 +2,7 @@ pub mod exdate;
 pub mod frequency;
 pub mod month;
 pub mod n_weekday;
+pub mod rdate;
 pub mod rrule;
 pub mod rrule_set;
 pub mod weekday;

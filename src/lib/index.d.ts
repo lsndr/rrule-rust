@@ -6,6 +6,12 @@ export declare class ExDate {
   get tzid(): string | null
 }
 
+export declare class RDate {
+  constructor(datetimes: readonly number[], tzid?: string | undefined | null)
+  get values(): Array<number>
+  get tzid(): string | null
+}
+
 export declare class RRule {
   constructor(frequency: Frequency, interval?: number | undefined | null, count?: number | undefined | null, weekstart?: Weekday | undefined | null, until?: number | undefined | null, byWeekday?: (readonly (NWeekday | Weekday)[]) | undefined | null, byHour?: (readonly number[]) | undefined | null, byMinute?: (readonly number[]) | undefined | null, bySecond?: (readonly number[]) | undefined | null, byMonthday?: (readonly number[]) | undefined | null, bySetpos?: (readonly number[]) | undefined | null, byMonth?: (readonly number[]) | undefined | null, byWeekno?: (readonly number[]) | undefined | null, byYearday?: (readonly number[]) | undefined | null)
   static parse(str: string): RRule
@@ -27,13 +33,13 @@ export declare class RRule {
 }
 
 export declare class RRuleSet {
-  constructor(dtstart: number, tzid?: string | undefined | null, dtstartValue?: string | undefined | null, rrules?: (readonly RRule[]) | undefined | null, exrules?: (readonly RRule[]) | undefined | null, exdates?: (readonly ExDate[]) | undefined | null, rdates?: (readonly number[]) | undefined | null)
+  constructor(dtstart: number, tzid?: string | undefined | null, dtstartValue?: string | undefined | null, rrules?: (readonly RRule[]) | undefined | null, exrules?: (readonly RRule[]) | undefined | null, exdates?: (readonly ExDate[]) | undefined | null, rdates?: (readonly RDate[]) | undefined | null)
   get tzid(): string | null
   get dtstart(): number
   get rrules(): RRule[]
   get exrules(): RRule[]
   get exdates(): ExDate[]
-  get rdates(): number[]
+  get rdates(): RDate[]
   static parse(str: string): RRuleSet
   all(limit?: number | undefined | null): number[]
   between(afterDatetime: number, beforeDatetime: number, inclusive?: boolean | undefined | null): number[]

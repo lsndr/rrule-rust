@@ -57,6 +57,7 @@ const {
 })
 export default __napiModule.exports
 export const ExDate = __napiModule.exports.ExDate
+export const RDate = __napiModule.exports.RDate
 export const RRule = __napiModule.exports.RRule
 export const RRuleSet = __napiModule.exports.RRuleSet
 export const RRuleSetIterator = __napiModule.exports.RRuleSetIterator

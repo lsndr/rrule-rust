@@ -1,4 +1,4 @@
-import { RRuleSet, DateTime, RRule, DtStart, ExDate } from '../../src';
+import { RRuleSet, DateTime, RRule, DtStart, ExDate, RDate } from '../../src';
 
 describe(RRuleSet, () => {
   describe('EXDATE', () => {
@@ -322,7 +322,12 @@ describe(RRuleSet, () => {
       rdate: 'RDATE;TZID=America/New_York:20240921T130000',
       expected: {
         tzid: undefined,
-        rdates: [DateTime.create(2024, 9, 21, 17, 0, 0, true)],
+        rdates: [
+          new RDate(
+            [DateTime.create(2024, 9, 21, 13, 0, 0, false)],
+            'America/New_York',
+          ),
+        ],
       },
     },
     {
@@ -330,7 +335,7 @@ describe(RRuleSet, () => {
       rdate: 'RDATE:20240921T130000Z',
       expected: {
         tzid: 'America/New_York',
-        rdates: [DateTime.create(2024, 9, 21, 9, 0, 0, false)],
+        rdates: [new RDate([DateTime.create(2024, 9, 21, 13, 0, 0, true)])],
       },
     },
     {
@@ -338,7 +343,12 @@ describe(RRuleSet, () => {
       rdate: 'RDATE;TZID=America/New_York:20240921T170000',
       expected: {
         tzid: 'America/New_York',
-        rdates: [DateTime.create(2024, 9, 21, 17, 0, 0, false)],
+        rdates: [
+          new RDate(
+            [DateTime.create(2024, 9, 21, 17, 0, 0, false)],
+            'America/New_York',
+          ),
+        ],
       },
     },
     {
@@ -346,7 +356,9 @@ describe(RRuleSet, () => {
       rdate: 'RDATE;TZID=UTC:20240921T170000',
       expected: {
         tzid: 'Europe/Moscow',
-        rdates: [DateTime.create(2024, 9, 21, 20, 0, 0, false)],
+        rdates: [
+          new RDate([DateTime.create(2024, 9, 21, 17, 0, 0, false)], 'UTC'),
+        ],
       },
     },
   ])(
@@ -380,7 +392,7 @@ describe(RRuleSet, () => {
       }),
       rrules: [new RRule(1)],
       exdates: [new ExDate([utcDate])],
-      rdates: [utcDate],
+      rdates: [new RDate([utcDate])],
     });
 
     expect(set.toString()).toBe(

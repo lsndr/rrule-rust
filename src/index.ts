@@ -3,3 +3,4 @@ export * from './rrule';
 export * from './datetime';
 export * from './dtstart';
 export * from './exdate';
+export * from './rdate';

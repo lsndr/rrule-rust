@@ -1,4 +1,12 @@
-import { DtStart, DateTime, Frequency, RRule, RRuleSet, ExDate } from '../src';
+import {
+  DtStart,
+  DateTime,
+  Frequency,
+  RRule,
+  RRuleSet,
+  ExDate,
+  RDate,
+} from '../src';
 
 describe(RRuleSet, () => {
   describe('constructor', () => {
@@ -6,7 +14,7 @@ describe(RRuleSet, () => {
       const rrule = new RRule(Frequency.Weekly).setCount(10);
       const exrule = new RRule(Frequency.Weekly).setCount(10);
       const exdate = new ExDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
-      const rdate = DateTime.create(1997, 9, 2, 9, 0, 0, false);
+      const rdate = new RDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet({
         dtstart: new DtStart({
           datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -99,7 +107,7 @@ describe(RRuleSet, () => {
 
   describe('addRdate', () => {
     it('should add rdate', () => {
-      const rdate = DateTime.create(1997, 9, 2, 9, 0, 0, false);
+      const rdate = new RDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet(
         new DtStart({
           datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
@@ -167,7 +175,7 @@ describe(RRuleSet, () => {
 
   describe('setRdates', () => {
     it('should set rdates', () => {
-      const rdate = DateTime.create(1997, 9, 2, 9, 0, 0, false);
+      const rdate = new RDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet(
         new DtStart({
           datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),

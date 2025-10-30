@@ -16,7 +16,7 @@ permissions:
   contents: read
 jobs:
   build_and_test:
-    uses: ./.github/workflows/composite/build-and-test.yml
+    uses: ./.github/workflows/composite/build-and-test
   release:
     name: Release
     runs-on: ubuntu-latest

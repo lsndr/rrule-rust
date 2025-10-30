@@ -59,4 +59,4 @@ jobs:
         run: |
           npm run build:tests
   build_and_test:
-    uses: ./.github/workflows/composite/build-and-test.yml
+    uses: ./.github/workflows/composite/build-and-test

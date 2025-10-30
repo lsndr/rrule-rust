@@ -1,3 +1,4 @@
+pub mod exdate;
 pub mod frequency;
 pub mod month;
 pub mod n_weekday;

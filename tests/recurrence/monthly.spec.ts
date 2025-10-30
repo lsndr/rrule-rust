@@ -5,6 +5,7 @@ import {
   Weekday,
   DateTime,
   DtStart,
+  ExDate,
 } from '../../src';
 
 describe('Monthly', () => {
@@ -114,7 +115,7 @@ describe('Monthly', () => {
       }),
     )
       .addRrule(rrule)
-      .addExdate(DateTime.create(1998, 11, 13, 9, 0, 0, false));
+      .addExdate(new ExDate([DateTime.create(1998, 11, 13, 9, 0, 0, false)]));
 
     const asString = set.toString();
     const dates = set.all();
@@ -329,7 +330,7 @@ describe('Monthly', () => {
       .addRrule(rrule)
       .addRdate(DateTime.create(2012, 7, 1, 2, 30, 0, false))
       .addRdate(DateTime.create(2012, 7, 2, 2, 30, 0, false))
-      .addExdate(DateTime.create(2012, 6, 1, 2, 30, 0, false));
+      .addExdate(new ExDate([DateTime.create(2012, 6, 1, 2, 30, 0, false)]));
 
     const dates = set.all();
 
@@ -337,7 +338,9 @@ describe('Monthly', () => {
       DateTime.create(2012, 7, 1, 2, 30, 0, false),
       DateTime.create(2012, 7, 2, 2, 30, 0, false),
     ]);
-    expect(set.exdates).toEqual([DateTime.create(2012, 6, 1, 2, 30, 0, false)]);
+    expect(set.exdates).toEqualPlain([
+      new ExDate([DateTime.create(2012, 6, 1, 2, 30, 0, false)]),
+    ]);
     expect(dates).toEqualPlain([
       // TODO: Verify whether it should marked as utc. Think about returning tzid
       DateTime.create(2012, 2, 1, 2, 30, 0, true),

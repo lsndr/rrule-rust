@@ -6,6 +6,7 @@ import {
   Weekday,
   DateTime,
   DtStart,
+  ExDate,
 } from '../../src';
 
 describe('Yearly', () => {
@@ -198,7 +199,7 @@ describe('Yearly', () => {
         tzid: 'US/Eastern',
       }),
     )
-      .addExdate(DateTime.create(1998, 3, 13, 9, 0, 0, false))
+      .addExdate(new ExDate([DateTime.create(1998, 3, 13, 9, 0, 0, false)]))
       .addRrule(rrule);
 
     const asString = set.toString();

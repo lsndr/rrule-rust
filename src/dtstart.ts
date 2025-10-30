@@ -23,10 +23,7 @@ export class DtStart<
   public readonly datetime: DT;
   public readonly tzid?: string;
 
-  public constructor(
-    datetime: DateTime<Time> | DateTime<undefined>,
-    tzid?: string,
-  );
+  public constructor(datetime: DT, tzid?: string);
   public constructor(options: DtStartOptions<DT>);
   public constructor(
     datetimeOrOptions: DT | DtStartOptions<DT>,
@@ -37,7 +34,7 @@ export class DtStart<
       this.tzid = datetimeOrOptions.tzid;
     } else {
       this.datetime = datetimeOrOptions;
-      this.tzid = tzid!;
+      this.tzid = tzid;
     }
   }
 

@@ -1,10 +1,10 @@
+use super::exdate::ExDate;
 use super::rrule::RRule;
 use crate::rrule::datetime::DateTime;
 use crate::rrule::dtstart::DtStart;
-use crate::rrule::exdate::ExDate;
 use crate::rrule::rdate::RDate;
 use crate::rrule::value_type::ValueType;
-use crate::rrule::{rrule, rrule_set};
+use crate::rrule::{exdate, rrule, rrule_set};
 use napi::bindgen_prelude::{Array, Reference, SharedReference};
 use napi::Env;
 use napi_derive::napi;
@@ -24,7 +24,7 @@ impl RRuleSet {
     dtstart_value: Option<String>,
     #[napi(ts_arg_type = "(readonly RRule[]) | undefined | null")] rrules: Option<Vec<&RRule>>,
     #[napi(ts_arg_type = "(readonly RRule[]) | undefined | null")] exrules: Option<Vec<&RRule>>,
-    #[napi(ts_arg_type = "(readonly number[]) | undefined | null")] exdates: Option<Vec<i64>>,
+    #[napi(ts_arg_type = "(readonly ExDate[]) | undefined | null")] exdates: Option<Vec<&ExDate>>,
     #[napi(ts_arg_type = "(readonly number[]) | undefined | null")] rdates: Option<Vec<i64>>,
   ) -> napi::Result<Self> {
     let tzid: Option<chrono_tz::Tz> = match tzid {
@@ -56,7 +56,7 @@ impl RRuleSet {
       .map(|rrule| rrule.into())
       .collect();
 
-    let exdates: Vec<ExDate> = exdates
+    let exdates: Vec<exdate::ExDate> = exdates
       .unwrap_or_default()
       .into_iter()
       .map(Into::into)
@@ -121,24 +121,16 @@ impl RRuleSet {
     )
   }
 
-  #[napi(getter, ts_return_type = "number[]")]
-  pub fn exdates(&self) -> napi::Result<Vec<i64>> {
-    let mut exdates = Vec::<i64>::new();
-
-    for exdate in self.rrule_set.exdates() {
-      let datetimes = exdate
-        .to_datetimes(&self.rrule_set.dtstart())
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
-
-      for datetime in datetimes.iter() {
-        let datetime = datetime.with_timezone(&self.rrule_set.dtstart().derive_timezone());
-        let datetime = DateTime::from(&datetime);
-
-        exdates.push((&datetime).into());
-      }
-    }
-
-    Ok(exdates)
+  #[napi(getter, ts_return_type = "ExDate[]")]
+  pub fn exdates(&self) -> napi::Result<Vec<ExDate>> {
+    Ok(
+      self
+        .rrule_set
+        .exdates()
+        .iter()
+        .map(|exdate| exdate.clone().into())
+        .collect(),
+    )
   }
 
   #[napi(getter, ts_return_type = "number[]")]

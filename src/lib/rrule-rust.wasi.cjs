@@ -108,6 +108,7 @@ const { instance: __napiInstance, module: __wasiModule, napiModule: __napiModule
   },
 })
 module.exports = __napiModule.exports
+module.exports.ExDate = __napiModule.exports.ExDate
 module.exports.RRule = __napiModule.exports.RRule
 module.exports.RRuleSet = __napiModule.exports.RRuleSet
 module.exports.RRuleSetIterator = __napiModule.exports.RRuleSetIterator

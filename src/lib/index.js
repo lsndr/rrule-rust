@@ -393,6 +393,7 @@ if (!nativeBinding) {
 }
 
 module.exports = nativeBinding
+module.exports.ExDate = nativeBinding.ExDate
 module.exports.RRule = nativeBinding.RRule
 module.exports.RRuleSet = nativeBinding.RRuleSet
 module.exports.RRuleSetIterator = nativeBinding.RRuleSetIterator

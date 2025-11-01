@@ -76,7 +76,7 @@ describe('DtStart', () => {
         datetime: DateTime.utc(2024, 1, 1, 12, 0, 0),
         tzid: 'America/New_York',
         expected: {
-          datetime: {
+          value: {
             year: 2024,
             month: 1,
             day: 1,
@@ -91,7 +91,7 @@ describe('DtStart', () => {
       {
         datetime: DateTime.date(2024, 1, 1),
         expected: {
-          datetime: {
+          value: {
             year: 2024,
             month: 1,
             day: 1,
@@ -116,7 +116,7 @@ describe('DtStart', () => {
           'America/New_York',
         ),
         plain: {
-          datetime: {
+          value: {
             year: 2024,
             month: 1,
             day: 1,
@@ -131,7 +131,7 @@ describe('DtStart', () => {
       {
         dtstart: new DtStart(DateTime.date(2024, 1, 1)),
         plain: {
-          datetime: {
+          value: {
             year: 2024,
             month: 1,
             day: 1,

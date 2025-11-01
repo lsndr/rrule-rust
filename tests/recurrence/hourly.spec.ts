@@ -5,7 +5,7 @@ describe('Hourly', () => {
     const rrule = new RRule(Frequency.Hourly).setCount(5);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(2024, 6, 8, 4, 0, 0, false),
+        value: DateTime.create(2024, 6, 8, 4, 0, 0, false),
         tzid: 'America/Cancun',
       }),
     ).addRRule(rrule);
@@ -30,7 +30,7 @@ describe('Hourly', () => {
     const rrule = new RRule(Frequency.Hourly).setCount(6).setByHour([5, 8]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(2024, 6, 8, 4, 0, 0, false),
+        value: DateTime.create(2024, 6, 8, 4, 0, 0, false),
         tzid: 'America/Cancun',
       }),
     ).addRRule(rrule);
@@ -56,7 +56,7 @@ describe('Hourly', () => {
     const rrule = new RRule(Frequency.Hourly).setCount(4).setBySecond([9, 10]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(2024, 6, 8, 4, 0, 0, false),
+        value: DateTime.create(2024, 6, 8, 4, 0, 0, false),
         tzid: 'America/Cancun',
       }),
     ).addRRule(rrule);

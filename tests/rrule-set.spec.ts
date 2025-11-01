@@ -17,7 +17,7 @@ describe(RRuleSet, () => {
       const rdate = new RDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet({
         dtstart: new DtStart({
-          datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+          value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
           tzid: 'US/Eastern',
         }),
         rrules: [rrule],
@@ -39,7 +39,7 @@ describe(RRuleSet, () => {
     it('should creat rrule set from dtstart', () => {
       const set = new RRuleSet(
         new DtStart({
-          datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+          value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
           tzid: 'US/Eastern',
         }),
       );
@@ -60,7 +60,7 @@ describe(RRuleSet, () => {
       const rrule = new RRule(Frequency.Weekly).setCount(10);
       const set = new RRuleSet(
         new DtStart({
-          datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+          value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
           tzid: 'Asia/Tbilisi',
         }),
       );
@@ -77,7 +77,7 @@ describe(RRuleSet, () => {
       const exrule = new RRule(Frequency.Weekly).setCount(10);
       const set = new RRuleSet(
         new DtStart({
-          datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+          value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
           tzid: 'Asia/Tbilisi',
         }),
       );
@@ -110,7 +110,7 @@ describe(RRuleSet, () => {
       const rdate = new RDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet(
         new DtStart({
-          datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+          value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
           tzid: 'Asia/Tbilisi',
         }),
       );
@@ -127,7 +127,7 @@ describe(RRuleSet, () => {
       const rrule = new RRule(Frequency.Weekly).setCount(10);
       const set = new RRuleSet(
         new DtStart({
-          datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+          value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
           tzid: 'Asia/Tbilisi',
         }),
       );
@@ -144,7 +144,7 @@ describe(RRuleSet, () => {
       const exrule = new RRule(Frequency.Weekly).setCount(10);
       const set = new RRuleSet(
         new DtStart({
-          datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+          value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
           tzid: 'Asia/Tbilisi',
         }),
       );
@@ -161,7 +161,7 @@ describe(RRuleSet, () => {
       const exdate = new ExDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet(
         new DtStart({
-          datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+          value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
           tzid: 'Asia/Tbilisi',
         }),
       );
@@ -178,7 +178,7 @@ describe(RRuleSet, () => {
       const rdate = new RDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet(
         new DtStart({
-          datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+          value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
           tzid: 'Asia/Tbilisi',
         }),
       );

@@ -16,7 +16,7 @@ describe('Yearly', () => {
       .setByMonth([Month.June, Month.July]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 6, 10, 9, 0, 0, false),
+        value: DateTime.create(1997, 6, 10, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -49,7 +49,7 @@ describe('Yearly', () => {
       .setByMonth([Month.January, Month.February, Month.March]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 3, 10, 9, 0, 0, false),
+        value: DateTime.create(1997, 3, 10, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -82,7 +82,7 @@ describe('Yearly', () => {
       .setByYearday([1, 100, 200]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 1, 1, 9, 0, 0, false),
+        value: DateTime.create(1997, 1, 1, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -114,7 +114,7 @@ describe('Yearly', () => {
       .setBySetpos([20]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 5, 12, 9, 0, 0, false),
+        value: DateTime.create(1997, 5, 12, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -139,7 +139,7 @@ describe('Yearly', () => {
       .setByWeekno([20]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 5, 12, 9, 0, 0, false),
+        value: DateTime.create(1997, 5, 12, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -163,7 +163,7 @@ describe('Yearly', () => {
       .setByWeekday([Weekday.Thursday]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 3, 13, 9, 0, 0, false),
+        value: DateTime.create(1997, 3, 13, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -195,7 +195,7 @@ describe('Yearly', () => {
       .setByMonthday([13]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     )
@@ -227,7 +227,7 @@ describe('Yearly', () => {
       .setByMonthday([2, 3, 4, 5, 6, 7, 8]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1996, 11, 5, 9, 0, 0, false),
+        value: DateTime.create(1996, 11, 5, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);

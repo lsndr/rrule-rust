@@ -93,7 +93,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
   ): RRuleSet<DT> {
     const set = new RRuleSet<DT>({
       dtstart: new DtStart<DT>({
-        datetime: DateTime.fromNumeric<DT>(rust.dtstart),
+        value: DateTime.fromNumeric<DT>(rust.dtstart),
         tzid: rust.tzid ?? undefined,
       }),
       rrules: rust.rrules.map((rrule) => RRule.fromRust<DT>(rrule)),

@@ -17,7 +17,7 @@ describe('Monthly', () => {
       .setBySetpos([1]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -50,7 +50,7 @@ describe('Monthly', () => {
       .setBySetpos([1]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -78,7 +78,7 @@ describe('Monthly', () => {
       .setBySetpos([1, -1]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -111,7 +111,7 @@ describe('Monthly', () => {
       .setByMonthday([13]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'America/New_York',
       }),
     )
@@ -146,7 +146,7 @@ describe('Monthly', () => {
       .setBySetpos([-2]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 29, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 29, 9, 0, 0, false),
         tzid: 'America/New_York',
       }),
     ).addRRule(rrule);
@@ -176,7 +176,7 @@ describe('Monthly', () => {
       .setBySetpos([-2]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -202,7 +202,7 @@ describe('Monthly', () => {
     const rrule = new RRule(Frequency.Monthly).setByMonthday([-3]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -229,7 +229,7 @@ describe('Monthly', () => {
       .setByMonthday([2, 15]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -261,7 +261,7 @@ describe('Monthly', () => {
       .setByMonthday([1, -1]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -294,7 +294,7 @@ describe('Monthly', () => {
       .setByMonthday([10, 11, 12, 13, 14, 15]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -324,7 +324,7 @@ describe('Monthly', () => {
     const rrule = new RRule(Frequency.Monthly).setCount(5);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(2012, 2, 1, 2, 30, 0, false),
+        value: DateTime.create(2012, 2, 1, 2, 30, 0, false),
         tzid: 'UTC',
       }),
     )
@@ -360,7 +360,7 @@ describe('Monthly', () => {
       .setByWeekday([Weekday.Tuesday]);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -399,7 +399,7 @@ describe('Monthly', () => {
       .setCount(6);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 22, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 22, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);

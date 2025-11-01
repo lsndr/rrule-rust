@@ -5,7 +5,7 @@ describe('Secondly', () => {
     const rrule = new RRule(Frequency.Secondly).setCount(5);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(2024, 6, 8, 4, 0, 0, false),
+        value: DateTime.create(2024, 6, 8, 4, 0, 0, false),
         tzid: 'America/Cancun',
       }),
     ).addRRule(rrule);

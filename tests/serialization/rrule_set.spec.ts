@@ -216,7 +216,7 @@ describe(RRuleSet, () => {
   it('should be able to parse rule set without dtstart', () => {
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).setFromString(
@@ -231,7 +231,7 @@ describe(RRuleSet, () => {
   it('should parse dtstart from string', () => {
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).setFromString(
@@ -246,7 +246,7 @@ describe(RRuleSet, () => {
   it('should add rrule with until', () => {
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).setFromString(
@@ -388,7 +388,7 @@ describe(RRuleSet, () => {
 
     const set = new RRuleSet({
       dtstart: new DtStart({
-        datetime: utcDate,
+        value: utcDate,
       }),
       rrules: [new RRule(1)],
       exdates: [new ExDate([utcDate])],

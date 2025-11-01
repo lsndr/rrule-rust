@@ -13,7 +13,7 @@ describe('Daily', () => {
   it('daily for 10 occurrences (date-only)', () => {
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.date(1997, 9, 2),
+        value: DateTime.date(1997, 9, 2),
         tzid: 'US/Eastern',
       }),
     ).addRRule(new RRule<DateTime<undefined>>(Frequency.Daily).setCount(10));
@@ -43,7 +43,7 @@ describe('Daily', () => {
     const rrule = new RRule(Frequency.Daily).setCount(10);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -73,7 +73,7 @@ describe('Daily', () => {
     const rrule = new RRule(Frequency.Daily).setCount(10);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -99,7 +99,7 @@ describe('Daily', () => {
     const rrule = new RRule(Frequency.Daily).setCount(10);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -123,7 +123,7 @@ describe('Daily', () => {
     );
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -148,7 +148,7 @@ describe('Daily', () => {
     const rrule = new RRule(Frequency.Daily).setCount(6).setInterval(2);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -174,7 +174,7 @@ describe('Daily', () => {
     const rrule = new RRule(Frequency.Daily).setCount(5).setInterval(10);
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -202,7 +202,7 @@ describe('Daily', () => {
       .setUntil(DateTime.create(2000, 1, 31, 14, 0, 0, false));
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
     ).addRRule(rrule);
@@ -239,7 +239,7 @@ describe('Daily', () => {
 
     const set = new RRuleSet(
       new DtStart({
-        datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
+        value: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'Asia/Tbilisi',
       }),
     )

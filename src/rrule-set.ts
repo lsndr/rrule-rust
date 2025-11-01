@@ -107,63 +107,63 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
     return set;
   }
 
-  public setDtstart(dtstart: DtStart<DT>): RRuleSet<DT> {
+  public setDtStart(dtstart: DtStart<DT>): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       dtstart: dtstart,
     });
   }
 
-  public addRrule<RRDT extends DT>(rrule: RRule<RRDT>): RRuleSet<DT> {
+  public addRRule<RRDT extends DT>(rrule: RRule<RRDT>): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       rrules: [...this.rrules, rrule],
     });
   }
 
-  public setRrules(rrules: readonly RRule<DT>[]): RRuleSet<DT> {
+  public setRRules(rrules: readonly RRule<DT>[]): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       rrules: rrules,
     });
   }
 
-  public addExrule(rrule: RRule<DT>): RRuleSet<DT> {
+  public addExRule(rrule: RRule<DT>): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       exrules: [...this.exrules, rrule],
     });
   }
 
-  public setExrules(rrules: readonly RRule<DT>[]): RRuleSet<DT> {
+  public setExRules(rrules: readonly RRule<DT>[]): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       exrules: rrules,
     });
   }
 
-  public addExdate(exdate: ExDate<DT>): RRuleSet<DT> {
+  public addExDate(exdate: ExDate<DT>): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       exdates: [...this.exdates, exdate],
     });
   }
 
-  public setExdates(exdates: readonly ExDate<DT>[]): RRuleSet<DT> {
+  public setExDates(exdates: readonly ExDate<DT>[]): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       exdates: exdates,
     });
   }
 
-  public addRdate(datetime: RDate<DT>): RRuleSet<DT> {
+  public addRDate(datetime: RDate<DT>): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       rdates: [...this.rdates, datetime],
     });
   }
 
-  public setRdates(datetimes: readonly RDate<DT>[]): RRuleSet<DT> {
+  public setRDates(datetimes: readonly RDate<DT>[]): RRuleSet<DT> {
     return new RRuleSet({
       ...this.toOptions(),
       rdates: datetimes,

@@ -25,17 +25,24 @@ export class RDate<
   /** @internal */
   private rust?: Rust;
 
-  // TODO: support single DateTime for simplicity
-  // new RDate(DateTime.date(..)) instead of new RDate([DateTime.date(..)])
+  public constructor(values: DT, tzid?: string);
   public constructor(values: DT[], tzid?: string);
   public constructor(options: RDateOptions<DT>);
-  public constructor(valuesOrOptions: DT[] | RDateOptions<DT>, tzid?: string) {
-    if (!Array.isArray(valuesOrOptions)) {
-      this.values = valuesOrOptions.values;
-      this.tzid = valuesOrOptions.tzid;
-    } else {
-      this.values = valuesOrOptions;
+  public constructor(
+    valueOrValuesOrOptions: DT | DT[] | RDateOptions<DT>,
+    tzid?: string,
+  ) {
+    if (
+      Array.isArray(valueOrValuesOrOptions) ||
+      valueOrValuesOrOptions instanceof DateTime
+    ) {
+      this.values = Array.isArray(valueOrValuesOrOptions)
+        ? valueOrValuesOrOptions
+        : [valueOrValuesOrOptions];
       this.tzid = tzid;
+    } else {
+      this.values = valueOrValuesOrOptions.values;
+      this.tzid = valueOrValuesOrOptions.tzid;
     }
   }
 

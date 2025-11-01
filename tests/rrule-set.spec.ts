@@ -13,7 +13,7 @@ describe(RRuleSet, () => {
     it('should create rrule set from object', () => {
       const rrule = new RRule(Frequency.Weekly).setCount(10);
       const exrule = new RRule(Frequency.Weekly).setCount(10);
-      const exdate = new ExDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
+      const exdate = new ExDate(DateTime.create(1997, 9, 2, 9, 0, 0, false));
       const rdate = new RDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
       const set = new RRuleSet({
         dtstart: new DtStart({
@@ -158,7 +158,7 @@ describe(RRuleSet, () => {
 
   describe('setExdates', () => {
     it('should set exdates', () => {
-      const exdate = new ExDate([DateTime.create(1997, 9, 2, 9, 0, 0, false)]);
+      const exdate = new ExDate(DateTime.create(1997, 9, 2, 9, 0, 0, false));
       const set = new RRuleSet(
         new DtStart({
           value: DateTime.create(1997, 9, 2, 9, 0, 0, false),

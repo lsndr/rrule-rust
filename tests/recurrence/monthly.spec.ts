@@ -329,8 +329,8 @@ describe('Monthly', () => {
       }),
     )
       .addRRule(rrule)
-      .addRDate(new RDate([DateTime.create(2012, 7, 1, 2, 30, 0, false)]))
-      .addRDate(new RDate([DateTime.create(2012, 7, 2, 2, 30, 0, false)]))
+      .addRDate(new RDate(DateTime.create(2012, 7, 1, 2, 30, 0, false)))
+      .addRDate(new RDate(DateTime.create(2012, 7, 2, 2, 30, 0, false)))
       .addExDate(new ExDate([DateTime.create(2012, 6, 1, 2, 30, 0, false)]));
 
     const dates = set.all();

@@ -24,7 +24,7 @@ describe('Commonjs', () => {
           datetime: DateTime.create(1997, 6, 10, 9, 0, 0, false),
           tzid: 'US/Eastern',
         }),
-      ).addRrule(rrule);
+      ).addRRule(rrule);
 
       return {
         asString: set.toString(),

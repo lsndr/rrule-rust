@@ -8,7 +8,7 @@ describe('Hourly', () => {
         datetime: DateTime.create(2024, 6, 8, 4, 0, 0, false),
         tzid: 'America/Cancun',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const dates = set.all();
     const asString = set.toString();
@@ -33,7 +33,7 @@ describe('Hourly', () => {
         datetime: DateTime.create(2024, 6, 8, 4, 0, 0, false),
         tzid: 'America/Cancun',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const dates = set.all();
     const asString = set.toString();
@@ -59,7 +59,7 @@ describe('Hourly', () => {
         datetime: DateTime.create(2024, 6, 8, 4, 0, 0, false),
         tzid: 'America/Cancun',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const dates = set.all();
     const asString = set.toString();

@@ -26,7 +26,7 @@ describe(RRuleSet, () => {
         rdates: [rdate],
       });
 
-      expect(set.dtstart.datetime).toEqual(
+      expect(set.dtstart.value).toEqual(
         DateTime.create(1997, 9, 2, 9, 0, 0, false),
       );
       expect(set.dtstart.tzid).toBe('US/Eastern');
@@ -44,7 +44,7 @@ describe(RRuleSet, () => {
         }),
       );
 
-      expect(set.dtstart.datetime).toEqual(
+      expect(set.dtstart.value).toEqual(
         DateTime.create(1997, 9, 2, 9, 0, 0, false),
       );
       expect(set.dtstart.tzid).toBe('US/Eastern');
@@ -65,7 +65,7 @@ describe(RRuleSet, () => {
         }),
       );
 
-      const newSet = set.addRrule(rrule);
+      const newSet = set.addRRule(rrule);
 
       expect(set.rrules).toEqual([]);
       expect(newSet.rrules).toEqual([rrule]);
@@ -82,7 +82,7 @@ describe(RRuleSet, () => {
         }),
       );
 
-      const newSet = set.addExrule(exrule);
+      const newSet = set.addExRule(exrule);
 
       expect(set.exrules).toEqual([]);
       expect(newSet.exrules).toEqual([exrule]);
@@ -98,7 +98,7 @@ describe(RRuleSet, () => {
         ),
       );
 
-      const newSet = set.addExdate(exdate);
+      const newSet = set.addExDate(exdate);
 
       expect(set.exdates).toEqual([]);
       expect(newSet.exdates).toEqual([exdate]);
@@ -115,7 +115,7 @@ describe(RRuleSet, () => {
         }),
       );
 
-      const newSet = set.addRdate(rdate);
+      const newSet = set.addRDate(rdate);
 
       expect(set.rdates).toEqual([]);
       expect(newSet.rdates).toEqual([rdate]);
@@ -132,7 +132,7 @@ describe(RRuleSet, () => {
         }),
       );
 
-      const newSet = set.setRrules([rrule]);
+      const newSet = set.setRRules([rrule]);
 
       expect(set.rrules).toEqual([]);
       expect(newSet.rrules).toEqual([rrule]);
@@ -149,7 +149,7 @@ describe(RRuleSet, () => {
         }),
       );
 
-      const newSet = set.setExrules([exrule]);
+      const newSet = set.setExRules([exrule]);
 
       expect(set.exrules).toEqual([]);
       expect(newSet.exrules).toEqual([exrule]);
@@ -166,7 +166,7 @@ describe(RRuleSet, () => {
         }),
       );
 
-      const newSet = set.setExdates([exdate]);
+      const newSet = set.setExDates([exdate]);
 
       expect(set.exdates).toEqual([]);
       expect(newSet.exdates).toEqual([exdate]);
@@ -183,7 +183,7 @@ describe(RRuleSet, () => {
         }),
       );
 
-      const newSet = set.setRdates([rdate]);
+      const newSet = set.setRDates([rdate]);
 
       expect(set.rdates).toEqual([]);
       expect(newSet.rdates).toEqual([rdate]);

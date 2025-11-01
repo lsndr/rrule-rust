@@ -20,7 +20,7 @@ export interface DtStartLike<DT extends DateTimeLike | DateLike> {
 export class DtStart<
   DT extends DateTime<Time> | DateTime<undefined> = DateTime<Time>,
 > {
-  public readonly datetime: DT;
+  public readonly value: DT;
   public readonly tzid?: string;
 
   public constructor(datetime: DT, tzid?: string);
@@ -30,10 +30,10 @@ export class DtStart<
     tzid?: string,
   ) {
     if ('datetime' in datetimeOrOptions) {
-      this.datetime = datetimeOrOptions.datetime;
+      this.value = datetimeOrOptions.datetime;
       this.tzid = datetimeOrOptions.tzid;
     } else {
-      this.datetime = datetimeOrOptions;
+      this.value = datetimeOrOptions;
       this.tzid = tzid;
     }
   }
@@ -54,10 +54,10 @@ export class DtStart<
   }
 
   public setTzid(tzid: string | undefined): DtStart<DT> {
-    return new DtStart(this.datetime, tzid);
+    return new DtStart(this.value, tzid);
   }
 
-  public setDatetime<NDT extends DateTime<Time> | DateTime<undefined>>(
+  public setValue<NDT extends DateTime<Time> | DateTime<undefined>>(
     datetime: NDT,
   ): DtStart<NDT> {
     return new DtStart(datetime, this.tzid);
@@ -69,7 +69,7 @@ export class DtStart<
       : DateLike,
   >(): DtStartLike<DTL> {
     return {
-      datetime: this.datetime.toPlain() as DTL,
+      datetime: this.value.toPlain() as DTL,
       tzid: this.tzid,
     };
   }

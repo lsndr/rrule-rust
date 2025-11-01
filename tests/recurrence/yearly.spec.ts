@@ -19,7 +19,7 @@ describe('Yearly', () => {
         datetime: DateTime.create(1997, 6, 10, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -52,7 +52,7 @@ describe('Yearly', () => {
         datetime: DateTime.create(1997, 3, 10, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -85,7 +85,7 @@ describe('Yearly', () => {
         datetime: DateTime.create(1997, 1, 1, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -117,7 +117,7 @@ describe('Yearly', () => {
         datetime: DateTime.create(1997, 5, 12, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all(3);
@@ -142,7 +142,7 @@ describe('Yearly', () => {
         datetime: DateTime.create(1997, 5, 12, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all(3);
@@ -166,7 +166,7 @@ describe('Yearly', () => {
         datetime: DateTime.create(1997, 3, 13, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all(11);
@@ -199,8 +199,8 @@ describe('Yearly', () => {
         tzid: 'US/Eastern',
       }),
     )
-      .addExdate(new ExDate([DateTime.create(1998, 3, 13, 9, 0, 0, false)]))
-      .addRrule(rrule);
+      .addExDate(new ExDate([DateTime.create(1998, 3, 13, 9, 0, 0, false)]))
+      .addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all(5);
@@ -230,7 +230,7 @@ describe('Yearly', () => {
         datetime: DateTime.create(1996, 11, 5, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all(3);

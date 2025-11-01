@@ -15,7 +15,7 @@ describe('Weekly', () => {
         datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -47,7 +47,7 @@ describe('Weekly', () => {
         datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -86,7 +86,7 @@ describe('Weekly', () => {
         datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all(10);
@@ -119,7 +119,7 @@ describe('Weekly', () => {
         datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -168,7 +168,7 @@ describe('Weekly', () => {
         datetime: DateTime.create(1997, 8, 5, 9, 0, 0, false),
         tzid: 'America/New_York',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -196,7 +196,7 @@ describe('Weekly', () => {
         datetime: DateTime.create(1997, 8, 5, 9, 0, 0, false),
         tzid: 'America/New_York',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all();

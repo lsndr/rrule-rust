@@ -16,7 +16,7 @@ describe('Daily', () => {
         datetime: DateTime.date(1997, 9, 2),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(new RRule<DateTime<undefined>>(Frequency.Daily).setCount(10));
+    ).addRRule(new RRule<DateTime<undefined>>(Frequency.Daily).setCount(10));
 
     const dates = set.all();
     const asString = set.toString();
@@ -46,7 +46,7 @@ describe('Daily', () => {
         datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const dates = set.all();
     const asString = set.toString();
@@ -76,7 +76,7 @@ describe('Daily', () => {
         datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const dates = set.between(
       DateTime.create(1997, 9, 6, 9, 0, 0, false),
@@ -102,7 +102,7 @@ describe('Daily', () => {
         datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const dates = set.between(
       DateTime.create(1997, 9, 6, 9, 0, 0, false),
@@ -126,7 +126,7 @@ describe('Daily', () => {
         datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const dates = set.all();
     const asString = set.toString();
@@ -151,7 +151,7 @@ describe('Daily', () => {
         datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const dates = set.all();
     const asString = set.toString();
@@ -177,7 +177,7 @@ describe('Daily', () => {
         datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const dates = set.all();
     const asString = set.toString();
@@ -205,7 +205,7 @@ describe('Daily', () => {
         datetime: DateTime.create(1997, 9, 2, 9, 0, 0, false),
         tzid: 'US/Eastern',
       }),
-    ).addRrule(rrule);
+    ).addRRule(rrule);
 
     const asString = set.toString();
     const dates = set.all();
@@ -243,8 +243,8 @@ describe('Daily', () => {
         tzid: 'Asia/Tbilisi',
       }),
     )
-      .addRrule(rrule)
-      .addExdate(new ExDate([DateTime.create(2000, 1, 31, 9, 0, 0, false)]));
+      .addRRule(rrule)
+      .addExDate(new ExDate([DateTime.create(2000, 1, 31, 9, 0, 0, false)]));
 
     const dates = set.all();
 

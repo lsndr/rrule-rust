@@ -210,7 +210,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    */
   public toRust(): Rust {
     this.rust ??= new Rust(
-      this.dtstart.datetime.toNumeric(),
+      this.dtstart.value.toNumeric(),
       this.dtstart.tzid,
       undefined,
       this.rrules.map((rrule) => rrule.toRust()),

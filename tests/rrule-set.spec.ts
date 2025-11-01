@@ -26,7 +26,7 @@ describe(RRuleSet, () => {
         rdates: [rdate],
       });
 
-      expect(set.dtstart.datetime).toEqual(
+      expect(set.dtstart.value).toEqual(
         DateTime.create(1997, 9, 2, 9, 0, 0, false),
       );
       expect(set.dtstart.tzid).toBe('US/Eastern');
@@ -44,7 +44,7 @@ describe(RRuleSet, () => {
         }),
       );
 
-      expect(set.dtstart.datetime).toEqual(
+      expect(set.dtstart.value).toEqual(
         DateTime.create(1997, 9, 2, 9, 0, 0, false),
       );
       expect(set.dtstart.tzid).toBe('US/Eastern');

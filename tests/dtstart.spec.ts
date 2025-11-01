@@ -14,7 +14,7 @@ describe('DtStart', () => {
     ])('should initiate with %j', ({ datetime, tzid }) => {
       const dtstart = new DtStart(datetime, tzid);
 
-      expect(dtstart.datetime).toBe(datetime);
+      expect(dtstart.value).toBe(datetime);
       expect(dtstart.tzid).toBe(tzid);
     });
   });
@@ -40,7 +40,7 @@ describe('DtStart', () => {
 
         const newDtstart = dtstart.setTzid(newTz);
 
-        expect(newDtstart.datetime).toBe(dtstart.datetime);
+        expect(newDtstart.value).toBe(dtstart.value);
         expect(newDtstart.tzid).toBe(newTz);
         expect(dtstart.tzid).toBe(initialTz);
       },
@@ -62,10 +62,10 @@ describe('DtStart', () => {
       ({ initial, new: newDatetime }) => {
         const dtstart = new DtStart(initial);
 
-        const newDtstart = dtstart.setDatetime(newDatetime);
+        const newDtstart = dtstart.setValue(newDatetime);
 
-        expect(newDtstart.datetime).toBe(newDatetime);
-        expect(dtstart.datetime).toBe(initial);
+        expect(newDtstart.value).toBe(newDatetime);
+        expect(dtstart.value).toBe(initial);
       },
     );
   });

@@ -21,7 +21,7 @@ describe('Commonjs', () => {
       });
       const set = new RRuleSet(
         new DtStart({
-          datetime: DateTime.create(1997, 6, 10, 9, 0, 0, false),
+          value: DateTime.create(1997, 6, 10, 9, 0, 0, false),
           tzid: 'US/Eastern',
         }),
       ).addRRule(rrule);

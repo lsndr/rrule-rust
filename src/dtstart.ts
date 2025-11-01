@@ -8,12 +8,12 @@ import {
 export interface DtStartOptions<
   DT extends DateTime<Time> | DateTime<undefined>,
 > {
-  datetime: DT;
+  value: DT;
   tzid?: string;
 }
 
 export interface DtStartLike<DT extends DateTimeLike | DateLike> {
-  datetime: DT;
+  value: DT;
   tzid?: string;
 }
 
@@ -23,17 +23,14 @@ export class DtStart<
   public readonly value: DT;
   public readonly tzid?: string;
 
-  public constructor(datetime: DT, tzid?: string);
+  public constructor(value: DT, tzid?: string);
   public constructor(options: DtStartOptions<DT>);
-  public constructor(
-    datetimeOrOptions: DT | DtStartOptions<DT>,
-    tzid?: string,
-  ) {
-    if ('datetime' in datetimeOrOptions) {
-      this.value = datetimeOrOptions.datetime;
-      this.tzid = datetimeOrOptions.tzid;
+  public constructor(valueOrOptions: DT | DtStartOptions<DT>, tzid?: string) {
+    if ('value' in valueOrOptions) {
+      this.value = valueOrOptions.value;
+      this.tzid = valueOrOptions.tzid;
     } else {
-      this.value = datetimeOrOptions;
+      this.value = valueOrOptions;
       this.tzid = tzid;
     }
   }
@@ -48,7 +45,7 @@ export class DtStart<
     plain: DtStartLike<DateTimeLike> | DtStartLike<DateLike>,
   ): DtStart<DateTime<Time>> | DtStart<DateTime<undefined>> {
     return new this({
-      datetime: DateTime.fromPlain(plain.datetime),
+      value: DateTime.fromPlain(plain.value),
       tzid: plain.tzid,
     });
   }
@@ -69,7 +66,7 @@ export class DtStart<
       : DateLike,
   >(): DtStartLike<DTL> {
     return {
-      datetime: this.value.toPlain() as DTL,
+      value: this.value.toPlain() as DTL,
       tzid: this.tzid,
     };
   }

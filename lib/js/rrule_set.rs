@@ -155,19 +155,26 @@ impl RRuleSet {
   }
 
   #[napi(ts_return_type = "number[]")]
-  pub fn all(&self, limit: Option<i32>) -> napi::Result<Vec<i64>> {
-    let iterator = self
+  pub fn all<'a>(&'a self, env: &'a Env, limit: Option<i32>) -> napi::Result<Array<'a>> {
+    let mut arr = env.create_array(0).unwrap();
+
+    let iter = self
       .rrule_set
       .iterator()
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
-    let iter = iterator.map(|date| (&date).into());
 
-    if let Some(limit) = limit {
-      return Ok(iter.take(limit as usize).collect());
+    for (index, datetime) in iter.enumerate() {
+      if let Some(limit) = limit {
+        if index as i32 >= limit {
+          break;
+        }
+      }
+
+      let datetime: i64 = (&datetime).into();
+      arr.insert(datetime).unwrap();
     }
 
-    // TODO: use array instead
-    Ok(iter.collect())
+    Ok(arr)
   }
 
   fn is_after(&self, timestamp: i64, after_timestamp: i64, inclusive: Option<bool>) -> bool {

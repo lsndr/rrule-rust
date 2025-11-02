@@ -6,22 +6,59 @@ import {
 } from './datetime';
 import { ExDate as Rust } from './lib';
 
+/**
+ * Options for creating an ExDate instance.
+ */
 export interface ExDateOptions<
   DT extends DateTime<Time> | DateTime<undefined>,
 > {
+  /** Array of date/time values to exclude from recurrence */
   values: DT[];
+  /** Optional timezone identifier (e.g., "America/New_York") */
   tzid?: string;
 }
 
+/**
+ * Plain object representation of ExDate.
+ */
 export interface ExDateLike<DT extends DateTimeLike | DateLike> {
+  /** Array of date/time values to exclude from recurrence */
   values: DT[];
+  /** Optional timezone identifier (e.g., "America/New_York") */
   tzid?: string;
 }
 
+/**
+ * Represents exception dates (EXDATE property) for a recurrence rule.
+ *
+ * ExDate specifies date/time values that should be excluded from the
+ * recurrence set. This is useful for marking exceptions like holidays
+ * or cancelled events in a recurring series.
+ *
+ * @example
+ * ```typescript
+ * // Create with single date
+ * const exdate1 = new ExDate(DateTime.date(2024, 1, 15));
+ *
+ * // Create with multiple dates
+ * const exdate2 = new ExDate([
+ *   DateTime.date(2024, 1, 15),
+ *   DateTime.date(2024, 1, 22)
+ * ]);
+ *
+ * // Create with timezone
+ * const exdate3 = new ExDate({
+ *   values: [DateTime.local(2024, 1, 15, 9, 0, 0)],
+ *   tzid: "America/New_York"
+ * });
+ * ```
+ */
 export class ExDate<
   DT extends DateTime<Time> | DateTime<undefined> = DateTime<Time>,
 > {
+  /** Array of date/time values to exclude from recurrence */
   public readonly values: DT[];
+  /** Optional timezone identifier (e.g., "America/New_York") */
   public readonly tzid?: string;
 
   /** @internal */
@@ -64,6 +101,24 @@ export class ExDate<
     return rrule;
   }
 
+  /**
+   * Creates an ExDate instance from a plain object representation.
+   *
+   * @param plain - Plain object with date/time values and optional timezone
+   * @returns A new ExDate instance
+   *
+   * @example
+   * ```typescript
+   * const plain = {
+   *   values: [
+   *     { year: 2024, month: 1, day: 15 },
+   *     { year: 2024, month: 1, day: 22 }
+   *   ],
+   *   tzid: "America/New_York"
+   * };
+   * const exdate = ExDate.fromPlain(plain);
+   * ```
+   */
   public static fromPlain(
     plain: ExDateLike<DateTimeLike>,
   ): ExDate<DateTime<Time>>;
@@ -79,16 +134,64 @@ export class ExDate<
     });
   }
 
+  /**
+   * Creates a new ExDate instance with a different timezone.
+   *
+   * @param tzid - Timezone identifier (e.g., "America/New_York") or undefined
+   * @returns A new ExDate instance with the specified timezone
+   *
+   * @example
+   * ```typescript
+   * const exdate = new ExDate([DateTime.date(2024, 1, 15)]);
+   * const withTz = exdate.setTzid("America/New_York");
+   * ```
+   */
   public setTzid(tzid: string | undefined): ExDate<DT> {
     return new ExDate(this.values, tzid);
   }
 
+  /**
+   * Creates a new ExDate instance with different date/time values.
+   *
+   * @param datetimes - Array of new date/time values
+   * @returns A new ExDate instance with the specified values
+   *
+   * @example
+   * ```typescript
+   * const exdate = new ExDate([DateTime.date(2024, 1, 15)]);
+   * const updated = exdate.setValues([
+   *   DateTime.date(2024, 1, 15),
+   *   DateTime.date(2024, 1, 22)
+   * ]);
+   * ```
+   */
   public setValues<NDT extends DateTime<Time> | DateTime<undefined>>(
     datetimes: NDT[],
   ): ExDate<NDT> {
     return new ExDate(datetimes, this.tzid);
   }
 
+  /**
+   * Converts the ExDate instance to a plain object representation.
+   *
+   * @returns A plain object with date/time values and optional timezone
+   *
+   * @example
+   * ```typescript
+   * const exdate = new ExDate(
+   *   [DateTime.date(2024, 1, 15), DateTime.date(2024, 1, 22)],
+   *   "America/New_York"
+   * );
+   * const plain = exdate.toPlain();
+   * // {
+   * //   values: [
+   * //     { year: 2024, month: 1, day: 15 },
+   * //     { year: 2024, month: 1, day: 22 }
+   * //   ],
+   * //   tzid: "America/New_York"
+   * // }
+   * ```
+   */
   public toPlain<
     DTL extends DateTimeLike | DateLike = DT extends DateTime<Time>
       ? DateTimeLike

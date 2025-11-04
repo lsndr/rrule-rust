@@ -57,7 +57,7 @@ impl Parameters {
     self.params.is_empty()
   }
 
-  pub fn iter(&self) -> indexmap::map::Iter<String, String> {
+  pub fn iter(&self) -> indexmap::map::Iter<'_, String, String> {
     self.params.iter()
   }
 

@@ -90,8 +90,8 @@
     "benchmark": "ts-node ./benchmark/index.ts",
     "format": "cargo fmt --all --check && prettier --check .",
     "format:fix": "cargo fmt --all && prettier --write .",
-    "lint": "eslint --max-warnings=0",
-    "lint:fix": "npm run lint -- --fix",
+    "lint": "eslint --max-warnings=0 && cargo clippy -- -Dwarnings",
+    "lint:fix": "eslint --max-warnings=0 --fix && cargo clippy --fix --allow-dirty",
     "prepare": "husky",
     "prepublishOnly": "npm run build && napi prepublish -t npm"
   }

@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 use crate::{rrule::value_type::ValueType, serialization::properties::Properties};
 
@@ -119,10 +119,6 @@ impl RRuleSet {
     Ok(self)
   }
 
-  pub fn to_string(&self) -> String {
-    self.to_properties().to_string()
-  }
-
   pub fn to_properties(&self) -> Properties {
     let mut properties = Properties::new();
 
@@ -192,16 +188,14 @@ impl RRuleSet {
       rdates.push(rdate);
     }
 
-    Ok(
-      Self::new(dtstart)
-        .set_exdates(exdates)?
-        .set_rdates(rdates)?
-        .set_rrules(rrules)?
-        .set_exrules(exrules)?,
-    )
+    Self::new(dtstart)
+      .set_exdates(exdates)?
+      .set_rdates(rdates)?
+      .set_rrules(rrules)?
+      .set_exrules(exrules)
   }
 
-  fn verify_rrules(&self, rrules: &Vec<RRule>) -> Result<(), String> {
+  fn verify_rrules(&self, rrules: &[RRule]) -> Result<(), String> {
     for rrule in rrules.iter() {
       if let Some(until) = rrule.until() {
         if until.derive_value_type() != self.dtstart().derive_value_type() {
@@ -266,7 +260,7 @@ pub struct RRuleSetIterator {
   iter: rrule::RRuleSetIter,
 }
 
-impl<'a> Iterator for RRuleSetIterator {
+impl Iterator for RRuleSetIterator {
   type Item = DateTime;
 
   fn next(&mut self) -> Option<Self::Item> {
@@ -282,5 +276,11 @@ impl<'a> Iterator for RRuleSetIterator {
         date_time
       }
     })
+  }
+}
+
+impl fmt::Display for RRuleSet {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "{}", self.to_properties())
   }
 }

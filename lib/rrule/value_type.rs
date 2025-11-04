@@ -1,18 +1,9 @@
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ValueType {
   Date,
   DateTime,
-}
-
-impl ToString for ValueType {
-  fn to_string(&self) -> String {
-    match self {
-      ValueType::Date => "DATE".to_string(),
-      ValueType::DateTime => "DATE-TIME".to_string(),
-    }
-  }
 }
 
 impl FromStr for ValueType {
@@ -24,5 +15,16 @@ impl FromStr for ValueType {
       "DATE-TIME" => Ok(ValueType::DateTime),
       _ => Err(format!("Invalid value type: {}", s)),
     }
+  }
+}
+
+impl fmt::Display for ValueType {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    let str = match self {
+      ValueType::Date => "DATE",
+      ValueType::DateTime => "DATE-TIME",
+    };
+
+    write!(f, "{}", str)
   }
 }

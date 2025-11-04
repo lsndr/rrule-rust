@@ -7,6 +7,7 @@ pub mod frequency;
 pub mod month;
 pub mod n_weekday;
 pub mod rdate;
+#[allow(clippy::module_inception)]
 pub mod rrule;
 pub mod rrule_set;
 pub mod time;

@@ -83,13 +83,7 @@ impl RRuleSet {
 
   #[napi(getter)]
   pub fn tzid(&self) -> napi::Result<Option<String>> {
-    Ok(
-      self
-        .rrule_set
-        .dtstart()
-        .tzid()
-        .and_then(|tzid| Some(tzid.to_string())),
-    )
+    Ok(self.rrule_set.dtstart().tzid().map(|tzid| tzid.to_string()))
   }
 
   #[napi(getter)]
@@ -115,7 +109,7 @@ impl RRuleSet {
       self
         .rrule_set
         .exrules()
-        .into_iter()
+        .iter()
         .map(|rrule| rrule.clone().into())
         .collect(),
     )
@@ -178,27 +172,23 @@ impl RRuleSet {
   }
 
   fn is_after(&self, timestamp: i64, after_timestamp: i64, inclusive: Option<bool>) -> bool {
-    let inclusive = inclusive.unwrap_or(false);
+    let is_inclusive = inclusive.unwrap_or(false);
 
-    if inclusive && timestamp < after_timestamp {
-      return false;
-    } else if !inclusive && timestamp <= after_timestamp {
-      return false;
+    if is_inclusive {
+      timestamp >= after_timestamp
+    } else {
+      timestamp > after_timestamp
     }
-
-    true
   }
 
   fn is_before(&self, timestamp: i64, before_timestamp: i64, inclusive: Option<bool>) -> bool {
-    let inclusive = inclusive.unwrap_or(false);
+    let is_inclusive = inclusive.unwrap_or(false);
 
-    if inclusive && timestamp > before_timestamp {
-      return false;
-    } else if !inclusive && timestamp >= before_timestamp {
-      return false;
+    if is_inclusive {
+      timestamp <= before_timestamp
+    } else {
+      timestamp < before_timestamp
     }
-
-    true
   }
 
   #[napi(ts_return_type = "number[]")]
@@ -267,12 +257,10 @@ impl RRuleSet {
   #[napi]
   pub fn iterator(&self, this: Reference<RRuleSet>, env: Env) -> napi::Result<RRuleSetIterator> {
     let iterator = this.share_with(env, |set: &mut RRuleSet| {
-      Ok(
-        set
-          .rrule_set
-          .iterator()
-          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?,
-      )
+      set
+        .rrule_set
+        .iterator()
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))
     })?;
 
     Ok(RRuleSetIterator { iterator })
@@ -287,6 +275,7 @@ pub struct RRuleSetIterator {
 #[napi]
 impl RRuleSetIterator {
   #[napi]
+  #[allow(clippy::should_implement_trait)]
   pub fn next(&mut self) -> Option<i64> {
     self.iterator.next().map(|date: DateTime| (&date).into())
   }

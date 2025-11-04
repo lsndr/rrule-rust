@@ -28,7 +28,7 @@ impl ExDate {
     let exdate = exdate::ExDate::new(
       datetimes
         .into_iter()
-        .map(|datetime| datetime::DateTime::from(datetime))
+        .map(datetime::DateTime::from)
         .collect(),
       tzid,
       None,
@@ -49,9 +49,9 @@ impl ExDate {
   }
 }
 
-impl Into<exdate::ExDate> for &ExDate {
-  fn into(self) -> exdate::ExDate {
-    self.exdate.clone()
+impl From<&ExDate> for exdate::ExDate {
+  fn from(val: &ExDate) -> Self {
+    val.exdate.clone()
   }
 }
 

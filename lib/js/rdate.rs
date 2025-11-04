@@ -28,7 +28,7 @@ impl RDate {
     let rdate = rdate::RDate::new(
       datetimes
         .into_iter()
-        .map(|datetime| datetime::DateTime::from(datetime))
+        .map(datetime::DateTime::from)
         .collect(),
       tzid,
       None,
@@ -49,9 +49,9 @@ impl RDate {
   }
 }
 
-impl Into<rdate::RDate> for &RDate {
-  fn into(self) -> rdate::RDate {
-    self.rdate.clone()
+impl From<&RDate> for rdate::RDate {
+  fn from(val: &RDate) -> Self {
+    val.rdate.clone()
   }
 }
 

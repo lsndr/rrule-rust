@@ -1,7 +1,8 @@
 use std::str::FromStr;
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Default)]
 pub enum Weekday {
+  #[default]
   Monday,
   Tuesday,
   Wednesday,
@@ -14,12 +15,6 @@ pub enum Weekday {
 impl Default for &Weekday {
   fn default() -> Self {
     &Weekday::Monday
-  }
-}
-
-impl Default for Weekday {
-  fn default() -> Self {
-    Weekday::Monday
   }
 }
 
@@ -37,9 +32,9 @@ impl From<rrule::Weekday> for Weekday {
   }
 }
 
-impl Into<rrule::Weekday> for &Weekday {
-  fn into(self) -> rrule::Weekday {
-    match self {
+impl From<&Weekday> for rrule::Weekday {
+  fn from(val: &Weekday) -> Self {
+    match val {
       Weekday::Monday => rrule::Weekday::Mon,
       Weekday::Tuesday => rrule::Weekday::Tue,
       Weekday::Wednesday => rrule::Weekday::Wed,
@@ -51,15 +46,15 @@ impl Into<rrule::Weekday> for &Weekday {
   }
 }
 
-impl Into<rrule::Weekday> for Weekday {
-  fn into(self) -> rrule::Weekday {
-    (&self).into()
+impl From<Weekday> for rrule::Weekday {
+  fn from(val: Weekday) -> Self {
+    (&val).into()
   }
 }
 
-impl Into<String> for &Weekday {
-  fn into(self) -> String {
-    match self {
+impl From<&Weekday> for String {
+  fn from(val: &Weekday) -> Self {
+    match val {
       Weekday::Monday => "MO".to_string(),
       Weekday::Tuesday => "TU".to_string(),
       Weekday::Wednesday => "WE".to_string(),

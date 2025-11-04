@@ -192,13 +192,12 @@ export class ExDate<
    * // }
    * ```
    */
-  public toPlain<
-    DTL extends DateTimeLike | DateLike = DT extends DateTime<Time>
-      ? DateTimeLike
-      : DateLike,
-  >(): ExDateLike<DTL> {
+  public toPlain(): DT extends DateTime<Time>
+    ? ExDateLike<DateTimeLike>
+    : ExDateLike<DateLike>;
+  public toPlain(): ExDateLike<DateTimeLike> | ExDateLike<DateLike> {
     return {
-      values: this.values.map((dt) => dt.toPlain()) as DTL[],
+      values: this.values.map((dt) => dt.toPlain()),
       tzid: this.tzid,
     };
   }

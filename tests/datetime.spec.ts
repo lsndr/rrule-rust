@@ -90,6 +90,19 @@ describe(DateTime, () => {
       expect(datetime.time.second).toBe(input.second);
       expect(datetime.time.utc).toBe(!!input.utc);
     });
+
+    test('should be be compatible with luxon', () => {
+      const luxonDateTime = luxon.DateTime.now();
+
+      const object = DateTime.fromPlain(luxonDateTime);
+
+      expect(luxonDateTime.year).toBe(object.year);
+      expect(luxonDateTime.month).toBe(object.month);
+      expect(luxonDateTime.day).toBe(object.day);
+      expect(luxonDateTime.hour).toBe(object.time.hour);
+      expect(luxonDateTime.minute).toBe(object.time.minute);
+      expect(luxonDateTime.second).toBe(object.time.second);
+    });
   });
 
   describe('toPlain', () => {

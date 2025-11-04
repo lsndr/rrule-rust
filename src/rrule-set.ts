@@ -493,7 +493,8 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    */
   public toPlain(): RRuleSetLike<
     DT extends DateTime<Time> ? DateTimeLike : DateLike
-  > {
+  >;
+  public toPlain(): RRuleSetLike<DateTimeLike> | RRuleSetLike<DateLike> {
     return {
       dtstart: this.dtstart.toPlain(),
       rrules: this.rrules.map((rrule) => rrule.toPlain()),

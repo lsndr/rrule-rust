@@ -639,7 +639,8 @@ export class RRule<
    */
   public toPlain(): RRuleLike<
     DT extends DateTime<Time> ? DateTimeLike : DateLike
-  > {
+  >;
+  public toPlain(): RRuleLike<DateTimeLike> | RRuleLike<DateLike> {
     return {
       frequency: this.frequency,
       interval: this.interval,
@@ -654,7 +655,7 @@ export class RRule<
       byWeekno: this.byWeekno,
       byYearday: this.byYearday,
       weekstart: this.weekstart,
-      until: this.until?.toPlain(),
+      until: this.until,
     };
   }
 

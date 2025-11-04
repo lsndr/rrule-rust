@@ -10,6 +10,12 @@ export interface DateLike {
   readonly day: number;
 }
 
+export type StripUtc<T extends DateTimeLike> = Omit<T, 'utc'>;
+
+export type OptionalUtc<T extends DateTimeLike> = Omit<T, 'utc'> & {
+  utc?: boolean;
+};
+
 /**
  * Represents a date with time information.
  */
@@ -312,11 +318,12 @@ export class DateTime<T extends Time | undefined> {
    * });
    * ```
    */
-  public static fromPlain(plain: DateTimeLike): DateTime<Time>;
+  public static fromPlain(plain: OptionalUtc<DateTimeLike>): DateTime<Time>;
+  public static fromPlain(plain: StripUtc<DateTimeLike>): DateTime<Time>;
   public static fromPlain(plain: DateLike): DateTime<undefined>;
   public static fromPlain(
-    plain: DateTimeLike | DateLike,
-  ): DateTime<Time> | DateTime<undefined> {
+    plain: OptionalUtc<DateTimeLike> | DateLike,
+  ): DateTime<undefined> | DateTime<Time> {
     if ('hour' in plain) {
       return DateTime.create(
         plain.year,
@@ -325,7 +332,7 @@ export class DateTime<T extends Time | undefined> {
         plain.hour,
         plain.minute,
         plain.second,
-        plain.utc,
+        plain.utc ?? false,
       );
     }
 
@@ -422,19 +429,17 @@ export class DateTime<T extends Time | undefined> {
    * // { year: 2024, month: 1, day: 15 }
    * ```
    */
-  public toPlain<DTL extends DateTimeLike>(
-    options?: ToPlainDateTimeOptions & { stripUtc: false },
-  ): DTL;
-  public toPlain<DTL extends Omit<DateTimeLike, 'utc'>>(
-    options?: ToPlainDateTimeOptions & { stripUtc: true },
-  ): DTL;
-  public toPlain<DTL extends DateLike>(): DTL;
-  public toPlain<
-    DTL extends DateTimeLike | DateLike = T extends Time
-      ? DateTimeLike | Omit<DateTimeLike, 'utc'>
-      : DateLike,
-  >(options?: ToPlainDateTimeOptions): DTL {
-    let plain: unknown;
+  public toPlain(
+    options: ToPlainDateTimeOptions & { stripUtc: false },
+  ): T extends Time ? DateTimeLike : DateLike;
+  public toPlain(
+    options: ToPlainDateTimeOptions & { stripUtc: true },
+  ): T extends Time ? StripUtc<DateTimeLike> : DateLike;
+  public toPlain(): T extends Time ? DateTimeLike : DateLike;
+  public toPlain(
+    options?: ToPlainDateTimeOptions,
+  ): DateTimeLike | StripUtc<DateTimeLike> | DateLike {
+    let plain: DateTimeLike | StripUtc<DateTimeLike> | DateLike;
 
     if (this.time) {
       plain = options?.stripUtc
@@ -463,7 +468,7 @@ export class DateTime<T extends Time | undefined> {
       };
     }
 
-    return plain as DTL;
+    return plain;
   }
 
   /**

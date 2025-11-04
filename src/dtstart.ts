@@ -150,13 +150,12 @@ export class DtStart<
    * // }
    * ```
    */
-  public toPlain<
-    DTL extends DateTimeLike | DateLike = DT extends DateTime<Time>
-      ? DateTimeLike
-      : DateLike,
-  >(): DtStartLike<DTL> {
+  public toPlain(): DtStartLike<
+    DT extends DateTime<Time> ? DateTimeLike : DateLike
+  >;
+  public toPlain(): DtStartLike<DateTimeLike> | DtStartLike<DateLike> {
     return {
-      value: this.value.toPlain() as DTL,
+      value: this.value.toPlain(),
       tzid: this.tzid,
     };
   }

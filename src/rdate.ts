@@ -51,9 +51,7 @@ export interface RDateLike<DT extends DateTimeLike | DateLike> {
  * });
  * ```
  */
-export class RDate<
-  DT extends DateTime<Time> | DateTime<undefined> = DateTime<Time>,
-> {
+export class RDate<DT extends DateTime<Time> | DateTime<undefined>> {
   /** Array of date/time values to include in recurrence */
   public readonly values: DT[];
   /** Optional timezone identifier (e.g., "America/New_York") */
@@ -190,13 +188,12 @@ export class RDate<
    * // }
    * ```
    */
-  public toPlain<
-    DTL extends DateTimeLike | DateLike = DT extends DateTime<Time>
-      ? DateTimeLike
-      : DateLike,
-  >(): RDateLike<DTL> {
+  public toPlain(): DT extends DateTime<Time>
+    ? RDateLike<DateTimeLike>
+    : RDateLike<DateLike>;
+  public toPlain(): RDateLike<DateTimeLike> | RDateLike<DateLike> {
     return {
-      values: this.values.map((dt) => dt.toPlain()) as DTL[],
+      values: this.values.map((dt) => dt.toPlain()),
       tzid: this.tzid,
     };
   }

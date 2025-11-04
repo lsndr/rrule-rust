@@ -655,7 +655,7 @@ export class RRule<
       byWeekno: this.byWeekno,
       byYearday: this.byYearday,
       weekstart: this.weekstart,
-      until: this.until,
+      until: this.until?.toPlain(),
     };
   }
 

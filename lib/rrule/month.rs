@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 #[derive(Clone)]
 pub enum Month {
@@ -14,25 +14,6 @@ pub enum Month {
   October,
   November,
   December,
-}
-
-impl ToString for Month {
-  fn to_string(&self) -> String {
-    match self {
-      Month::January => "1".to_string(),
-      Month::February => "2".to_string(),
-      Month::March => "3".to_string(),
-      Month::April => "4".to_string(),
-      Month::May => "5".to_string(),
-      Month::June => "6".to_string(),
-      Month::July => "7".to_string(),
-      Month::August => "8".to_string(),
-      Month::September => "9".to_string(),
-      Month::October => "10".to_string(),
-      Month::November => "11".to_string(),
-      Month::December => "12".to_string(),
-    }
-  }
 }
 
 impl FromStr for Month {
@@ -57,9 +38,9 @@ impl FromStr for Month {
   }
 }
 
-impl Into<chrono::Month> for &Month {
-  fn into(self) -> chrono::Month {
-    match self {
+impl From<&Month> for chrono::Month {
+  fn from(val: &Month) -> Self {
+    match val {
       Month::January => chrono::Month::January,
       Month::February => chrono::Month::February,
       Month::March => chrono::Month::March,
@@ -76,8 +57,29 @@ impl Into<chrono::Month> for &Month {
   }
 }
 
-impl Into<chrono::Month> for Month {
-  fn into(self) -> chrono::Month {
-    (&self).into()
+impl From<Month> for chrono::Month {
+  fn from(val: Month) -> Self {
+    (&val).into()
+  }
+}
+
+impl fmt::Display for Month {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    let str = match self {
+      Month::January => "1",
+      Month::February => "2",
+      Month::March => "3",
+      Month::April => "4",
+      Month::May => "5",
+      Month::June => "6",
+      Month::July => "7",
+      Month::August => "8",
+      Month::September => "9",
+      Month::October => "10",
+      Month::November => "11",
+      Month::December => "12",
+    };
+
+    write!(f, "{}", str)
   }
 }

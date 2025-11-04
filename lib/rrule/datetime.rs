@@ -1,3 +1,4 @@
+use std::fmt;
 use std::str::FromStr;
 
 use chrono::Datelike;
@@ -23,9 +24,9 @@ impl DateTime {
     let timezone = match &self.time {
       Some(time) => match time.utc {
         true => &chrono_tz::Tz::UTC,
-        false => &timezone,
+        false => timezone,
       },
-      None => &timezone,
+      None => timezone,
     };
 
     let (hour, minute, second) = match &self.time {
@@ -38,7 +39,7 @@ impl DateTime {
       .single()
     {
       Some(datetime) => Ok(datetime),
-      None => Err(format!("Invalid datetime: {}", self.to_string())),
+      None => Err(format!("Invalid datetime: {}", self)),
     }
   }
 
@@ -46,22 +47,6 @@ impl DateTime {
     match &self.time {
       Some(_) => ValueType::DateTime,
       None => ValueType::Date,
-    }
-  }
-
-  pub fn to_string(&self) -> String {
-    match &self.time {
-      Some(time) => format!(
-        "{:04}{:02}{:02}T{:02}{:02}{:02}{}",
-        self.year,
-        self.month,
-        self.day,
-        time.hour,
-        time.minute,
-        time.second,
-        if time.utc { "Z" } else { "" }
-      ),
-      None => format!("{:04}{:02}{:02}", self.year, self.month, self.day),
     }
   }
 
@@ -220,13 +205,13 @@ impl From<&chrono::DateTime<rrule::Tz>> for DateTime {
   }
 }
 
-impl Into<i64> for &DateTime {
-  fn into(self) -> i64 {
-    let year = self.year as i64;
-    let month = self.month as i64;
-    let day = self.day as i64;
+impl From<&DateTime> for i64 {
+  fn from(val: &DateTime) -> Self {
+    let year = val.year as i64;
+    let month = val.month as i64;
+    let day = val.day as i64;
 
-    let (hour, minute, second, utc) = match &self.time {
+    let (hour, minute, second, utc) = match &val.time {
       Some(time) => (
         time.hour as i64,
         time.minute as i64,
@@ -251,5 +236,25 @@ impl FromStr for DateTime {
 
   fn from_str(str: &str) -> Result<Self, Self::Err> {
     DateTime::from_str(str)
+  }
+}
+
+impl fmt::Display for DateTime {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    let string = match &self.time {
+      Some(time) => format!(
+        "{:04}{:02}{:02}T{:02}{:02}{:02}{}",
+        self.year,
+        self.month,
+        self.day,
+        time.hour,
+        time.minute,
+        time.second,
+        if time.utc { "Z" } else { "" }
+      ),
+      None => format!("{:04}{:02}{:02}", self.year, self.month, self.day),
+    };
+
+    write!(f, "{}", string)
   }
 }

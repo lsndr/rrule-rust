@@ -72,7 +72,7 @@ impl ExDate {
 
   pub fn derive_timezone(&self) -> chrono_tz::Tz {
     match self.tzid {
-      Some(tz) => tz.clone(),
+      Some(tz) => tz,
       None => chrono_tz::Tz::UTC,
     }
   }

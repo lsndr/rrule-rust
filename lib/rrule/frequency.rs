@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 #[derive(Clone)]
 pub enum Frequency {
@@ -12,18 +12,6 @@ pub enum Frequency {
 }
 
 impl Frequency {
-  pub fn to_string(&self) -> String {
-    match self {
-      Frequency::Yearly => "YEARLY".to_string(),
-      Frequency::Monthly => "MONTHLY".to_string(),
-      Frequency::Weekly => "WEEKLY".to_string(),
-      Frequency::Daily => "DAILY".to_string(),
-      Frequency::Hourly => "HOURLY".to_string(),
-      Frequency::Minutely => "MINUTELY".to_string(),
-      Frequency::Secondly => "SECONDLY".to_string(),
-    }
-  }
-
   pub fn from_str(str: &str) -> Result<Self, String> {
     let str = str.to_uppercase();
     let str = str.as_str();
@@ -55,15 +43,15 @@ impl From<rrule::Frequency> for Frequency {
   }
 }
 
-impl Into<rrule::Frequency> for Frequency {
-  fn into(self) -> rrule::Frequency {
-    (&self).into()
+impl From<Frequency> for rrule::Frequency {
+  fn from(val: Frequency) -> Self {
+    (&val).into()
   }
 }
 
-impl Into<rrule::Frequency> for &Frequency {
-  fn into(self) -> rrule::Frequency {
-    match self {
+impl From<&Frequency> for rrule::Frequency {
+  fn from(val: &Frequency) -> Self {
+    match val {
       Frequency::Daily => rrule::Frequency::Daily,
       Frequency::Hourly => rrule::Frequency::Hourly,
       Frequency::Minutely => rrule::Frequency::Minutely,
@@ -75,9 +63,9 @@ impl Into<rrule::Frequency> for &Frequency {
   }
 }
 
-impl Into<String> for Frequency {
-  fn into(self) -> String {
-    self.to_string()
+impl From<Frequency> for String {
+  fn from(val: Frequency) -> Self {
+    val.to_string()
   }
 }
 
@@ -86,5 +74,21 @@ impl FromStr for Frequency {
 
   fn from_str(str: &str) -> Result<Self, Self::Err> {
     Self::from_str(str)
+  }
+}
+
+impl fmt::Display for Frequency {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    let str = match self {
+      Frequency::Yearly => "YEARLY",
+      Frequency::Monthly => "MONTHLY",
+      Frequency::Weekly => "WEEKLY",
+      Frequency::Daily => "DAILY",
+      Frequency::Hourly => "HOURLY",
+      Frequency::Minutely => "MINUTELY",
+      Frequency::Secondly => "SECONDLY",
+    };
+
+    write!(f, "{}", str)
   }
 }

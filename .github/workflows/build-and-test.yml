@@ -88,8 +88,8 @@ jobs:
         with:
           tool: cargo-zigbuild
       - name: Setup toolchain
-        run: ${{ matrix.settings.setup }}
-        if: ${{ matrix.settings.setup }}
+        run: rustup target add ${{ matrix.settings.target }}
+        if: ${{ matrix.settings.target }}
         shell: bash
       - name: Install dependencies
         run: npm ci

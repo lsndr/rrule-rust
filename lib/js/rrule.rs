@@ -11,6 +11,7 @@ pub struct RRule {
 #[napi]
 impl RRule {
   #[napi(constructor)]
+  #[allow(clippy::too_many_arguments)]
   pub fn new(
     frequency: Frequency,
     interval: Option<u16>,
@@ -31,7 +32,7 @@ impl RRule {
     let mut rrule = rrule::RRule::new(frequency.into());
     rrule = rrule.set_interval(interval);
     rrule = rrule.set_count(count);
-    rrule = rrule.set_until(until.map(|datetime| datetime::DateTime::from(datetime)));
+    rrule = rrule.set_until(until.map(datetime::DateTime::from));
     rrule = rrule.set_by_hour(by_hour.unwrap_or_default());
     rrule = rrule.set_by_minute(by_minute.unwrap_or_default());
     rrule = rrule.set_by_second(by_second.unwrap_or_default());
@@ -162,9 +163,9 @@ impl RRule {
   }
 }
 
-impl Into<rrule::RRule> for &RRule {
-  fn into(self) -> rrule::RRule {
-    self.rrule.clone()
+impl From<&RRule> for rrule::RRule {
+  fn from(val: &RRule) -> Self {
+    val.rrule.clone()
   }
 }
 

@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 use super::{
   datetime::DateTime, dtstart::DtStart, frequency::Frequency, month::Month, n_weekday::NWeekday,
@@ -218,11 +218,7 @@ impl RRule {
     if !self.by_weekday.is_empty() {
       value.insert(
         "BYDAY".to_string(),
-        self
-          .by_weekday
-          .iter()
-          .map(|day| Into::<String>::into(day))
-          .join(","),
+        self.by_weekday.iter().map(Into::<String>::into).join(","),
       );
     }
 
@@ -235,10 +231,6 @@ impl RRule {
       Parameters::new(),
       Value::Parameters(value),
     )
-  }
-
-  pub fn to_string(&self) -> String {
-    self.to_property().to_string()
   }
 
   pub fn from_str(str: &str) -> Result<Self, String> {
@@ -346,23 +338,24 @@ impl ToRRule for RRule {
     rrule = rrule.by_month(
       &self
         .by_month()
-        .into_iter()
+        .iter()
         .map(|month| month.into())
         .collect::<Vec<chrono::Month>>(),
     );
     rrule = rrule.by_week_no(self.by_weekno.clone());
     rrule = rrule.by_year_day(self.by_yearday.clone());
     rrule = rrule.week_start(self.weekstart.as_ref().unwrap_or_default().into());
-    rrule = rrule.by_weekday(
-      (&self.by_weekday)
-        .into_iter()
-        .map(|day| day.into())
-        .collect(),
-    );
+    rrule = rrule.by_weekday(self.by_weekday.iter().map(|day| day.into()).collect());
 
     let dtstart = dtstart.to_datetime()?;
     let dtstart = dtstart.with_timezone(&rrule::Tz::Tz(dtstart.timezone()));
 
-    Ok(rrule.validate(dtstart).map_err(|err| format!("{}", err))?)
+    rrule.validate(dtstart).map_err(|err| format!("{}", err))
+  }
+}
+
+impl fmt::Display for RRule {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "{}", self.to_property())
   }
 }

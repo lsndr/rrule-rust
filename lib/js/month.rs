@@ -17,9 +17,9 @@ pub enum Month {
   December = 12,
 }
 
-impl Into<month::Month> for Month {
-  fn into(self) -> month::Month {
-    match self {
+impl From<Month> for month::Month {
+  fn from(val: Month) -> Self {
+    match val {
       Month::January => month::Month::January,
       Month::February => month::Month::February,
       Month::March => month::Month::March,

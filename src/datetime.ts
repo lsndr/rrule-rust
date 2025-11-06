@@ -81,68 +81,16 @@ export interface ToPlainDateTimeOptions {
  * ```
  */
 export class DateTime<T extends Time | undefined> {
-  private readonly state: {
-    numeric: number;
-    year?: number;
-    month?: number;
-    day?: number;
-    time?: {
-      hour: number;
-      minute: number;
-      second: number;
-      utc: boolean;
-    };
-  };
+  public readonly year: number;
+  public readonly month: number;
+  public readonly day: number;
+  public readonly time: T;
 
-  private constructor(numeric: number) {
-    this.state = {
-      numeric,
-    };
-  }
-
-  /** The year component of the date (e.g., 2024) */
-  public get year(): number {
-    return (this.state.year ??= Math.floor(this.state.numeric / 100000000000));
-  }
-
-  /** The month component of the date (1-12) */
-  public get month(): number {
-    return (this.state.month ??= Math.floor(
-      (this.state.numeric / 1000000000) % 100,
-    ));
-  }
-
-  /** The day component of the date (1-31) */
-  public get day(): number {
-    return (this.state.day ??= Math.floor(
-      (this.state.numeric / 10000000) % 100,
-    ));
-  }
-
-  /**
-   * The time component of the DateTime, or undefined for date-only instances.
-   * Contains hour, minute, second, and utc flag.
-   */
-  public get time(): T {
-    // return cached time if available
-    if ('time' in this.state) {
-      return this.state.time as T;
-    }
-
-    const type = this.state.numeric % 10; // 0 – non utc, 1 – utc, 2 – date only
-
-    if (type == 2) {
-      // if it's date only, return undefined and cache it in state
-      return (this.state.time ??= undefined) as T;
-    } else {
-      // otherwise compute it from numeric representation and cache it in state
-      return (this.state.time ??= {
-        hour: Math.floor((this.state.numeric / 100000) % 100),
-        minute: Math.floor((this.state.numeric / 1000) % 100),
-        second: Math.floor((this.state.numeric / 10) % 100),
-        utc: this.state.numeric % 10 == 1,
-      }) as T;
-    }
+  private constructor(year: number, month: number, day: number, time: T) {
+    this.year = year;
+    this.month = month;
+    this.day = day;
+    this.time = time;
   }
 
   /**
@@ -194,27 +142,20 @@ export class DateTime<T extends Time | undefined> {
     second?: number,
     utc?: boolean,
   ): DateTime<Time> | DateTime<undefined> {
-    let numeric = year * 100000000000 + month * 1000000000 + day * 10000000;
-
     if (
       hour !== undefined &&
       minute !== undefined &&
       second !== undefined &&
       utc !== undefined
     ) {
-      numeric += hour * 100000;
-      numeric += minute * 1000;
-      numeric += second * 10;
-      numeric += utc ? 1 : 0;
-
-      return new DateTime<Time>(numeric);
+      return new DateTime<Time>(year, month, day, {
+        hour,
+        minute,
+        second,
+        utc,
+      });
     } else {
-      numeric += 100000;
-      numeric += 1000;
-      numeric += 10;
-      numeric += 2;
-
-      return new DateTime<undefined>(numeric);
+      return new DateTime<undefined>(year, month, day, undefined);
     }
   }
 
@@ -398,10 +339,96 @@ export class DateTime<T extends Time | undefined> {
   }
 
   /** @internal */
-  public static fromNumeric<DT extends DateTime<Time> | DateTime<undefined>>(
-    numeric: number,
+  public static fromNumbers<DT extends DateTime<Time> | DateTime<undefined>>(
+    year: number,
+    month: number,
+    day: number,
+    hour: number,
+    minute: number,
+    second: number,
+    utc: number,
   ): DT {
-    return new DateTime(numeric) as DT;
+    return new DateTime(
+      year,
+      month,
+      day,
+      hour === -1
+        ? undefined
+        : {
+            hour,
+            minute,
+            second,
+            utc: utc === 1,
+          },
+    ) as DT;
+  }
+
+  /** @internal */
+  public static fromInt32Array<DT extends DateTime<Time> | DateTime<undefined>>(
+    arr: Int32Array,
+  ): DT {
+    return this.fromNumbers<DT>(
+      arr[0]!,
+      arr[1]!,
+      arr[2]!,
+      arr[3]!,
+      arr[4]!,
+      arr[5]!,
+      arr[6]!,
+    );
+  }
+
+  /** @internal */
+  public static fromFlatInt32Array<
+    DT extends DateTime<Time> | DateTime<undefined>,
+  >(raw: Int32Array): DT[] {
+    const result: DT[] = [];
+
+    for (let i = 0; i < raw.length; i += 7) {
+      result.push(
+        this.fromNumbers(
+          raw[i]!,
+          raw[i + 1]!,
+          raw[i + 2]!,
+          raw[i + 3]!,
+          raw[i + 4]!,
+          raw[i + 5]!,
+          raw[i + 6]!,
+        ),
+      );
+    }
+
+    return result;
+  }
+
+  /** @internal */
+  public static toFlatInt32Array(
+    datetimes: DateTime<Time | undefined>[],
+  ): Int32Array {
+    const arr = new Int32Array(datetimes.length * 7);
+
+    for (let i = 0; i < datetimes.length; i++) {
+      const dt = datetimes[i]!;
+      const offset = i * 7;
+
+      arr[offset] = dt.year;
+      arr[offset + 1] = dt.month;
+      arr[offset + 2] = dt.day;
+
+      if (dt.time) {
+        arr[offset + 3] = dt.time.hour;
+        arr[offset + 4] = dt.time.minute;
+        arr[offset + 5] = dt.time.second;
+        arr[offset + 6] = dt.time.utc ? 1 : 0;
+      } else {
+        arr[offset + 3] = -1;
+        arr[offset + 4] = -1;
+        arr[offset + 5] = -1;
+        arr[offset + 6] = -1;
+      }
+    }
+
+    return arr;
   }
 
   /**
@@ -512,7 +539,15 @@ export class DateTime<T extends Time | undefined> {
   }
 
   /** @internal */
-  public toNumeric(): number {
-    return this.state.numeric;
+  public toInt32Array(): Int32Array {
+    return new Int32Array([
+      this.year,
+      this.month,
+      this.day,
+      this.time ? this.time.hour : -1,
+      this.time ? this.time.minute : -1,
+      this.time ? this.time.second : -1,
+      this.time ? (this.time.utc ? 1 : 0) : -1,
+    ]);
   }
 }

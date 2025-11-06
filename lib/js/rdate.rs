@@ -2,6 +2,7 @@ use crate::rrule::{
   datetime::{self},
   rdate,
 };
+use napi::bindgen_prelude::Int32Array;
 use napi_derive::napi;
 
 #[napi(js_name = "RDate")]
@@ -12,10 +13,7 @@ pub struct RDate {
 #[napi]
 impl RDate {
   #[napi(constructor)]
-  pub fn new(
-    #[napi(ts_arg_type = "readonly number[]")] datetimes: Vec<i64>,
-    tzid: Option<String>,
-  ) -> napi::Result<Self> {
+  pub fn new(dates: Int32Array, tzid: Option<String>) -> napi::Result<Self> {
     let tzid: Option<chrono_tz::Tz> = match tzid {
       Some(tzid) => Some(
         tzid
@@ -25,22 +23,46 @@ impl RDate {
       None => None,
     };
 
-    let rdate = rdate::RDate::new(
-      datetimes
-        .into_iter()
-        .map(datetime::DateTime::from)
-        .collect(),
-      tzid,
-      None,
-    )
-    .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+    let mut datetimes = Vec::<datetime::DateTime>::new();
+
+    for chunk in dates.chunks(7) {
+      datetimes.push(
+        (
+          chunk[0], chunk[1], chunk[2], chunk[3], chunk[4], chunk[5], chunk[6],
+        )
+          .into(),
+      );
+    }
+
+    let rdate = rdate::RDate::new(datetimes, tzid, None)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
     Ok(Self { rdate })
   }
 
   #[napi(getter)]
-  pub fn values(&self) -> napi::Result<Vec<i64>> {
-    Ok(self.rdate.values().iter().map(|dt| dt.into()).collect())
+  pub fn values(&self) -> napi::Result<Int32Array> {
+    let mut arr = Vec::new();
+
+    for datetime in self.rdate.values().iter() {
+      arr.push(datetime.year() as i32);
+      arr.push(datetime.month() as i32);
+      arr.push(datetime.day() as i32);
+
+      if let Some(time) = datetime.time() {
+        arr.push(time.hour() as i32);
+        arr.push(time.minute() as i32);
+        arr.push(time.second() as i32);
+        arr.push(if time.utc() { 1 } else { 0 });
+      } else {
+        arr.push(-1);
+        arr.push(-1);
+        arr.push(-1);
+        arr.push(-1);
+      }
+    }
+
+    Ok(Int32Array::new(arr))
   }
 
   #[napi(getter)]

@@ -176,7 +176,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
   ): RRuleSet<DT> {
     const set = new RRuleSet<DT>({
       dtstart: new DtStart<DT>({
-        value: DateTime.fromNumeric<DT>(rust.dtstart),
+        value: DateTime.fromInt32Array<DT>(rust.dtstart),
         tzid: rust.tzid ?? undefined,
       }),
       rrules: rust.rrules.map((rrule) => RRule.fromRust<DT>(rrule)),
@@ -379,9 +379,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * ```
    */
   public all(limit?: number): DT[] {
-    return this.toRust()
-      .all(limit)
-      .map((datetime) => DateTime.fromNumeric(datetime));
+    return DateTime.fromFlatInt32Array(this.toRust().all(limit));
   }
 
   /**
@@ -414,9 +412,13 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * ```
    */
   public between(after: DT, before: DT, inclusive?: boolean): DT[] {
-    return this.toRust()
-      .between(after.toNumeric(), before.toNumeric(), inclusive)
-      .map((datetime) => DateTime.fromNumeric(datetime));
+    return DateTime.fromFlatInt32Array(
+      this.toRust().between(
+        after.toInt32Array(),
+        before.toInt32Array(),
+        inclusive,
+      ),
+    );
   }
 
   /**
@@ -443,7 +445,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    */
   public toRust(): Rust {
     this.rust ??= new Rust(
-      this.dtstart.value.toNumeric(),
+      this.dtstart.value.toInt32Array(),
       this.dtstart.tzid,
       undefined,
       this.rrules.map((rrule) => rrule.toRust()),
@@ -529,21 +531,21 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    */
   public [Symbol.iterator](): Iterator<DT, any, any> {
     const iter = this.toRust().iterator();
+    const store = new Int32Array(7);
 
     return {
       next: () => {
-        const result = iter.next();
+        const next = iter.next(store);
 
-        if (result === null) {
+        if (!next) {
           return {
             done: true as const,
             value: undefined,
           };
         }
-
         return {
           done: false,
-          value: DateTime.fromNumeric(result),
+          value: DateTime.fromInt32Array(next === true ? store : next),
         };
       },
     };

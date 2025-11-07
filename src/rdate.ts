@@ -88,7 +88,7 @@ export class RDate<DT extends DateTime<Time> | DateTime<undefined>> {
     rust: Rust,
   ): RDate<DT> {
     const rrule = new this(
-      rust.values.map((dt) => DateTime.fromNumeric<DT>(dt)),
+      DateTime.fromFlatInt32Array<DT>(rust.values),
       rust.tzid ?? undefined,
     );
 
@@ -202,10 +202,7 @@ export class RDate<DT extends DateTime<Time> | DateTime<undefined>> {
    * @internal
    */
   public toRust(): Rust {
-    this.rust ??= new Rust(
-      this.values.map((dt) => dt.toNumeric()),
-      this.tzid,
-    );
+    this.rust ??= new Rust(DateTime.toFlatInt32Array(this.values), this.tzid);
 
     return this.rust;
   }

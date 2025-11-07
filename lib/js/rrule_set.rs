@@ -5,7 +5,10 @@ use crate::rrule::datetime::DateTime;
 use crate::rrule::dtstart::DtStart;
 use crate::rrule::value_type::ValueType;
 use crate::rrule::{exdate, rdate, rrule, rrule_set};
+#[cfg(not(target_family = "wasm"))]
 use napi::bindgen_prelude::{Int32Array, Int32ArraySlice, Reference, SharedReference};
+#[cfg(target_family = "wasm")]
+use napi::bindgen_prelude::{Int32Array, Reference, SharedReference};
 use napi::Env;
 use napi_derive::napi;
 use replace_with::replace_with_or_abort_and_return;
@@ -299,8 +302,9 @@ pub struct RRuleSetIterator {
 
 #[napi]
 impl RRuleSetIterator {
-  #[napi]
+  #[napi(ts_return_type = "boolean | Int32Array | null")]
   #[allow(clippy::should_implement_trait)]
+  #[cfg(not(target_family = "wasm"))]
   pub fn next(&mut self, mut store: Int32ArraySlice<'_>) -> bool {
     let next = self.iterator.next();
 
@@ -327,6 +331,38 @@ impl RRuleSetIterator {
         true
       },
       None => false,
+    }
+  }
+
+  #[napi]
+  #[allow(clippy::should_implement_trait)]
+  #[cfg(target_family = "wasm")]
+  pub fn next(&mut self) -> Option<Int32Array> {
+    let next = self.iterator.next();
+
+    match next {
+      Some(date_array) => {
+        let mut data = vec![0i32; 7];
+
+        data[0] = date_array.year() as i32;
+        data[1] = date_array.month() as i32;
+        data[2] = date_array.day() as i32;
+
+        if let Some(time) = date_array.time() {
+          data[3] = time.hour() as i32;
+          data[4] = time.minute() as i32;
+          data[5] = time.second() as i32;
+          data[6] = if time.utc() { 1 } else { 0 };
+        } else {
+          data[3] = -1;
+          data[4] = -1;
+          data[5] = -1;
+          data[6] = -1;
+        }
+
+        Some(Int32Array::new(data))
+      }
+      None => None,
     }
   }
 }

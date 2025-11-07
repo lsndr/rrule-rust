@@ -545,7 +545,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
         }
         return {
           done: false,
-          value: DateTime.fromInt32Array(store),
+          value: DateTime.fromInt32Array(next === true ? store : next),
         };
       },
     };

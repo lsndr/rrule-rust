@@ -49,7 +49,8 @@ export declare class RRuleSet {
 }
 
 export declare class RRuleSetIterator {
-  next(store: Int32ArraySlice): boolean
+  next(store: Int32ArraySlice): boolean | Int32Array | null
+  next(): Int32Array | null
 }
 
 export declare enum Frequency {

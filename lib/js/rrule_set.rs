@@ -6,9 +6,9 @@ use crate::rrule::dtstart::DtStart;
 use crate::rrule::value_type::ValueType;
 use crate::rrule::{exdate, rdate, rrule, rrule_set};
 #[cfg(not(target_family = "wasm"))]
-use napi::bindgen_prelude::{Float64Array, Float64ArraySlice, Reference, SharedReference};
+use napi::bindgen_prelude::{Int32Array, Int32ArraySlice, Reference, SharedReference};
 #[cfg(target_family = "wasm")]
-use napi::bindgen_prelude::{Float64Array, Reference, SharedReference};
+use napi::bindgen_prelude::{Int32Array, Reference, SharedReference};
 use napi::Env;
 use napi_derive::napi;
 use replace_with::replace_with_or_abort_and_return;
@@ -22,7 +22,7 @@ pub struct RRuleSet {
 impl RRuleSet {
   #[napi(constructor)]
   pub fn new(
-    dtstart: Float64Array,
+    dtstart: Int32Array,
     tzid: Option<String>,
     dtstart_value: Option<String>,
     #[napi(ts_arg_type = "(readonly RRule[]) | undefined | null")] rrules: Option<Vec<&RRule>>,
@@ -90,7 +90,7 @@ impl RRuleSet {
   }
 
   #[napi(getter)]
-  pub fn dtstart(&self) -> napi::Result<Float64Array> {
+  pub fn dtstart(&self) -> napi::Result<Int32Array> {
     Ok(self.rrule_set.dtstart().value().into())
   }
 
@@ -152,10 +152,10 @@ impl RRuleSet {
   }
 
   #[napi]
-  pub fn all(&self, limit: Option<i32>) -> napi::Result<Float64Array> {
+  pub fn all(&self, limit: Option<i32>) -> napi::Result<Int32Array> {
     let mut arr = match limit {
-      Some(l) => Vec::<f64>::with_capacity((l as usize) * 8),
-      None => Vec::<f64>::with_capacity(800),
+      Some(l) => Vec::<i32>::with_capacity((l as usize) * 8),
+      None => Vec::<i32>::with_capacity(800),
     };
 
     let iter = self
@@ -170,25 +170,25 @@ impl RRuleSet {
         }
       }
 
-      arr.push(datetime.timestamp().unwrap_or(-1) as f64);
-      arr.push(datetime.year().into());
-      arr.push(datetime.month().into());
-      arr.push(datetime.day().into());
+      arr.push(datetime.offset().unwrap_or(-1));
+      arr.push(datetime.year() as i32);
+      arr.push(datetime.month() as i32);
+      arr.push(datetime.day() as i32);
 
       if let Some(time) = datetime.time() {
-        arr.push(time.hour().into());
-        arr.push(time.minute().into());
-        arr.push(time.second().into());
-        arr.push(if time.utc() { 1.0 } else { 0.0 });
+        arr.push(time.hour() as i32);
+        arr.push(time.minute() as i32);
+        arr.push(time.second() as i32);
+        arr.push(if time.utc() { 1 } else { 0 });
       } else {
-        arr.push(-1.0);
-        arr.push(-1.0);
-        arr.push(-1.0);
-        arr.push(-1.0);
+        arr.push(-1);
+        arr.push(-1);
+        arr.push(-1);
+        arr.push(-1);
       }
     }
 
-    Ok(Float64Array::new(arr))
+    Ok(Int32Array::new(arr))
   }
 
   fn is_after(&self, timestamp: i64, after_timestamp: i64, inclusive: Option<bool>) -> bool {
@@ -214,11 +214,11 @@ impl RRuleSet {
   #[napi]
   pub fn between(
     &self,
-    after_datetime: Float64Array,
-    before_datetime: Float64Array,
+    after_datetime: Int32Array,
+    before_datetime: Int32Array,
     inclusive: Option<bool>,
-  ) -> napi::Result<Float64Array> {
-    let mut arr = Vec::<f64>::new();
+  ) -> napi::Result<Int32Array> {
+    let mut arr = Vec::<i32>::new();
 
     let timezone = self.rrule_set.dtstart().derive_timezone();
     let after_timestamp = DateTime::from(after_datetime)
@@ -244,28 +244,28 @@ impl RRuleSet {
       let is_before = self.is_before(date_timestamp, before_timestamp, inclusive);
 
       if is_after && is_before {
-        arr.push(date.timestamp().unwrap_or(-1) as f64);
-        arr.push(date.year().into());
-        arr.push(date.month().into());
-        arr.push(date.day().into());
+        arr.push(date.offset().unwrap_or(-1));
+        arr.push(date.year() as i32);
+        arr.push(date.month() as i32);
+        arr.push(date.day() as i32);
 
         if let Some(time) = date.time() {
-          arr.push(time.hour().into());
-          arr.push(time.minute().into());
-          arr.push(time.second().into());
-          arr.push(if time.utc() { 1.0 } else { 0.0 });
+          arr.push(time.hour() as i32);
+          arr.push(time.minute() as i32);
+          arr.push(time.second() as i32);
+          arr.push(if time.utc() { 1 } else { 0 });
         } else {
-          arr.push(-1.0);
-          arr.push(-1.0);
-          arr.push(-1.0);
-          arr.push(-1.0);
+          arr.push(-1);
+          arr.push(-1);
+          arr.push(-1);
+          arr.push(-1);
         }
       } else if !is_before {
         break;
       }
     }
 
-    Ok(Float64Array::new(arr))
+    Ok(Int32Array::new(arr))
   }
 
   #[napi]
@@ -307,31 +307,31 @@ pub struct RRuleSetIterator {
 
 #[napi]
 impl RRuleSetIterator {
-  #[napi(ts_return_type = "boolean | Float64Array | null")]
+  #[napi(ts_return_type = "boolean | Int32Array | null")]
   #[allow(clippy::should_implement_trait)]
   #[cfg(not(target_family = "wasm"))]
-  pub fn next(&mut self, mut store: Float64ArraySlice<'_>) -> bool {
+  pub fn next(&mut self, mut store: Int32ArraySlice<'_>) -> bool {
     let next = self.iterator.next();
 
     match next {
       Some(dt) => unsafe {
-        let data: &mut [f64] = store.as_mut();
+        let data: &mut [i32] = store.as_mut();
 
-        data[0] = dt.timestamp().unwrap_or(-1) as f64;
-        data[1] = dt.year().into();
-        data[2] = dt.month().into();
-        data[3] = dt.day().into();
+        data[0] = dt.offset().unwrap_or(-1);
+        data[1] = dt.year() as i32;
+        data[2] = dt.month() as i32;
+        data[3] = dt.day() as i32;
 
         if let Some(time) = dt.time() {
-          data[4] = time.hour().into();
-          data[5] = time.minute().into();
-          data[6] = time.second().into();
-          data[7] = if time.utc() { 1.0 } else { 0.0 };
+          data[4] = time.hour() as i32;
+          data[5] = time.minute() as i32;
+          data[6] = time.second() as i32;
+          data[7] = if time.utc() { 1 } else { 0 };
         } else {
-          data[4] = -1.0;
-          data[5] = -1.0;
-          data[6] = -1.0;
-          data[7] = -1.0;
+          data[4] = -1;
+          data[5] = -1;
+          data[6] = -1;
+          data[7] = -1;
         }
 
         true
@@ -343,7 +343,7 @@ impl RRuleSetIterator {
   #[napi]
   #[allow(clippy::should_implement_trait)]
   #[cfg(target_family = "wasm")]
-  pub fn next(&mut self) -> Option<Float64Array> {
+  pub fn next(&mut self) -> Option<Int32Array> {
     let next = self.iterator.next();
 
     match next {
@@ -367,7 +367,7 @@ impl RRuleSetIterator {
           data[7] = -1.0;
         }
 
-        Some(Float64Array::new(data))
+        Some(Int32Array::new(data))
       }
       None => None,
     }

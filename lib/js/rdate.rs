@@ -2,7 +2,7 @@ use crate::rrule::{
   datetime::{self},
   rdate,
 };
-use napi::bindgen_prelude::Float64Array;
+use napi::bindgen_prelude::Int32Array;
 use napi_derive::napi;
 
 #[napi(js_name = "RDate")]
@@ -13,7 +13,7 @@ pub struct RDate {
 #[napi]
 impl RDate {
   #[napi(constructor)]
-  pub fn new(dates: Float64Array, tzid: Option<String>) -> napi::Result<Self> {
+  pub fn new(dates: Int32Array, tzid: Option<String>) -> napi::Result<Self> {
     let tzid: Option<chrono_tz::Tz> = match tzid {
       Some(tzid) => Some(
         tzid
@@ -41,29 +41,29 @@ impl RDate {
   }
 
   #[napi(getter)]
-  pub fn values(&self) -> napi::Result<Float64Array> {
+  pub fn values(&self) -> napi::Result<Int32Array> {
     let mut arr = Vec::new();
 
     for datetime in self.rdate.values().iter() {
-      arr.push(-1.0);
-      arr.push(datetime.year() as f64);
-      arr.push(datetime.month() as f64);
-      arr.push(datetime.day() as f64);
+      arr.push(-1);
+      arr.push(datetime.year() as i32);
+      arr.push(datetime.month() as i32);
+      arr.push(datetime.day() as i32);
 
       if let Some(time) = datetime.time() {
-        arr.push(time.hour() as f64);
-        arr.push(time.minute() as f64);
-        arr.push(time.second() as f64);
-        arr.push(if time.utc() { 1.0 } else { 0.0 });
+        arr.push(time.hour() as i32);
+        arr.push(time.minute() as i32);
+        arr.push(time.second() as i32);
+        arr.push(if time.utc() { 1 } else { 0 });
       } else {
-        arr.push(-1.0);
-        arr.push(-1.0);
-        arr.push(-1.0);
-        arr.push(-1.0);
+        arr.push(-1);
+        arr.push(-1);
+        arr.push(-1);
+        arr.push(-1);
       }
     }
 
-    Ok(Float64Array::new(arr))
+    Ok(Int32Array::new(arr))
   }
 
   #[napi(getter)]

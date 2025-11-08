@@ -88,7 +88,7 @@ export class RDate<DT extends DateTime<Time> | DateTime<undefined>> {
     rust: Rust,
   ): RDate<DT> {
     const rrule = new this(
-      DateTime.fromFlatFloat64Array<DT>(rust.values),
+      DateTime.fromFlatInt32Array<DT>(rust.values),
       rust.tzid ?? undefined,
     );
 
@@ -202,7 +202,7 @@ export class RDate<DT extends DateTime<Time> | DateTime<undefined>> {
    * @internal
    */
   public toRust(): Rust {
-    this.rust ??= new Rust(DateTime.toFlatFloat64Array(this.values), this.tzid);
+    this.rust ??= new Rust(DateTime.toFlatInt32Array(this.values), this.tzid);
 
     return this.rust;
   }

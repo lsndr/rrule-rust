@@ -67,6 +67,18 @@ describe('Monthly', () => {
       DateTime.create(1997, 11, 7, 9, 0, 0, false),
       DateTime.create(1997, 12, 5, 9, 0, 0, false),
     ]);
+    expect(dates[0]?.toDate()).toEqual(
+      new Date(Date.UTC(1997, 8, 5, 13, 0, 0, 0)),
+    );
+    expect(dates[1]?.toDate()).toEqual(
+      new Date(Date.UTC(1997, 9, 3, 13, 0, 0, 0)),
+    );
+    expect(dates[2]?.toDate()).toEqual(
+      new Date(Date.UTC(1997, 10, 7, 14, 0, 0, 0)),
+    );
+    expect(dates[3]?.toDate()).toEqual(
+      new Date(Date.UTC(1997, 11, 5, 14, 0, 0, 0)),
+    );
     expect([...set]).toEqualPlain(dates);
   });
 

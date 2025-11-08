@@ -86,16 +86,16 @@ export class DateTime<T extends Time | undefined> {
   public readonly day: number;
   public readonly time: T;
 
-  private readonly timestamp?: number;
+  private readonly offset?: number;
 
   private constructor(
-    timestamp: number | undefined,
+    offset: number | undefined,
     year: number,
     month: number,
     day: number,
     time: T,
   ) {
-    this.timestamp = timestamp;
+    this.offset = offset;
     this.year = year;
     this.month = month;
     this.day = day;
@@ -157,11 +157,9 @@ export class DateTime<T extends Time | undefined> {
       second !== undefined &&
       utc !== undefined
     ) {
-      const timestamp = utc
-        ? Date.UTC(year, month - 1, day, hour, minute, second)
-        : undefined;
+      const offset = utc ? 0 : undefined;
 
-      return new DateTime<Time>(timestamp, year, month, day, {
+      return new DateTime<Time>(offset, year, month, day, {
         hour,
         minute,
         second,
@@ -353,7 +351,7 @@ export class DateTime<T extends Time | undefined> {
 
   /** @internal */
   public static fromNumbers<DT extends DateTime<Time> | DateTime<undefined>>(
-    timestamp: number,
+    offset: number,
     year: number,
     month: number,
     day: number,
@@ -365,7 +363,7 @@ export class DateTime<T extends Time | undefined> {
     const hasTime = hour !== -1;
 
     return new DateTime(
-      hasTime ? timestamp : undefined,
+      hasTime ? offset : undefined,
       year,
       month,
       day,
@@ -381,9 +379,9 @@ export class DateTime<T extends Time | undefined> {
   }
 
   /** @internal */
-  public static fromFloat64Array<
-    DT extends DateTime<Time> | DateTime<undefined>,
-  >(arr: Float64Array): DT {
+  public static fromInt32Array<DT extends DateTime<Time> | DateTime<undefined>>(
+    arr: Int32Array,
+  ): DT {
     return this.fromNumbers<DT>(
       arr[0]!,
       arr[1]!,
@@ -397,9 +395,9 @@ export class DateTime<T extends Time | undefined> {
   }
 
   /** @internal */
-  public static fromFlatFloat64Array<
+  public static fromFlatInt32Array<
     DT extends DateTime<Time> | DateTime<undefined>,
-  >(raw: Float64Array): DT[] {
+  >(raw: Int32Array): DT[] {
     const result: DT[] = [];
 
     for (let i = 0; i < raw.length; i += 8) {
@@ -421,10 +419,10 @@ export class DateTime<T extends Time | undefined> {
   }
 
   /** @internal */
-  public static toFlatFloat64Array(
+  public static toFlatInt32Array(
     datetimes: (DateTime<Time> | DateTime<undefined>)[],
-  ): Float64Array {
-    const arr = new Float64Array(datetimes.length * 8);
+  ): Int32Array {
+    const arr = new Int32Array(datetimes.length * 8);
 
     for (let i = 0; i < datetimes.length; i++) {
       const dt = datetimes[i]!;
@@ -559,25 +557,25 @@ export class DateTime<T extends Time | undefined> {
   }
 
   public toTimestamp(): number {
-    if (typeof this.timestamp === 'undefined') {
-      throw new Error('There is no information about timestamp');
+    if (typeof this.offset === 'undefined') {
+      throw new Error('There is no information about time zone offset');
     }
 
-    return this.timestamp;
+    return this.toMilliseconds();
   }
 
   public toDate(): Date {
-    if (typeof this.timestamp !== 'number') {
-      throw new Error('There is no information about timestamp');
+    if (typeof this.offset !== 'number') {
+      throw new Error('There is no information about time zone offset');
     }
 
-    return new Date(this.timestamp);
+    return new Date(this.toMilliseconds());
   }
 
   /** @internal */
-  public toFloat64Array(): Float64Array {
-    return new Float64Array([
-      this.timestamp ?? -1,
+  public toInt32Array(): Int32Array {
+    return new Int32Array([
+      this.offset ?? -1,
       this.year,
       this.month,
       this.day,
@@ -586,5 +584,20 @@ export class DateTime<T extends Time | undefined> {
       this.time ? this.time.second : -1,
       this.time ? (this.time.utc ? 1 : 0) : -1,
     ]);
+  }
+
+  private toMilliseconds(): number {
+    let time = Date.UTC(
+      this.year,
+      this.month - 1,
+      this.day,
+      this.time?.hour ?? 0,
+      this.time?.minute ?? 0,
+      this.time?.second ?? 0,
+    );
+
+    time -= (this.offset ?? 0) * 1000;
+
+    return time;
   }
 }

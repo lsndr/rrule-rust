@@ -3,10 +3,17 @@ import * as luxon from 'luxon';
 
 describe(DateTime, () => {
   describe('toTimestamp', () => {
-    test('should return timestamp for utc date', () => {
-      const datetime = DateTime.utc(2005, 9, 4, 9, 1, 2);
-
-      expect(datetime.toTimestamp()).toBe(Date.UTC(2005, 9 - 1, 4, 9, 1, 2));
+    test.each([
+      {
+        datetime: DateTime.utc(2005, 9, 4, 9, 1, 2),
+        expected: Date.UTC(2005, 9 - 1, 4, 9, 1, 2),
+      },
+      {
+        datetime: DateTime.fromNumbers(3600 * 4, 2025, 11, 8, 1, 50, 42, 0),
+        expected: Date.UTC(2025, 11 - 1, 7, 21, 50, 42),
+      },
+    ])('should return date for date $datetime', ({ datetime, expected }) => {
+      expect(datetime.toTimestamp()).toBe(expected);
     });
 
     test.each([
@@ -15,18 +22,23 @@ describe(DateTime, () => {
       DateTime.date(2005, 9, 4),
     ])('should fail to return timestamp for non-utc date %s', (datetime) => {
       expect(() => datetime.toTimestamp()).toThrow(
-        new Error('There is no information about timestamp'),
+        new Error('There is no information about time zone offset'),
       );
     });
   });
 
   describe('toDate', () => {
-    test('should return date for utc date', () => {
-      const datetime = DateTime.utc(2005, 9, 4, 9, 1, 2);
-
-      expect(datetime.toDate()).toEqual(
-        new Date(Date.UTC(2005, 9 - 1, 4, 9, 1, 2)),
-      );
+    test.each([
+      {
+        datetime: DateTime.utc(2005, 9, 4, 9, 1, 2),
+        expected: new Date(Date.UTC(2005, 9 - 1, 4, 9, 1, 2)),
+      },
+      {
+        datetime: DateTime.fromNumbers(3600 * 4, 2025, 11, 8, 1, 50, 42, 0),
+        expected: new Date(Date.UTC(2025, 11 - 1, 7, 21, 50, 42)),
+      },
+    ])('should return date for date $datetime', ({ datetime, expected }) => {
+      expect(datetime.toDate()).toEqual(expected);
     });
 
     test.each([
@@ -35,7 +47,7 @@ describe(DateTime, () => {
       DateTime.date(2005, 9, 4),
     ])('should fail to return date for non-utc date %s', (datetime) => {
       expect(() => datetime.toDate()).toThrow(
-        new Error('There is no information about timestamp'),
+        new Error('There is no information about time zone offset'),
       );
     });
   });

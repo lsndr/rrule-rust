@@ -2,16 +2,17 @@ use std::fmt;
 use std::str::FromStr;
 
 use chrono::Datelike;
+use chrono::Offset;
 use chrono::TimeZone;
 use chrono::Timelike;
-use napi::bindgen_prelude::Float64Array;
+use napi::bindgen_prelude::Int32Array;
 
 use crate::rrule::time::Time;
 use crate::rrule::value_type::ValueType;
 
 #[derive(Clone)]
 pub struct DateTime {
-  pub timestamp: Option<i64>,
+  pub offset: Option<i32>,
   pub year: u32,
   pub month: u32,
   pub day: u32,
@@ -19,8 +20,8 @@ pub struct DateTime {
 }
 
 impl DateTime {
-  pub fn timestamp(&self) -> Option<i64> {
-    self.timestamp
+  pub fn offset(&self) -> Option<i32> {
+    self.offset
   }
 
   pub fn day(&self) -> u32 {
@@ -123,7 +124,7 @@ impl DateTime {
         year,
         month,
         day,
-        timestamp: None,
+        offset: None,
         time: Some(Time {
           hour,
           minute,
@@ -137,40 +138,40 @@ impl DateTime {
       year,
       month,
       day,
-      timestamp: None,
+      offset: None,
       time: None,
     })
   }
 }
 
-impl From<(f64, f64, f64, f64, f64, f64, f64, f64)> for DateTime {
-  fn from(arr: (f64, f64, f64, f64, f64, f64, f64, f64)) -> Self {
+impl From<(i32, i32, i32, i32, i32, i32, i32, i32)> for DateTime {
+  fn from(arr: (i32, i32, i32, i32, i32, i32, i32, i32)) -> Self {
     DateTime {
-      timestamp: match arr.4 {
-        -1.0 => None,
-        _ => Some(arr.0 as i64),
+      offset: match arr.4 {
+        -1 => None,
+        _ => Some(arr.0),
       },
       year: arr.1 as u32,
       month: arr.2 as u32,
       day: arr.3 as u32,
       time: match arr.4 {
-        -1.0 => None,
+        -1 => None,
         _ => Some(Time {
           hour: arr.4 as u32,
           minute: arr.5 as u32,
           second: arr.6 as u32,
-          utc: arr.7 == 1.0,
+          utc: arr.7 == 1,
         }),
       },
     }
   }
 }
 
-impl From<Float64Array> for DateTime {
-  fn from(arr: Float64Array) -> Self {
-    let timestamp = match arr[0] {
-      -1.0 => None,
-      _ => Some(arr[0] as i64),
+impl From<Int32Array> for DateTime {
+  fn from(arr: Int32Array) -> Self {
+    let offset = match arr[0] {
+      -1 => None,
+      _ => Some(arr[0]),
     };
     let year = arr[1] as u32;
     let month = arr[2] as u32;
@@ -178,10 +179,10 @@ impl From<Float64Array> for DateTime {
     let hour = arr[4];
     let minute = arr[5];
     let second = arr[6];
-    let utc = arr[7] == 1.0;
+    let utc = arr[7] == 1;
 
     let time = match hour {
-      -1.0 => None,
+      -1 => None,
       _ => Some(Time {
         hour: hour as u32,
         minute: minute as u32,
@@ -191,7 +192,7 @@ impl From<Float64Array> for DateTime {
     };
 
     DateTime {
-      timestamp,
+      offset,
       year,
       month,
       day,
@@ -205,7 +206,7 @@ impl From<Float64Array> for DateTime {
 // And this trait must me removed
 impl From<&chrono::DateTime<chrono_tz::Tz>> for DateTime {
   fn from(datetime: &chrono::DateTime<chrono_tz::Tz>) -> Self {
-    let timestamp = datetime.timestamp() * 1000;
+    let offset = datetime.offset().fix().local_minus_utc();
     let year = datetime.year() as u32;
     let month = datetime.month();
     let day = datetime.day();
@@ -218,7 +219,7 @@ impl From<&chrono::DateTime<chrono_tz::Tz>> for DateTime {
       year,
       month,
       day,
-      timestamp: Some(timestamp),
+      offset: Some(offset),
       time: Some(Time {
         hour,
         minute,
@@ -231,6 +232,7 @@ impl From<&chrono::DateTime<chrono_tz::Tz>> for DateTime {
 
 impl From<&chrono::DateTime<rrule::Tz>> for DateTime {
   fn from(datetime: &chrono::DateTime<rrule::Tz>) -> Self {
+    let offset = datetime.offset().fix().local_minus_utc();
     let year = datetime.year() as u32;
     let month = datetime.month();
     let day = datetime.day();
@@ -243,7 +245,7 @@ impl From<&chrono::DateTime<rrule::Tz>> for DateTime {
       year,
       month,
       day,
-      timestamp: Some(datetime.timestamp() * 1000),
+      offset: Some(offset),
       time: Some(Time {
         hour,
         minute,
@@ -254,34 +256,34 @@ impl From<&chrono::DateTime<rrule::Tz>> for DateTime {
   }
 }
 
-impl From<&DateTime> for Float64Array {
+impl From<&DateTime> for Int32Array {
   fn from(val: &DateTime) -> Self {
-    Float64Array::from(vec![
-      val.timestamp().unwrap_or(-1) as f64,
-      val.year.into(),
-      val.month.into(),
-      val.day.into(),
+    Int32Array::from(vec![
+      val.offset().unwrap_or(-1),
+      val.year as i32,
+      val.month as i32,
+      val.day as i32,
       match &val.time {
-        Some(time) => time.hour.into(),
-        None => -1.0,
+        Some(time) => time.hour as i32,
+        None => -1,
       },
       match &val.time {
-        Some(time) => time.minute.into(),
-        None => -1.0,
+        Some(time) => time.minute as i32,
+        None => -1,
       },
       match &val.time {
-        Some(time) => time.second.into(),
-        None => -1.0,
+        Some(time) => time.second as i32,
+        None => -1,
       },
       match &val.time {
         Some(time) => {
           if time.utc {
-            1.0
+            1
           } else {
-            0.0
+            0
           }
         }
-        None => -1.0,
+        None => -1,
       },
     ])
   }

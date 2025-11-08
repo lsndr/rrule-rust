@@ -263,6 +263,7 @@ pub struct RRuleSetIterator {
 impl Iterator for RRuleSetIterator {
   type Item = DateTime;
 
+  #[inline]
   fn next(&mut self) -> Option<Self::Item> {
     self.iter.next().map(|date_time| {
       let date_time: DateTime = (&date_time).into();

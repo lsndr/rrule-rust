@@ -153,7 +153,10 @@ impl RRuleSet {
 
   #[napi]
   pub fn all(&self, limit: Option<i32>) -> napi::Result<Float64Array> {
-    let mut arr = Vec::<f64>::new();
+    let mut arr = match limit {
+      Some(l) => Vec::<f64>::with_capacity((l as usize) * 8),
+      None => Vec::<f64>::with_capacity(800),
+    };
 
     let iter = self
       .rrule_set
@@ -344,24 +347,24 @@ impl RRuleSetIterator {
     let next = self.iterator.next();
 
     match next {
-      Some(date_array) => {
+      Some(dt) => {
         let mut data = vec![0f64; 8];
 
         data[0] = dt.timestamp().unwrap_or(-1) as f64;
-        data[1] = date_array.year() as i32;
-        data[2] = date_array.month() as i32;
-        data[3] = date_array.day() as i32;
+        data[1] = dt.year().into();
+        data[2] = dt.month().into();
+        data[3] = dt.day().into();
 
-        if let Some(time) = date_array.time() {
-          data[4] = time.hour() as i32;
-          data[5] = time.minute() as i32;
-          data[6] = time.second() as i32;
-          data[7] = if time.utc() { 1 } else { 0 };
+        if let Some(time) = dt.time() {
+          data[4] = time.hour().into();
+          data[5] = time.minute().into();
+          data[6] = time.second().into();
+          data[7] = if time.utc() { 1.0 } else { 0.0 };
         } else {
-          data[4] = -1;
-          data[5] = -1;
-          data[6] = -1;
-          data[7] = -1;
+          data[4] = -1.0;
+          data[5] = -1.0;
+          data[6] = -1.0;
+          data[7] = -1.0;
         }
 
         Some(Float64Array::new(data))

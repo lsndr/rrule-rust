@@ -205,7 +205,7 @@ impl From<Float64Array> for DateTime {
 // And this trait must me removed
 impl From<&chrono::DateTime<chrono_tz::Tz>> for DateTime {
   fn from(datetime: &chrono::DateTime<chrono_tz::Tz>) -> Self {
-    let timestamp = datetime.timestamp_millis();
+    let timestamp = datetime.timestamp() * 1000;
     let year = datetime.year() as u32;
     let month = datetime.month();
     let day = datetime.day();
@@ -243,7 +243,7 @@ impl From<&chrono::DateTime<rrule::Tz>> for DateTime {
       year,
       month,
       day,
-      timestamp: Some(datetime.timestamp_millis()),
+      timestamp: Some(datetime.timestamp() * 1000),
       time: Some(Time {
         hour,
         minute,

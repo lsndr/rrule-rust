@@ -92,7 +92,7 @@ export class ExDate<
     rust: Rust,
   ): ExDate<DT> {
     const rrule = new this(
-      DateTime.fromFlatInt32Array<DT>(rust.values),
+      DateTime.fromFlatFloat64Array<DT>(rust.values),
       rust.tzid ?? undefined,
     );
 
@@ -206,7 +206,7 @@ export class ExDate<
    * @internal
    */
   public toRust(): Rust {
-    this.rust ??= new Rust(DateTime.toFlatInt32Array(this.values), this.tzid);
+    this.rust ??= new Rust(DateTime.toFlatFloat64Array(this.values), this.tzid);
 
     return this.rust;
   }

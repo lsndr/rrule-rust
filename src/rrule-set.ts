@@ -176,7 +176,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
   ): RRuleSet<DT> {
     const set = new RRuleSet<DT>({
       dtstart: new DtStart<DT>({
-        value: DateTime.fromInt32Array<DT>(rust.dtstart),
+        value: DateTime.fromFloat64Array<DT>(rust.dtstart),
         tzid: rust.tzid ?? undefined,
       }),
       rrules: rust.rrules.map((rrule) => RRule.fromRust<DT>(rrule)),
@@ -379,7 +379,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * ```
    */
   public all(limit?: number): DT[] {
-    return DateTime.fromFlatInt32Array(this.toRust().all(limit));
+    return DateTime.fromFlatFloat64Array(this.toRust().all(limit));
   }
 
   /**
@@ -412,10 +412,10 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * ```
    */
   public between(after: DT, before: DT, inclusive?: boolean): DT[] {
-    return DateTime.fromFlatInt32Array(
+    return DateTime.fromFlatFloat64Array(
       this.toRust().between(
-        after.toInt32Array(),
-        before.toInt32Array(),
+        after.toFloat64Array(),
+        before.toFloat64Array(),
         inclusive,
       ),
     );
@@ -445,7 +445,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    */
   public toRust(): Rust {
     this.rust ??= new Rust(
-      this.dtstart.value.toInt32Array(),
+      this.dtstart.value.toFloat64Array(),
       this.dtstart.tzid,
       undefined,
       this.rrules.map((rrule) => rrule.toRust()),
@@ -531,7 +531,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    */
   public [Symbol.iterator](): Iterator<DT, any, any> {
     const iter = this.toRust().iterator();
-    const store = new Int32Array(7);
+    const store = new Float64Array(8);
 
     return {
       next: () => {
@@ -545,7 +545,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
         }
         return {
           done: false,
-          value: DateTime.fromInt32Array(next === true ? store : next),
+          value: DateTime.fromFloat64Array(next === true ? store : next),
         };
       },
     };

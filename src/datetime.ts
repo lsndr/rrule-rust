@@ -86,7 +86,16 @@ export class DateTime<T extends Time | undefined> {
   public readonly day: number;
   public readonly time: T;
 
-  private constructor(year: number, month: number, day: number, time: T) {
+  private readonly timestamp?: number;
+
+  private constructor(
+    timestamp: number | undefined,
+    year: number,
+    month: number,
+    day: number,
+    time: T,
+  ) {
+    this.timestamp = timestamp;
     this.year = year;
     this.month = month;
     this.day = day;
@@ -148,14 +157,18 @@ export class DateTime<T extends Time | undefined> {
       second !== undefined &&
       utc !== undefined
     ) {
-      return new DateTime<Time>(year, month, day, {
+      const timestamp = utc
+        ? Date.UTC(year, month - 1, day, hour, minute, second)
+        : undefined;
+
+      return new DateTime<Time>(timestamp, year, month, day, {
         hour,
         minute,
         second,
         utc,
       });
     } else {
-      return new DateTime<undefined>(year, month, day, undefined);
+      return new DateTime<undefined>(undefined, year, month, day, undefined);
     }
   }
 
@@ -340,6 +353,7 @@ export class DateTime<T extends Time | undefined> {
 
   /** @internal */
   public static fromNumbers<DT extends DateTime<Time> | DateTime<undefined>>(
+    timestamp: number,
     year: number,
     month: number,
     day: number,
@@ -348,25 +362,28 @@ export class DateTime<T extends Time | undefined> {
     second: number,
     utc: number,
   ): DT {
+    const hasTime = hour !== -1;
+
     return new DateTime(
+      hasTime ? timestamp : undefined,
       year,
       month,
       day,
-      hour === -1
-        ? undefined
-        : {
+      hasTime
+        ? {
             hour,
             minute,
             second,
             utc: utc === 1,
-          },
+          }
+        : undefined,
     ) as DT;
   }
 
   /** @internal */
-  public static fromInt32Array<DT extends DateTime<Time> | DateTime<undefined>>(
-    arr: Int32Array,
-  ): DT {
+  public static fromFloat64Array<
+    DT extends DateTime<Time> | DateTime<undefined>,
+  >(arr: Float64Array): DT {
     return this.fromNumbers<DT>(
       arr[0]!,
       arr[1]!,
@@ -375,16 +392,17 @@ export class DateTime<T extends Time | undefined> {
       arr[4]!,
       arr[5]!,
       arr[6]!,
+      arr[7]!,
     );
   }
 
   /** @internal */
-  public static fromFlatInt32Array<
+  public static fromFlatFloat64Array<
     DT extends DateTime<Time> | DateTime<undefined>,
-  >(raw: Int32Array): DT[] {
+  >(raw: Float64Array): DT[] {
     const result: DT[] = [];
 
-    for (let i = 0; i < raw.length; i += 7) {
+    for (let i = 0; i < raw.length; i += 8) {
       result.push(
         this.fromNumbers(
           raw[i]!,
@@ -394,6 +412,7 @@ export class DateTime<T extends Time | undefined> {
           raw[i + 4]!,
           raw[i + 5]!,
           raw[i + 6]!,
+          raw[i + 7]!,
         ),
       );
     }
@@ -402,29 +421,30 @@ export class DateTime<T extends Time | undefined> {
   }
 
   /** @internal */
-  public static toFlatInt32Array(
-    datetimes: DateTime<Time | undefined>[],
-  ): Int32Array {
-    const arr = new Int32Array(datetimes.length * 7);
+  public static toFlatFloat64Array(
+    datetimes: (DateTime<Time> | DateTime<undefined>)[],
+  ): Float64Array {
+    const arr = new Float64Array(datetimes.length * 8);
 
     for (let i = 0; i < datetimes.length; i++) {
       const dt = datetimes[i]!;
-      const offset = i * 7;
+      const offset = i * 8;
 
-      arr[offset] = dt.year;
-      arr[offset + 1] = dt.month;
-      arr[offset + 2] = dt.day;
+      arr[offset] = -1;
+      arr[offset + 1] = dt.year;
+      arr[offset + 2] = dt.month;
+      arr[offset + 3] = dt.day;
 
       if (dt.time) {
-        arr[offset + 3] = dt.time.hour;
-        arr[offset + 4] = dt.time.minute;
-        arr[offset + 5] = dt.time.second;
-        arr[offset + 6] = dt.time.utc ? 1 : 0;
+        arr[offset + 4] = dt.time.hour;
+        arr[offset + 5] = dt.time.minute;
+        arr[offset + 6] = dt.time.second;
+        arr[offset + 7] = dt.time.utc ? 1 : 0;
       } else {
-        arr[offset + 3] = -1;
         arr[offset + 4] = -1;
         arr[offset + 5] = -1;
         arr[offset + 6] = -1;
+        arr[offset + 7] = -1;
       }
     }
 
@@ -538,9 +558,26 @@ export class DateTime<T extends Time | undefined> {
     return str;
   }
 
+  public toTimestamp(): number {
+    if (typeof this.timestamp === 'undefined') {
+      throw new Error('There is no information about timestamp');
+    }
+
+    return this.timestamp;
+  }
+
+  public toDate(): Date {
+    if (typeof this.timestamp !== 'number') {
+      throw new Error('There is no information about timestamp');
+    }
+
+    return new Date(this.timestamp);
+  }
+
   /** @internal */
-  public toInt32Array(): Int32Array {
-    return new Int32Array([
+  public toFloat64Array(): Float64Array {
+    return new Float64Array([
+      this.timestamp ?? -1,
       this.year,
       this.month,
       this.day,

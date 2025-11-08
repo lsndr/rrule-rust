@@ -2,6 +2,44 @@ import { DateTime } from '../src';
 import * as luxon from 'luxon';
 
 describe(DateTime, () => {
+  describe('toTimestamp', () => {
+    test('should return timestamp for utc date', () => {
+      const datetime = DateTime.utc(2005, 9, 4, 9, 1, 2);
+
+      expect(datetime.toTimestamp()).toBe(Date.UTC(2005, 9 - 1, 4, 9, 1, 2));
+    });
+
+    test.each([
+      DateTime.local(2005, 9, 4, 9, 1, 2),
+      DateTime.create(2005, 9, 4, 9, 1, 2, false),
+      DateTime.date(2005, 9, 4),
+    ])('should fail to return timestamp for non-utc date %s', (datetime) => {
+      expect(() => datetime.toTimestamp()).toThrow(
+        new Error('There is no information about timestamp'),
+      );
+    });
+  });
+
+  describe('toDate', () => {
+    test('should return date for utc date', () => {
+      const datetime = DateTime.utc(2005, 9, 4, 9, 1, 2);
+
+      expect(datetime.toDate()).toEqual(
+        new Date(Date.UTC(2005, 9 - 1, 4, 9, 1, 2)),
+      );
+    });
+
+    test.each([
+      DateTime.local(2005, 9, 4, 9, 1, 2),
+      DateTime.create(2005, 9, 4, 9, 1, 2, false),
+      DateTime.date(2005, 9, 4),
+    ])('should fail to return date for non-utc date %s', (datetime) => {
+      expect(() => datetime.toDate()).toThrow(
+        new Error('There is no information about timestamp'),
+      );
+    });
+  });
+
   describe('create', () => {
     test.each([
       {

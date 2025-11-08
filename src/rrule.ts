@@ -325,7 +325,7 @@ export class RRule<
     const rrule = new this({
       frequency: rust.frequency,
       interval: rust.interval ?? undefined,
-      until: rust.until ? DateTime.fromInt32Array<DT>(rust.until) : undefined,
+      until: rust.until ? DateTime.fromFloat64Array<DT>(rust.until) : undefined,
       count: rust.count ?? undefined,
       byWeekday: rust.byWeekday,
       byHour: rust.byHour,
@@ -607,7 +607,7 @@ export class RRule<
       this.interval,
       this.count,
       this.weekstart,
-      this.until?.toInt32Array(),
+      this.until?.toFloat64Array(),
       this.byWeekday,
       this.byHour,
       this.byMinute,

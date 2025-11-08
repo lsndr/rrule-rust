@@ -2,7 +2,7 @@ use crate::rrule::{
   datetime::{self},
   rdate,
 };
-use napi::bindgen_prelude::Int32Array;
+use napi::bindgen_prelude::Float64Array;
 use napi_derive::napi;
 
 #[napi(js_name = "RDate")]
@@ -13,7 +13,7 @@ pub struct RDate {
 #[napi]
 impl RDate {
   #[napi(constructor)]
-  pub fn new(dates: Int32Array, tzid: Option<String>) -> napi::Result<Self> {
+  pub fn new(dates: Float64Array, tzid: Option<String>) -> napi::Result<Self> {
     let tzid: Option<chrono_tz::Tz> = match tzid {
       Some(tzid) => Some(
         tzid
@@ -25,10 +25,10 @@ impl RDate {
 
     let mut datetimes = Vec::<datetime::DateTime>::new();
 
-    for chunk in dates.chunks(7) {
+    for chunk in dates.chunks(8) {
       datetimes.push(
         (
-          chunk[0], chunk[1], chunk[2], chunk[3], chunk[4], chunk[5], chunk[6],
+          chunk[0], chunk[1], chunk[2], chunk[3], chunk[4], chunk[5], chunk[6], chunk[7],
         )
           .into(),
       );
@@ -41,28 +41,29 @@ impl RDate {
   }
 
   #[napi(getter)]
-  pub fn values(&self) -> napi::Result<Int32Array> {
+  pub fn values(&self) -> napi::Result<Float64Array> {
     let mut arr = Vec::new();
 
     for datetime in self.rdate.values().iter() {
-      arr.push(datetime.year() as i32);
-      arr.push(datetime.month() as i32);
-      arr.push(datetime.day() as i32);
+      arr.push(-1.0);
+      arr.push(datetime.year() as f64);
+      arr.push(datetime.month() as f64);
+      arr.push(datetime.day() as f64);
 
       if let Some(time) = datetime.time() {
-        arr.push(time.hour() as i32);
-        arr.push(time.minute() as i32);
-        arr.push(time.second() as i32);
-        arr.push(if time.utc() { 1 } else { 0 });
+        arr.push(time.hour() as f64);
+        arr.push(time.minute() as f64);
+        arr.push(time.second() as f64);
+        arr.push(if time.utc() { 1.0 } else { 0.0 });
       } else {
-        arr.push(-1);
-        arr.push(-1);
-        arr.push(-1);
-        arr.push(-1);
+        arr.push(-1.0);
+        arr.push(-1.0);
+        arr.push(-1.0);
+        arr.push(-1.0);
       }
     }
 
-    Ok(Int32Array::new(arr))
+    Ok(Float64Array::new(arr))
   }
 
   #[napi(getter)]

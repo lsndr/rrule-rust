@@ -1,6 +1,6 @@
 use super::{frequency::Frequency, month::Month, n_weekday::NWeekday, weekday::Weekday};
 use crate::rrule::{datetime, n_weekday, rrule};
-use napi::{bindgen_prelude::Int32Array, Either};
+use napi::{bindgen_prelude::Float64Array, Either};
 use napi_derive::napi;
 
 #[napi(js_name = "RRule")]
@@ -17,7 +17,7 @@ impl RRule {
     interval: Option<u16>,
     count: Option<u32>,
     weekstart: Option<Weekday>,
-    until: Option<Int32Array>,
+    until: Option<Float64Array>,
     #[napi(ts_arg_type = "(readonly (NWeekday | Weekday)[]) | undefined | null")]
     by_weekday: Option<Vec<Either<NWeekday, Weekday>>>,
     #[napi(ts_arg_type = "(readonly number[]) | undefined | null")] by_hour: Option<Vec<u8>>,
@@ -153,7 +153,7 @@ impl RRule {
   }
 
   #[napi(getter)]
-  pub fn until(&self) -> napi::Result<Option<Int32Array>> {
+  pub fn until(&self) -> napi::Result<Option<Float64Array>> {
     Ok(self.rrule.until().map(|datetime| datetime.into()))
   }
 

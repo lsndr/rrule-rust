@@ -12,7 +12,6 @@ use crate::rrule::value_type::ValueType;
 
 #[derive(Clone)]
 pub struct DateTime {
-  pub offset: Option<i32>,
   pub year: u32,
   pub month: u32,
   pub day: u32,
@@ -20,10 +19,6 @@ pub struct DateTime {
 }
 
 impl DateTime {
-  pub fn offset(&self) -> Option<i32> {
-    self.offset
-  }
-
   pub fn day(&self) -> u32 {
     self.day
   }
@@ -45,9 +40,9 @@ impl DateTime {
     timezone: &chrono_tz::Tz,
   ) -> Result<chrono::DateTime<chrono_tz::Tz>, String> {
     let timezone = match &self.time {
-      Some(time) => match time.utc {
-        true => &chrono_tz::Tz::UTC,
-        false => timezone,
+      Some(time) => match time.offset {
+        Some(0) => &chrono_tz::Tz::UTC,
+        _ => timezone,
       },
       None => timezone,
     };
@@ -119,17 +114,17 @@ impl DateTime {
         .map_err(|_| format!("Invalid second: {}", second))?;
 
       let utc = str.get(15..16).unwrap_or("").to_uppercase() == "Z";
+      let offset = if utc { Some(0) } else { None };
 
       return Ok(Self {
         year,
         month,
         day,
-        offset: None,
         time: Some(Time {
           hour,
           minute,
           second,
-          utc,
+          offset,
         }),
       });
     }
@@ -138,29 +133,27 @@ impl DateTime {
       year,
       month,
       day,
-      offset: None,
       time: None,
     })
   }
 }
 
-impl From<(i32, i32, i32, i32, i32, i32, i32, i32)> for DateTime {
-  fn from(arr: (i32, i32, i32, i32, i32, i32, i32, i32)) -> Self {
+impl From<(i32, i32, i32, i32, i32, i32, i32)> for DateTime {
+  fn from(arr: (i32, i32, i32, i32, i32, i32, i32)) -> Self {
     DateTime {
-      offset: match arr.4 {
-        -1 => None,
-        _ => Some(arr.0),
-      },
-      year: arr.1 as u32,
-      month: arr.2 as u32,
-      day: arr.3 as u32,
-      time: match arr.4 {
+      year: arr.0 as u32,
+      month: arr.1 as u32,
+      day: arr.2 as u32,
+      time: match arr.3 {
         -1 => None,
         _ => Some(Time {
-          hour: arr.4 as u32,
-          minute: arr.5 as u32,
-          second: arr.6 as u32,
-          utc: arr.7 == 1,
+          hour: arr.3 as u32,
+          minute: arr.4 as u32,
+          second: arr.5 as u32,
+          offset: match arr.6 {
+            -1 => None,
+            offset => Some(offset),
+          },
         }),
       },
     }
@@ -169,17 +162,16 @@ impl From<(i32, i32, i32, i32, i32, i32, i32, i32)> for DateTime {
 
 impl From<Int32Array> for DateTime {
   fn from(arr: Int32Array) -> Self {
-    let offset = match arr[0] {
+    let year = arr[0] as u32;
+    let month = arr[1] as u32;
+    let day = arr[2] as u32;
+    let hour = arr[3];
+    let minute = arr[4];
+    let second = arr[5];
+    let offset = match arr[6] {
       -1 => None,
-      _ => Some(arr[0]),
+      offset => Some(offset),
     };
-    let year = arr[1] as u32;
-    let month = arr[2] as u32;
-    let day = arr[3] as u32;
-    let hour = arr[4];
-    let minute = arr[5];
-    let second = arr[6];
-    let utc = arr[7] == 1;
 
     let time = match hour {
       -1 => None,
@@ -187,12 +179,11 @@ impl From<Int32Array> for DateTime {
         hour: hour as u32,
         minute: minute as u32,
         second: second as u32,
-        utc,
+        offset,
       }),
     };
 
     DateTime {
-      offset,
       year,
       month,
       day,
@@ -213,18 +204,16 @@ impl From<&chrono::DateTime<chrono_tz::Tz>> for DateTime {
     let hour = datetime.hour();
     let minute = datetime.minute();
     let second = datetime.second();
-    let utc = datetime.timezone() == chrono_tz::Tz::UTC;
 
     DateTime {
       year,
       month,
       day,
-      offset: Some(offset),
       time: Some(Time {
         hour,
         minute,
         second,
-        utc,
+        offset: Some(offset),
       }),
     }
   }
@@ -239,18 +228,17 @@ impl From<&chrono::DateTime<rrule::Tz>> for DateTime {
     let hour = datetime.hour();
     let minute = datetime.minute();
     let second = datetime.second();
-    let utc = datetime.timezone() == rrule::Tz::UTC;
 
     DateTime {
       year,
       month,
       day,
-      offset: Some(offset),
+
       time: Some(Time {
         hour,
         minute,
         second,
-        utc,
+        offset: Some(offset),
       }),
     }
   }
@@ -259,7 +247,6 @@ impl From<&chrono::DateTime<rrule::Tz>> for DateTime {
 impl From<&DateTime> for Int32Array {
   fn from(val: &DateTime) -> Self {
     Int32Array::from(vec![
-      val.offset().unwrap_or(-1),
       val.year as i32,
       val.month as i32,
       val.day as i32,
@@ -276,13 +263,7 @@ impl From<&DateTime> for Int32Array {
         None => -1,
       },
       match &val.time {
-        Some(time) => {
-          if time.utc {
-            1
-          } else {
-            0
-          }
-        }
+        Some(time) => time.offset.unwrap_or(-1),
         None => -1,
       },
     ])
@@ -308,7 +289,10 @@ impl fmt::Display for DateTime {
         time.hour,
         time.minute,
         time.second,
-        if time.utc { "Z" } else { "" }
+        match time.offset {
+          Some(0) => "Z",
+          _ => "",
+        }
       ),
       None => format!("{:04}{:02}{:02}", self.year, self.month, self.day),
     };

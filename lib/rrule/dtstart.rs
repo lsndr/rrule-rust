@@ -68,7 +68,7 @@ impl DtStart {
     value_type: Option<ValueType>,
   ) -> Result<Self, String> {
     if let Some(time) = &value.time {
-      if !time.utc && tzid.is_none() {
+      if time.offset() != Some(0) && tzid.is_none() {
         return Err("TZID is requred for non-UTC DTSTART".to_string());
       }
     }

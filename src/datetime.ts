@@ -86,16 +86,9 @@ export class DateTime<T extends Time | undefined> {
   public readonly day: number;
   public readonly time: T;
 
-  private readonly offset?: number;
+  private offset?: number;
 
-  private constructor(
-    offset: number | undefined,
-    year: number,
-    month: number,
-    day: number,
-    time: T,
-  ) {
-    this.offset = offset;
+  private constructor(year: number, month: number, day: number, time: T) {
     this.year = year;
     this.month = month;
     this.day = day;
@@ -157,16 +150,18 @@ export class DateTime<T extends Time | undefined> {
       second !== undefined &&
       utc !== undefined
     ) {
-      const offset = utc ? 0 : undefined;
-
-      return new DateTime<Time>(offset, year, month, day, {
+      const dt = new DateTime<Time>(year, month, day, {
         hour,
         minute,
         second,
         utc,
       });
+
+      dt.offset = utc ? 0 : undefined;
+
+      return dt;
     } else {
-      return new DateTime<undefined>(undefined, year, month, day, undefined);
+      return new DateTime<undefined>(year, month, day, undefined);
     }
   }
 
@@ -351,31 +346,31 @@ export class DateTime<T extends Time | undefined> {
 
   /** @internal */
   public static fromNumbers<DT extends DateTime<Time> | DateTime<undefined>>(
-    offset: number,
     year: number,
     month: number,
     day: number,
     hour: number,
     minute: number,
     second: number,
-    utc: number,
+    offset: number,
   ): DT {
-    const hasTime = hour !== -1;
-
-    return new DateTime(
-      hasTime ? offset : undefined,
+    const dt = new DateTime(
       year,
       month,
       day,
-      hasTime
+      hour !== -1
         ? {
             hour,
             minute,
             second,
-            utc: utc === 1,
+            utc: offset === 0,
           }
         : undefined,
     ) as DT;
+
+    dt.offset = offset === -1 ? undefined : offset;
+
+    return dt;
   }
 
   /** @internal */
@@ -390,7 +385,6 @@ export class DateTime<T extends Time | undefined> {
       arr[4]!,
       arr[5]!,
       arr[6]!,
-      arr[7]!,
     );
   }
 
@@ -400,7 +394,7 @@ export class DateTime<T extends Time | undefined> {
   >(raw: Int32Array): DT[] {
     const result: DT[] = [];
 
-    for (let i = 0; i < raw.length; i += 8) {
+    for (let i = 0; i < raw.length; i += 7) {
       result.push(
         this.fromNumbers(
           raw[i]!,
@@ -410,7 +404,6 @@ export class DateTime<T extends Time | undefined> {
           raw[i + 4]!,
           raw[i + 5]!,
           raw[i + 6]!,
-          raw[i + 7]!,
         ),
       );
     }
@@ -422,27 +415,26 @@ export class DateTime<T extends Time | undefined> {
   public static toFlatInt32Array(
     datetimes: (DateTime<Time> | DateTime<undefined>)[],
   ): Int32Array {
-    const arr = new Int32Array(datetimes.length * 8);
+    const arr = new Int32Array(datetimes.length * 7);
 
     for (let i = 0; i < datetimes.length; i++) {
       const dt = datetimes[i]!;
-      const offset = i * 8;
+      const offset = i * 7;
 
-      arr[offset] = -1;
-      arr[offset + 1] = dt.year;
-      arr[offset + 2] = dt.month;
-      arr[offset + 3] = dt.day;
+      arr[offset] = dt.year;
+      arr[offset + 1] = dt.month;
+      arr[offset + 2] = dt.day;
 
       if (dt.time) {
-        arr[offset + 4] = dt.time.hour;
-        arr[offset + 5] = dt.time.minute;
-        arr[offset + 6] = dt.time.second;
-        arr[offset + 7] = dt.time.utc ? 1 : 0;
+        arr[offset + 3] = dt.time.hour;
+        arr[offset + 4] = dt.time.minute;
+        arr[offset + 5] = dt.time.second;
+        arr[offset + 6] = dt.offset ?? -1;
       } else {
+        arr[offset + 3] = -1;
         arr[offset + 4] = -1;
         arr[offset + 5] = -1;
         arr[offset + 6] = -1;
-        arr[offset + 7] = -1;
       }
     }
 
@@ -575,14 +567,13 @@ export class DateTime<T extends Time | undefined> {
   /** @internal */
   public toInt32Array(): Int32Array {
     return new Int32Array([
-      this.offset ?? -1,
       this.year,
       this.month,
       this.day,
       this.time ? this.time.hour : -1,
       this.time ? this.time.minute : -1,
       this.time ? this.time.second : -1,
-      this.time ? (this.time.utc ? 1 : 0) : -1,
+      this.offset ?? -1,
     ]);
   }
 

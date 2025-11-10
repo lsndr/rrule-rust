@@ -9,7 +9,7 @@ describe(DateTime, () => {
         expected: Date.UTC(2005, 9 - 1, 4, 9, 1, 2),
       },
       {
-        datetime: DateTime.fromNumbers(3600 * 4, 2025, 11, 8, 1, 50, 42, 0),
+        datetime: DateTime.fromNumbers(2025, 11, 8, 1, 50, 42, 3600 * 4),
         expected: Date.UTC(2025, 11 - 1, 7, 21, 50, 42),
       },
     ])('should return date for date $datetime', ({ datetime, expected }) => {
@@ -34,7 +34,7 @@ describe(DateTime, () => {
         expected: new Date(Date.UTC(2005, 9 - 1, 4, 9, 1, 2)),
       },
       {
-        datetime: DateTime.fromNumbers(3600 * 4, 2025, 11, 8, 1, 50, 42, 0),
+        datetime: DateTime.fromNumbers(2025, 11, 8, 1, 50, 42, 3600 * 4),
         expected: new Date(Date.UTC(2025, 11 - 1, 7, 21, 50, 42)),
       },
     ])('should return date for date $datetime', ({ datetime, expected }) => {

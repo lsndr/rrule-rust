@@ -25,10 +25,10 @@ impl ExDate {
 
     let mut datetimes = Vec::<datetime::DateTime>::new();
 
-    for chunk in dates.chunks(8) {
+    for chunk in dates.chunks(7) {
       datetimes.push(
         (
-          chunk[0], chunk[1], chunk[2], chunk[3], chunk[4], chunk[5], chunk[6], chunk[7],
+          chunk[0], chunk[1], chunk[2], chunk[3], chunk[4], chunk[5], chunk[6],
         )
           .into(),
       );
@@ -45,7 +45,6 @@ impl ExDate {
     let mut arr = Vec::new();
 
     for datetime in self.exdate.values().iter() {
-      arr.push(datetime.offset().unwrap_or(-1));
       arr.push(datetime.year() as i32);
       arr.push(datetime.month() as i32);
       arr.push(datetime.day() as i32);
@@ -54,7 +53,7 @@ impl ExDate {
         arr.push(time.hour() as i32);
         arr.push(time.minute() as i32);
         arr.push(time.second() as i32);
-        arr.push(if time.utc() { 1 } else { 0 });
+        arr.push(time.offset().unwrap_or(-1));
       } else {
         arr.push(-1);
         arr.push(-1);

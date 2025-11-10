@@ -3,7 +3,7 @@ pub struct Time {
   pub hour: u32,
   pub minute: u32,
   pub second: u32,
-  pub utc: bool,
+  pub offset: Option<i32>,
 }
 
 impl Time {
@@ -19,7 +19,7 @@ impl Time {
     self.second
   }
 
-  pub fn utc(&self) -> bool {
-    self.utc
+  pub fn offset(&self) -> Option<i32> {
+    self.offset
   }
 }

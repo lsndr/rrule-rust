@@ -170,7 +170,6 @@ impl RRuleSet {
         }
       }
 
-      arr.push(datetime.offset().unwrap_or(-1));
       arr.push(datetime.year() as i32);
       arr.push(datetime.month() as i32);
       arr.push(datetime.day() as i32);
@@ -179,7 +178,7 @@ impl RRuleSet {
         arr.push(time.hour() as i32);
         arr.push(time.minute() as i32);
         arr.push(time.second() as i32);
-        arr.push(if time.utc() { 1 } else { 0 });
+        arr.push(time.offset().unwrap_or(-1));
       } else {
         arr.push(-1);
         arr.push(-1);
@@ -244,7 +243,6 @@ impl RRuleSet {
       let is_before = self.is_before(date_timestamp, before_timestamp, inclusive);
 
       if is_after && is_before {
-        arr.push(date.offset().unwrap_or(-1));
         arr.push(date.year() as i32);
         arr.push(date.month() as i32);
         arr.push(date.day() as i32);
@@ -253,7 +251,7 @@ impl RRuleSet {
           arr.push(time.hour() as i32);
           arr.push(time.minute() as i32);
           arr.push(time.second() as i32);
-          arr.push(if time.utc() { 1 } else { 0 });
+          arr.push(time.offset().unwrap_or(-1));
         } else {
           arr.push(-1);
           arr.push(-1);
@@ -318,21 +316,20 @@ impl RRuleSetIterator {
         let data: &mut [i32] = store.as_mut();
 
         // TODO: remove code duplication
-        data[0] = dt.offset().unwrap_or(-1);
-        data[1] = dt.year() as i32;
-        data[2] = dt.month() as i32;
-        data[3] = dt.day() as i32;
+        data[0] = dt.year() as i32;
+        data[1] = dt.month() as i32;
+        data[2] = dt.day() as i32;
 
         if let Some(time) = dt.time() {
-          data[4] = time.hour() as i32;
-          data[5] = time.minute() as i32;
-          data[6] = time.second() as i32;
-          data[7] = if time.utc() { 1 } else { 0 };
+          data[3] = time.hour() as i32;
+          data[4] = time.minute() as i32;
+          data[5] = time.second() as i32;
+          data[6] = time.offset().unwrap_or(-1);
         } else {
+          data[3] = -1;
           data[4] = -1;
           data[5] = -1;
           data[6] = -1;
-          data[7] = -1;
         }
 
         true

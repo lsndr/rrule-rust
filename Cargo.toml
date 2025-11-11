@@ -13,12 +13,12 @@ chrono-tz = "0.10.4"
 indexmap = "2.12.0"
 itertools = "0.14.0"
 napi = "3.4.0"
-napi-derive = "3.3.0"
+napi-derive = "3.3.3"
 replace_with = "0.1.8"
 rrule = { version = "0.14.0", features = ["exrule"] }
 
 [build-dependencies]
-napi-build = "2.2.4"
+napi-build = "2.3.1"
 
 [profile.release]
 lto = true

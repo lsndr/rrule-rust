@@ -154,8 +154,8 @@ impl RRuleSet {
   #[napi]
   pub fn all(&self, limit: Option<i32>) -> napi::Result<Int32Array> {
     let mut arr = match limit {
-      Some(l) => Vec::<i32>::with_capacity((l as usize) * 8),
-      None => Vec::<i32>::with_capacity(800),
+      Some(l) => Vec::<i32>::with_capacity((l as usize) * 7),
+      None => Vec::<i32>::with_capacity(700),
     };
 
     let iter = self

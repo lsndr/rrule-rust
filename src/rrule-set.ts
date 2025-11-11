@@ -531,7 +531,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    */
   public [Symbol.iterator](): Iterator<DT, any, any> {
     const iter = this.toRust().iterator();
-    const store = new Int32Array(8);
+    const store = new Int32Array(7);
 
     return {
       next: () => {

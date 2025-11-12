@@ -49,7 +49,7 @@ export declare class RRuleSet {
 }
 
 export declare class RRuleSetIterator {
-  next(store: Int32ArraySlice): boolean | Int32Array | null
+  next(store: Int32Array): boolean | Int32Array | null
   next(): Int32Array | null
 }
 

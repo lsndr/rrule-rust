@@ -115,6 +115,9 @@ describe('Daily', () => {
       'DTSTART;TZID=US/Eastern:19970902T090000\nRRULE:FREQ=DAILY;COUNT=10',
     );
     expect(dates).toEqualPlain([DateTime.create(1997, 9, 7, 9, 0, 0, false)]);
+    expect(dates[0]?.toDate()).toEqual(
+      new Date(Date.UTC(1997, 8, 7, 13, 0, 0)),
+    );
   });
 
   it('daily until September 6, 1997', () => {

@@ -2,6 +2,56 @@ import { DateTime } from '../src';
 import * as luxon from 'luxon';
 
 describe(DateTime, () => {
+  describe('toTimestamp', () => {
+    test.each([
+      {
+        datetime: DateTime.utc(2005, 9, 4, 9, 1, 2),
+        expected: Date.UTC(2005, 9 - 1, 4, 9, 1, 2),
+      },
+      {
+        datetime: DateTime.fromNumbers(2025, 11, 8, 1, 50, 42, 3600 * 4),
+        expected: Date.UTC(2025, 11 - 1, 7, 21, 50, 42),
+      },
+    ])('should return date for date $datetime', ({ datetime, expected }) => {
+      expect(datetime.toTimestamp()).toBe(expected);
+    });
+
+    test.each([
+      DateTime.local(2005, 9, 4, 9, 1, 2),
+      DateTime.create(2005, 9, 4, 9, 1, 2, false),
+      DateTime.date(2005, 9, 4),
+    ])('should fail to return timestamp for non-utc date %s', (datetime) => {
+      expect(() => datetime.toTimestamp()).toThrow(
+        new Error('There is no information about time zone offset'),
+      );
+    });
+  });
+
+  describe('toDate', () => {
+    test.each([
+      {
+        datetime: DateTime.utc(2005, 9, 4, 9, 1, 2),
+        expected: new Date(Date.UTC(2005, 9 - 1, 4, 9, 1, 2)),
+      },
+      {
+        datetime: DateTime.fromNumbers(2025, 11, 8, 1, 50, 42, 3600 * 4),
+        expected: new Date(Date.UTC(2025, 11 - 1, 7, 21, 50, 42)),
+      },
+    ])('should return date for date $datetime', ({ datetime, expected }) => {
+      expect(datetime.toDate()).toEqual(expected);
+    });
+
+    test.each([
+      DateTime.local(2005, 9, 4, 9, 1, 2),
+      DateTime.create(2005, 9, 4, 9, 1, 2, false),
+      DateTime.date(2005, 9, 4),
+    ])('should fail to return date for non-utc date %s', (datetime) => {
+      expect(() => datetime.toDate()).toThrow(
+        new Error('There is no information about time zone offset'),
+      );
+    });
+  });
+
   describe('create', () => {
     test.each([
       {

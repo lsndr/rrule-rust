@@ -53,7 +53,7 @@ impl RDate {
         arr.push(time.hour() as i32);
         arr.push(time.minute() as i32);
         arr.push(time.second() as i32);
-        arr.push(if time.utc() { 1 } else { 0 });
+        arr.push(time.offset().unwrap_or(-1));
       } else {
         arr.push(-1);
         arr.push(-1);

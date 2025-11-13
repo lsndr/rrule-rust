@@ -163,15 +163,3 @@ impl TryFrom<Property> for RDate {
     RDate::from_property(property)
   }
 }
-
-impl From<i64> for RDate {
-  fn from(numeric: i64) -> Self {
-    let datetime: DateTime = numeric.into();
-
-    RDate {
-      values: vec![datetime],
-      tzid: None,
-      value_type: None,
-    }
-  }
-}

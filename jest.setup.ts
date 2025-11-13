@@ -9,7 +9,7 @@ declare global {
   namespace jest {
     interface Matchers<R> {
       toEqualPlain<E extends ToPlain>(expected: E | undefined): R;
-      toEqualPlain<E extends ToPlain>(expected: E[]): R;
+      toEqualPlain<E extends ToPlain>(expected: readonly E[]): R;
     }
   }
 }

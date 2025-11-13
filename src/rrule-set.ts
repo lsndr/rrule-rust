@@ -1,5 +1,5 @@
 import { RRule, type RRuleLike } from './rrule';
-import { RRuleSet as Rust } from './lib';
+import { type RRuleSetIterator, RRuleSet as Rust } from './lib';
 import {
   type Time,
   DateTime,
@@ -9,6 +9,20 @@ import {
 import { DtStart, type DtStartLike } from './dtstart';
 import { ExDate, type ExDateLike } from './exdate';
 import { RDate, type RDateLike } from './rdate';
+import { OperationCache } from './cache';
+
+export interface RRuleSetCache {
+  disabled: boolean;
+  clear(): void;
+  disable(): void;
+  enable(): void;
+}
+
+export interface GlobalRRuleSetCache {
+  disabled: boolean;
+  disable(): void;
+  enable(): void;
+}
 
 /**
  * Options for creating an RRuleSet instance.
@@ -80,6 +94,11 @@ export interface RRuleSetLike<DT extends DateTimeLike | DateLike> {
 export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
   implements Iterable<DateTime<Time> | DateTime<undefined>>
 {
+  // TODO: Think about introducing a global cache for static methods like RRuleSet.parse
+  public static readonly cache = new OperationCache({
+    disabled: false,
+  });
+
   /** The start date/time for the recurrence set */
   public readonly dtstart: DtStart<DT>;
   /** Array of recurrence rules to include */
@@ -90,6 +109,8 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
   public readonly exdates: readonly ExDate<DT>[];
   /** Array of recurrence dates to include */
   public readonly rdates: readonly RDate<DT>[];
+
+  private _cache: OperationCache = RRuleSet.cache.clone();
 
   /** @internal */
   private rust?: Rust;
@@ -110,6 +131,10 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
       this.exdates = [];
       this.rdates = [];
     }
+  }
+
+  public get cache(): RRuleSetCache {
+    return this._cache;
   }
 
   /**
@@ -378,8 +403,12 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * const first10 = rruleSet.all(10);
    * ```
    */
-  public all(limit?: number): DT[] {
-    return DateTime.fromFlatInt32Array(this.toRust().all(limit));
+
+  // TODO: add skip (?)
+  public all(limit?: number): readonly DT[] {
+    return this._cache.getOrCompute<DT[]>(`all:${limit}`, () =>
+      DateTime.fromFlatInt32Array(this.toRust().all(limit)),
+    );
   }
 
   /**
@@ -411,13 +440,17 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * );
    * ```
    */
-  public between(after: DT, before: DT, inclusive?: boolean): DT[] {
-    return DateTime.fromFlatInt32Array(
-      this.toRust().between(
-        after.toInt32Array(),
-        before.toInt32Array(),
-        inclusive,
-      ),
+  public between(after: DT, before: DT, inclusive?: boolean): readonly DT[] {
+    return this._cache.getOrCompute(
+      `between:${after.toString()},${before.toString()},${inclusive}`,
+      () =>
+        DateTime.fromFlatInt32Array(
+          this.toRust().between(
+            after.toInt32Array(),
+            before.toInt32Array(),
+            inclusive,
+          ),
+        ),
     );
   }
 
@@ -530,22 +563,55 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * ```
    */
   public [Symbol.iterator](): Iterator<DT, any, any> {
-    const iter = this.toRust().iterator();
-    const store = new Int32Array(7);
+    const cache = this._cache.getOrSet('iterator:data', {
+      values: [] as DT[],
+      done: false,
+    });
+    let cacheIndex = 0;
+
+    let iterAndStore: [RRuleSetIterator, Int32Array] | undefined;
+
+    const getIterAndStore = () => {
+      return (iterAndStore ??= [
+        this.toRust().iterator(cache.values.length),
+        new Int32Array(7),
+      ]);
+    };
 
     return {
       next: () => {
-        const next = iter.next(store);
+        const cachedValue = cache.values[cacheIndex++];
 
-        if (!next) {
+        if (cachedValue) {
+          return {
+            done: false,
+            value: cachedValue,
+          };
+        } else if (cache.done) {
           return {
             done: true as const,
             value: undefined,
           };
         }
+
+        const [iter, store] = getIterAndStore();
+        const next = iter.next(store);
+
+        if (!next) {
+          cache.done = true;
+
+          return {
+            done: true as const,
+            value: undefined,
+          };
+        }
+
+        const value = DateTime.fromInt32Array<DT>(next === true ? store : next);
+        cache.values.push(value);
+
         return {
           done: false,
-          value: DateTime.fromInt32Array(next === true ? store : next),
+          value,
         };
       },
     };

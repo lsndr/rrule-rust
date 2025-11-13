@@ -1,66 +1,64 @@
 import * as b from 'benny';
-import * as node from 'rrule';
-import * as rust from '../src';
+import * as Node from 'rrule';
+import * as Rust from '../src';
+
+function buildRust(tzid: string) {
+  const rrule = new Rust.RRule({
+    frequency: Rust.Frequency.Daily,
+    count: 30,
+    interval: 1,
+  });
+  const set = new Rust.RRuleSet({
+    dtstart: new Rust.DtStart(
+      Rust.DateTime.local(2023, 2, 21, 23, 59, 0),
+      tzid,
+    ),
+    rrules: [rrule],
+  });
+
+  return {
+    set,
+  };
+}
+
+function buildNode(tzid: string) {
+  const rrule = new Node.RRule({
+    freq: Node.RRule.DAILY,
+    dtstart: new Date(Date.UTC(2023, 2, 21, 23, 59, 0)),
+    tzid,
+    count: 30,
+    interval: 1,
+  });
+  const set = new Node.RRuleSet();
+  set.rrule(rrule);
+
+  return {
+    set,
+    rrule,
+  };
+}
 
 function suite(tzid: string) {
+  const rust = buildRust(tzid);
+  const node = buildNode(tzid);
+
   return [
-    b.add('RRuleSet.all() (rust)', () => {
-      const rrule = new rust.RRule({
-        frequency: rust.Frequency.Daily,
-        count: 30,
-        interval: 1,
-      });
-      const set = new rust.RRuleSet({
-        dtstart: new rust.DtStart(
-          rust.DateTime.local(2023, 2, 21, 23, 59, 0),
-          tzid,
-        ),
-        rrules: [rrule],
-      });
-
-      set.all();
+    b.add('rruleSet.all() (rust)', () => {
+      rust.set.all();
     }),
-    b.add('...RRuleSet (rust)', () => {
-      const rrule = new rust.RRule({
-        frequency: rust.Frequency.Daily,
-        count: 30,
-        interval: 1,
-      });
-      const set = new rust.RRuleSet({
-        dtstart: new rust.DtStart(
-          rust.DateTime.local(2023, 2, 21, 23, 59, 0),
-          tzid,
-        ),
-        rrules: [rrule],
-      });
-
+    b.add('...rruleSet (rust)', () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Required for benchmark
-      [...set];
+      [...rust.set];
     }),
-    b.add('RRule.all() (node)', () => {
-      const rrule = new node.RRule({
-        freq: node.RRule.DAILY,
-        dtstart: new Date(Date.UTC(2023, 2, 21, 23, 59, 0)),
-        tzid,
-        count: 30,
-        interval: 1,
-      });
-
-      rrule.all();
+    b.add('rrule.all() (node)', () => {
+      // reset cache
+      node.rrule._cache = null;
+      node.rrule.all();
     }),
-    b.add('RRuleSet.all() (node)', () => {
-      const rrule = new node.RRule({
-        freq: node.RRule.DAILY,
-        dtstart: new Date(Date.UTC(2023, 2, 21, 23, 59, 0)),
-        tzid,
-        count: 30,
-        interval: 1,
-      });
-
-      const set = new node.RRuleSet();
-      set.rrule(rrule);
-
-      set.all();
+    b.add('rruleSet.all() (node)', () => {
+      // reset cache
+      node.set._cache = null;
+      node.set.all();
     }),
     b.cycle(),
     b.complete(),

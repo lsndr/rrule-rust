@@ -18,12 +18,6 @@ export interface RRuleSetCache {
   enable(): void;
 }
 
-export interface GlobalRRuleSetCache {
-  disabled: boolean;
-  disable(): void;
-  enable(): void;
-}
-
 /**
  * Options for creating an RRuleSet instance.
  */
@@ -94,11 +88,6 @@ export interface RRuleSetLike<DT extends DateTimeLike | DateLike> {
 export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
   implements Iterable<DateTime<Time> | DateTime<undefined>>
 {
-  // TODO: Think about introducing a global cache for static methods like RRuleSet.parse
-  public static readonly cache = new OperationCache({
-    disabled: false,
-  });
-
   /** The start date/time for the recurrence set */
   public readonly dtstart: DtStart<DT>;
   /** Array of recurrence rules to include */
@@ -110,7 +99,9 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
   /** Array of recurrence dates to include */
   public readonly rdates: readonly RDate<DT>[];
 
-  private _cache: OperationCache = RRuleSet.cache.clone();
+  private _cache: OperationCache = new OperationCache({
+    disabled: false,
+  });
 
   /** @internal */
   private rust?: Rust;

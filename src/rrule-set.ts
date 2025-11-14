@@ -11,10 +11,53 @@ import { ExDate, type ExDateLike } from './exdate';
 import { RDate, type RDateLike } from './rdate';
 import { OperationCache } from './cache';
 
+/**
+ * Interface for controlling caching behavior of RRuleSet operations.
+ *
+ * Caching is enabled by default and significantly improves performance when repeatedly
+ * calling methods like `all()`, `between()`, or iterating over the same RRuleSet instance.
+ * However, it may consume additional memory for large recurrence sets.
+ *
+ * @example
+ * ```typescript
+ * const rruleSet = new RRuleSet({
+ *   dtstart: new DtStart(DateTime.local(2024, 1, 1, 9, 0, 0)),
+ *   rrules: [new RRule({ frequency: Frequency.Daily, count: 100 })]
+ * });
+ *
+ * // Disable caching if memory is a concern
+ * rruleSet.cache.disable();
+ *
+ * // Enable caching for better performance
+ * rruleSet.cache.enable();
+ *
+ * // Clear cached results
+ * rruleSet.cache.clear();
+ * ```
+ */
 export interface RRuleSetCache {
+  /**
+   * Indicates whether caching is currently disabled.
+   * When `true`, all operations compute results fresh without storing them.
+   */
   disabled: boolean;
+
+  /**
+   * Clears all cached results.
+   * Use this method when you want to free memory while keeping caching enabled.
+   */
   clear(): void;
+
+  /**
+   * Disables caching for all subsequent operations.
+   * Existing cached results are preserved but not used. New operations will not cache results.
+   */
   disable(): void;
+
+  /**
+   * Enables caching for all subsequent operations.
+   * Operations will store and reuse results to improve performance.
+   */
   enable(): void;
 }
 
@@ -124,6 +167,30 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
     }
   }
 
+  /**
+   * Provides access to cache control for this RRuleSet instance.
+   *
+   * By default, caching is enabled to optimize repeated calls to methods like `all()`,
+   * `between()`, and iteration. Use this property to control caching behavior based on
+   * your performance and memory requirements.
+   *
+   * @example
+   * ```typescript
+   * const rruleSet = new RRuleSet({
+   *   dtstart: new DtStart(DateTime.local(2024, 1, 1, 9, 0, 0)),
+   *   rrules: [new RRule({ frequency: Frequency.Daily })]
+   * });
+   *
+   * // Check if caching is disabled
+   * console.log(rruleSet.cache.disabled); // false
+   *
+   * // Disable caching for memory-constrained environments
+   * rruleSet.cache.disable();
+   *
+   * // Clear cached data to free memory
+   * rruleSet.cache.clear();
+   * ```
+   */
   public get cache(): RRuleSetCache {
     return this._cache;
   }

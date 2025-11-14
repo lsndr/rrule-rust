@@ -277,5 +277,43 @@ describe(RRuleSet, () => {
       ]);
       expect(dates1).toEqualPlain(dates2);
     });
+
+    it('should reuse cached data if interrupted', () => {
+      const set = new RRuleSet(
+        new DtStart({
+          value: DateTime.date(1997, 9, 2),
+          tzid: 'US/Eastern',
+        }),
+        // TODO: implement type inference, so we don't need to specify DateTime<undefined>
+      ).addRRule(new RRule<DateTime<undefined>>(Frequency.Daily).setCount(10));
+
+      const dates1: DateTime<undefined>[] = [];
+
+      for (const date of set) {
+        dates1.push(date);
+
+        // interrupt
+        if (dates1.length >= 2) {
+          break;
+        }
+      }
+
+      const dates2 = [...set];
+
+      expect(dates2).toEqualPlain([
+        DateTime.date(1997, 9, 2),
+        DateTime.date(1997, 9, 3),
+        DateTime.date(1997, 9, 4),
+        DateTime.date(1997, 9, 5),
+        DateTime.date(1997, 9, 6),
+        DateTime.date(1997, 9, 7),
+        DateTime.date(1997, 9, 8),
+        DateTime.date(1997, 9, 9),
+        DateTime.date(1997, 9, 10),
+        DateTime.date(1997, 9, 11),
+      ]);
+      expect(dates1[0]).toBe(dates2[0]);
+      expect(dates1[1]).toBe(dates2[1]);
+    });
   });
 });

@@ -90,7 +90,7 @@ export interface RRuleOptions<
   /** Maximum number of occurrences to generate */
   readonly count?: number;
   /** Date/time at which to end the recurrence */
-  readonly until: DT;
+  readonly until?: DT;
   /** List of weekdays when the recurrence should occur */
   readonly byWeekday?: readonly (NWeekday | Weekday)[];
   /** List of hours when the recurrence should occur (0-23) */
@@ -221,7 +221,7 @@ export class RRule<
     if (typeof frequencyOrOptions === 'object' && frequencyOrOptions !== null) {
       this.frequency = frequencyOrOptions.frequency;
       this.interval = frequencyOrOptions.interval;
-      this.until = frequencyOrOptions.until;
+      this.until = frequencyOrOptions.until as DT;
       this.count = frequencyOrOptions.count;
       this.byWeekday = frequencyOrOptions.byWeekday ?? [];
       this.byHour = frequencyOrOptions.byHour ?? [];

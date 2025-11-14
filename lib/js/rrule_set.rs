@@ -1,3 +1,5 @@
+use std::iter::Skip;
+
 use super::exdate::ExDate;
 use super::rdate::RDate;
 use super::rrule::RRule;
@@ -286,11 +288,17 @@ impl RRuleSet {
   }
 
   #[napi]
-  pub fn iterator(&self, this: Reference<RRuleSet>, env: Env) -> napi::Result<RRuleSetIterator> {
+  pub fn iterator(
+    &self,
+    this: Reference<RRuleSet>,
+    env: Env,
+    skip: Option<i32>,
+  ) -> napi::Result<RRuleSetIterator> {
     let iterator = this.share_with(env, |set: &mut RRuleSet| {
       set
         .rrule_set
         .iterator()
+        .map(|iter| iter.skip(skip.unwrap_or(0) as usize))
         .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))
     })?;
 
@@ -300,7 +308,7 @@ impl RRuleSet {
 
 #[napi]
 pub struct RRuleSetIterator {
-  iterator: SharedReference<RRuleSet, rrule_set::RRuleSetIterator>,
+  iterator: SharedReference<RRuleSet, Skip<rrule_set::RRuleSetIterator>>,
 }
 
 #[napi]

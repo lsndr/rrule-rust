@@ -45,7 +45,7 @@ export declare class RRuleSet {
   between(afterDatetime: Int32Array, beforeDatetime: Int32Array, inclusive?: boolean | undefined | null): Int32Array
   setFromString(str: string): this
   toString(): string
-  iterator(): RRuleSetIterator
+  iterator(skip?: number | undefined | null): RRuleSetIterator
 }
 
 export declare class RRuleSetIterator {

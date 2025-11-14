@@ -8,33 +8,56 @@ function buildRust(tzid: string) {
     count: 30,
     interval: 1,
   });
-  const set = new Rust.RRuleSet({
+  const setCached = new Rust.RRuleSet({
     dtstart: new Rust.DtStart(
       Rust.DateTime.local(2023, 2, 21, 23, 59, 0),
       tzid,
     ),
     rrules: [rrule],
   });
+  const setNoCache = new Rust.RRuleSet({
+    dtstart: new Rust.DtStart(
+      Rust.DateTime.local(2023, 2, 21, 23, 59, 0),
+      tzid,
+    ),
+    rrules: [rrule],
+  });
+  setNoCache.cache.disable();
 
   return {
-    set,
+    setCached,
+    setNoCache,
   };
 }
 
 function buildNode(tzid: string) {
-  const rrule = new Node.RRule({
+  const rruleCached = new Node.RRule({
     freq: Node.RRule.DAILY,
     dtstart: new Date(Date.UTC(2023, 2, 21, 23, 59, 0)),
     tzid,
     count: 30,
     interval: 1,
   });
-  const set = new Node.RRuleSet();
-  set.rrule(rrule);
+  const setCached = new Node.RRuleSet();
+  setCached.rrule(rruleCached);
+
+  const rruleNoCache = new Node.RRule({
+    freq: Node.RRule.DAILY,
+    dtstart: new Date(Date.UTC(2023, 2, 21, 23, 59, 0)),
+    tzid,
+    count: 30,
+    interval: 1,
+  });
+  rruleNoCache._cache = null;
+  const setNoCache = new Node.RRuleSet();
+  setNoCache._cache = null;
+  setNoCache.rrule(rruleNoCache);
 
   return {
-    set,
-    rrule,
+    setCached,
+    rruleCached,
+    rruleNoCache,
+    setNoCache,
   };
 }
 
@@ -44,21 +67,31 @@ function suite(tzid: string) {
 
   return [
     b.add('rruleSet.all() (rust)', () => {
-      rust.set.all();
+      rust.setNoCache.all();
     }),
     b.add('...rruleSet (rust)', () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Required for benchmark
-      [...rust.set];
+      [...rust.setNoCache];
+    }),
+    b.add('rruleSet.all() (rust, cache)', () => {
+      rust.setCached.all();
+    }),
+    b.add('...rruleSet (rust, cache)', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- Required for benchmark
+      [...rust.setCached];
     }),
     b.add('rrule.all() (node)', () => {
       // reset cache
-      node.rrule._cache = null;
-      node.rrule.all();
+      node.rruleNoCache.all();
     }),
     b.add('rruleSet.all() (node)', () => {
-      // reset cache
-      node.set._cache = null;
-      node.set.all();
+      node.setNoCache.all();
+    }),
+    b.add('rrule.all() (node, cache)', () => {
+      node.rruleCached.all();
+    }),
+    b.add('rruleSet.all() (node, cache)', () => {
+      node.setCached.all();
     }),
     b.cycle(),
     b.complete(),

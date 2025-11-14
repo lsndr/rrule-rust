@@ -1,5 +1,5 @@
 import { RRule, type RRuleLike } from './rrule';
-import { RRuleSet as Rust } from './lib';
+import { type RRuleSetIterator, RRuleSet as Rust } from './lib';
 import {
   type Time,
   DateTime,
@@ -9,6 +9,57 @@ import {
 import { DtStart, type DtStartLike } from './dtstart';
 import { ExDate, type ExDateLike } from './exdate';
 import { RDate, type RDateLike } from './rdate';
+import { OperationCache } from './cache';
+
+/**
+ * Interface for controlling caching behavior of RRuleSet operations.
+ *
+ * Caching is enabled by default and significantly improves performance when repeatedly
+ * calling methods like `all()`, `between()`, or iterating over the same RRuleSet instance.
+ * However, it may consume additional memory for large recurrence sets.
+ *
+ * @example
+ * ```typescript
+ * const rruleSet = new RRuleSet({
+ *   dtstart: new DtStart(DateTime.local(2024, 1, 1, 9, 0, 0)),
+ *   rrules: [new RRule({ frequency: Frequency.Daily, count: 100 })]
+ * });
+ *
+ * // Disable caching if memory is a concern
+ * rruleSet.cache.disable();
+ *
+ * // Enable caching for better performance
+ * rruleSet.cache.enable();
+ *
+ * // Clear cached results
+ * rruleSet.cache.clear();
+ * ```
+ */
+export interface RRuleSetCache {
+  /**
+   * Indicates whether caching is currently disabled.
+   * When `true`, all operations compute results fresh without storing them.
+   */
+  disabled: boolean;
+
+  /**
+   * Clears all cached results.
+   * Use this method when you want to free memory while keeping caching enabled.
+   */
+  clear(): void;
+
+  /**
+   * Disables caching for all subsequent operations.
+   * Existing cached results are preserved but not used. New operations will not cache results.
+   */
+  disable(): void;
+
+  /**
+   * Enables caching for all subsequent operations.
+   * Operations will store and reuse results to improve performance.
+   */
+  enable(): void;
+}
 
 /**
  * Options for creating an RRuleSet instance.
@@ -91,6 +142,10 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
   /** Array of recurrence dates to include */
   public readonly rdates: readonly RDate<DT>[];
 
+  private _cache: OperationCache = new OperationCache({
+    disabled: false,
+  });
+
   /** @internal */
   private rust?: Rust;
 
@@ -110,6 +165,34 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
       this.exdates = [];
       this.rdates = [];
     }
+  }
+
+  /**
+   * Provides access to cache control for this RRuleSet instance.
+   *
+   * By default, caching is enabled to optimize repeated calls to methods like `all()`,
+   * `between()`, and iteration. Use this property to control caching behavior based on
+   * your performance and memory requirements.
+   *
+   * @example
+   * ```typescript
+   * const rruleSet = new RRuleSet({
+   *   dtstart: new DtStart(DateTime.local(2024, 1, 1, 9, 0, 0)),
+   *   rrules: [new RRule({ frequency: Frequency.Daily })]
+   * });
+   *
+   * // Check if caching is disabled
+   * console.log(rruleSet.cache.disabled); // false
+   *
+   * // Disable caching for memory-constrained environments
+   * rruleSet.cache.disable();
+   *
+   * // Clear cached data to free memory
+   * rruleSet.cache.clear();
+   * ```
+   */
+  public get cache(): RRuleSetCache {
+    return this._cache;
   }
 
   /**
@@ -378,8 +461,12 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * const first10 = rruleSet.all(10);
    * ```
    */
-  public all(limit?: number): DT[] {
-    return DateTime.fromFlatInt32Array(this.toRust().all(limit));
+
+  // TODO: add skip (?)
+  public all(limit?: number): readonly DT[] {
+    return this._cache.getOrCompute<DT[]>(`all:${limit}`, () =>
+      DateTime.fromFlatInt32Array(this.toRust().all(limit)),
+    );
   }
 
   /**
@@ -411,13 +498,17 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * );
    * ```
    */
-  public between(after: DT, before: DT, inclusive?: boolean): DT[] {
-    return DateTime.fromFlatInt32Array(
-      this.toRust().between(
-        after.toInt32Array(),
-        before.toInt32Array(),
-        inclusive,
-      ),
+  public between(after: DT, before: DT, inclusive?: boolean): readonly DT[] {
+    return this._cache.getOrCompute(
+      `between:${after.toString()},${before.toString()},${inclusive}`,
+      () =>
+        DateTime.fromFlatInt32Array(
+          this.toRust().between(
+            after.toInt32Array(),
+            before.toInt32Array(),
+            inclusive,
+          ),
+        ),
     );
   }
 
@@ -530,22 +621,55 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * ```
    */
   public [Symbol.iterator](): Iterator<DT, any, any> {
-    const iter = this.toRust().iterator();
-    const store = new Int32Array(7);
+    const cache = this._cache.getOrSet('iterator:data', {
+      values: [] as DT[],
+      done: false,
+    });
+    let cacheIndex = 0;
+
+    let iterAndStore: [RRuleSetIterator, Int32Array] | undefined;
+
+    const getIterAndStore = () => {
+      return (iterAndStore ??= [
+        this.toRust().iterator(cache.values.length),
+        new Int32Array(7),
+      ]);
+    };
 
     return {
       next: () => {
-        const next = iter.next(store);
+        const cachedValue = cache.values[cacheIndex++];
 
-        if (!next) {
+        if (cachedValue) {
+          return {
+            done: false,
+            value: cachedValue,
+          };
+        } else if (cache.done) {
           return {
             done: true as const,
             value: undefined,
           };
         }
+
+        const [iter, store] = getIterAndStore();
+        const next = iter.next(store);
+
+        if (!next) {
+          cache.done = true;
+
+          return {
+            done: true as const,
+            value: undefined,
+          };
+        }
+
+        const value = DateTime.fromInt32Array<DT>(next === true ? store : next);
+        cache.values.push(value);
+
         return {
           done: false,
-          value: DateTime.fromInt32Array(next === true ? store : next),
+          value,
         };
       },
     };

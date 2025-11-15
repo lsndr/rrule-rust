@@ -346,7 +346,7 @@ export class RRule<
 
     rrule.rust = rust;
 
-    return rrule as RRule<DT>;
+    return rrule;
   }
 
   /**

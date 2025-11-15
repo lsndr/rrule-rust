@@ -80,7 +80,9 @@ export enum Weekday {
 /**
  * Options for creating an RRule instance.
  */
-export interface RRuleOptions<DT extends DateTime<Time> | DateTime<undefined>> {
+export interface RRuleOptions<
+  DT extends DateTime<Time> | DateTime<undefined> | undefined,
+> {
   /** How often the recurrence repeats */
   readonly frequency: Frequency;
   /** Interval between recurrences (e.g., 2 for every other occurrence) */
@@ -114,7 +116,7 @@ export interface RRuleOptions<DT extends DateTime<Time> | DateTime<undefined>> {
 /**
  * Plain object representation of RRule.
  */
-export interface RRuleLike<DT extends DateTimeLike | DateLike> {
+export interface RRuleLike<DT extends DateTimeLike | DateLike | undefined> {
   /** How often the recurrence repeats */
   readonly frequency: Frequency;
   /** Interval between recurrences */
@@ -122,7 +124,7 @@ export interface RRuleLike<DT extends DateTimeLike | DateLike> {
   /** Maximum number of occurrences */
   readonly count?: number;
   /** Date/time at which to end the recurrence */
-  readonly until?: DT;
+  readonly until: DT;
   /** List of weekdays when the recurrence should occur */
   readonly byWeekday: readonly (NWeekday | Weekday)[];
   /** List of hours when the recurrence should occur (0-23) */
@@ -179,14 +181,14 @@ export interface RRuleLike<DT extends DateTimeLike | DateLike> {
  * ```
  */
 export class RRule<
-  DT extends DateTime<Time> | DateTime<undefined> = DateTime<Time>,
+  DT extends DateTime<Time> | DateTime<undefined> | undefined = undefined,
 > {
   /** How often the recurrence repeats */
   public readonly frequency: Frequency;
   /** Interval between recurrences */
   public readonly interval?: number;
   /** Date/time at which to end the recurrence */
-  public readonly until?: DT;
+  public readonly until: DT;
   /** Maximum number of occurrences */
   public readonly count?: number;
   /** List of weekdays when the recurrence should occur */
@@ -219,7 +221,7 @@ export class RRule<
     if (typeof frequencyOrOptions === 'object' && frequencyOrOptions !== null) {
       this.frequency = frequencyOrOptions.frequency;
       this.interval = frequencyOrOptions.interval;
-      this.until = frequencyOrOptions.until;
+      this.until = frequencyOrOptions.until as DT;
       this.count = frequencyOrOptions.count;
       this.byWeekday = frequencyOrOptions.byWeekday ?? [];
       this.byHour = frequencyOrOptions.byHour ?? [];
@@ -233,6 +235,7 @@ export class RRule<
       this.weekstart = frequencyOrOptions.weekstart;
     } else {
       this.frequency = frequencyOrOptions;
+      this.until = undefined as DT;
       this.byWeekday = [];
       this.byHour = [];
       this.byMinute = [];
@@ -319,13 +322,15 @@ export class RRule<
   /**
    * @internal
    */
-  public static fromRust<DT extends DateTime<Time> | DateTime<undefined>>(
-    rust: Rust,
-  ): RRule<DT> {
+  public static fromRust<
+    DT extends DateTime<Time> | DateTime<undefined> | undefined,
+  >(rust: Rust): RRule<DT> {
     const rrule = new this({
       frequency: rust.frequency,
       interval: rust.interval ?? undefined,
-      until: rust.until ? DateTime.fromInt32Array<DT>(rust.until) : undefined,
+      until: rust.until
+        ? DateTime.fromInt32Array<Exclude<DT, undefined>>(rust.until)
+        : undefined,
       count: rust.count ?? undefined,
       byWeekday: rust.byWeekday,
       byHour: rust.byHour,
@@ -575,7 +580,9 @@ export class RRule<
    * const limited = rrule.setUntil(DateTime.date(2024, 12, 31));
    * ```
    */
-  public setUntil(until: DT): RRule<DT> {
+  public setUntil<NDT extends DateTime<Time> | DateTime<undefined> | undefined>(
+    until: NDT,
+  ): RRule<NDT> {
     return new RRule({ ...this.toOptions(), until });
   }
 
@@ -637,9 +644,16 @@ export class RRule<
    * ```
    */
   public toPlain(): RRuleLike<
-    DT extends DateTime<Time> ? DateTimeLike : DateLike
+    DT extends DateTime<Time>
+      ? DateTimeLike
+      : DT extends DateTime<undefined> | undefined
+        ? DateLike
+        : undefined
   >;
-  public toPlain(): RRuleLike<DateTimeLike> | RRuleLike<DateLike> {
+  public toPlain():
+    | RRuleLike<DateTimeLike>
+    | RRuleLike<DateLike>
+    | RRuleLike<undefined> {
     return {
       frequency: this.frequency,
       interval: this.interval,

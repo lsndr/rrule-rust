@@ -197,8 +197,7 @@ describe(RRuleSet, () => {
           value: DateTime.date(1997, 9, 2),
           tzid: 'US/Eastern',
         }),
-        // TODO: implement type inference, so we don't need to specify DateTime<undefined>
-      ).addRRule(new RRule<DateTime<undefined>>(Frequency.Daily).setCount(10));
+      ).addRRule(new RRule(Frequency.Daily).setCount(10));
 
       const dates1 = set.all();
       const dates2 = set.all();
@@ -226,8 +225,7 @@ describe(RRuleSet, () => {
           value: DateTime.date(1997, 9, 2),
           tzid: 'US/Eastern',
         }),
-        // TODO: implement type inference, so we don't need to specify DateTime<undefined>
-      ).addRRule(new RRule<DateTime<undefined>>(Frequency.Daily).setCount(10));
+      ).addRRule(new RRule(Frequency.Daily).setCount(10));
 
       const dates1 = set.between(
         DateTime.date(1997, 9, 4),
@@ -257,8 +255,7 @@ describe(RRuleSet, () => {
           value: DateTime.date(1997, 9, 2),
           tzid: 'US/Eastern',
         }),
-        // TODO: implement type inference, so we don't need to specify DateTime<undefined>
-      ).addRRule(new RRule<DateTime<undefined>>(Frequency.Daily).setCount(10));
+      ).addRRule(new RRule(Frequency.Daily).setCount(10));
 
       const dates1 = [...set];
       const dates2 = [...set];
@@ -284,8 +281,7 @@ describe(RRuleSet, () => {
           value: DateTime.date(1997, 9, 2),
           tzid: 'US/Eastern',
         }),
-        // TODO: implement type inference, so we don't need to specify DateTime<undefined>
-      ).addRRule(new RRule<DateTime<undefined>>(Frequency.Daily).setCount(10));
+      ).addRRule(new RRule(Frequency.Daily).setCount(10));
 
       const dates1: DateTime<undefined>[] = [];
 

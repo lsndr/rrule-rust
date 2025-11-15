@@ -65,14 +65,16 @@ export interface RRuleSetCache {
  * Options for creating an RRuleSet instance.
  */
 export interface RRuleSetOptions<
-  DT extends DateTime<Time> | DateTime<undefined> = DateTime<Time>,
+  DT extends DateTime<Time> | DateTime<undefined>,
+  RRDT extends DT | undefined = DT | undefined,
+  ERDT extends DT | undefined = DT | undefined,
 > {
   /** The start date/time for the recurrence set */
   readonly dtstart: DtStart<DT>;
   /** Array of recurrence rules to include */
-  readonly rrules?: readonly RRule<DT>[];
+  readonly rrules?: readonly RRule<RRDT>[];
   /** Array of recurrence rules to exclude */
-  readonly exrules?: readonly RRule<DT>[];
+  readonly exrules?: readonly RRule<ERDT>[];
   /** Array of exception dates to exclude */
   readonly exdates?: readonly ExDate<DT>[];
   /** Array of recurrence dates to include */
@@ -128,15 +130,18 @@ export interface RRuleSetLike<DT extends DateTimeLike | DateLike> {
  * const occurrences = rruleSet.all(10);
  * ```
  */
-export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
-  implements Iterable<DateTime<Time> | DateTime<undefined>>
+export class RRuleSet<
+  DT extends DateTime<Time> | DateTime<undefined>,
+  RRDT extends DT | undefined = DT | undefined,
+  ERDT extends DT | undefined = DT | undefined,
+> implements Iterable<DateTime<Time> | DateTime<undefined>>
 {
   /** The start date/time for the recurrence set */
   public readonly dtstart: DtStart<DT>;
   /** Array of recurrence rules to include */
-  public readonly rrules: readonly RRule<DT>[];
+  public readonly rrules: readonly RRule<RRDT>[];
   /** Array of recurrence rules to exclude */
-  public readonly exrules: readonly RRule<DT>[];
+  public readonly exrules: readonly RRule<ERDT>[];
   /** Array of exception dates to exclude */
   public readonly exdates: readonly ExDate<DT>[];
   /** Array of recurrence dates to include */
@@ -150,8 +155,10 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
   private rust?: Rust;
 
   public constructor(dtstart: DtStart<DT>);
-  public constructor(options: RRuleSetOptions<DT>);
-  public constructor(optionsOrDtstart: DtStart<DT> | RRuleSetOptions<DT>) {
+  public constructor(options: RRuleSetOptions<DT, RRDT, ERDT>);
+  public constructor(
+    optionsOrDtstart: DtStart<DT> | RRuleSetOptions<DT, RRDT, ERDT>,
+  ) {
     if ('dtstart' in optionsOrDtstart) {
       this.dtstart = optionsOrDtstart.dtstart;
       this.rrules = optionsOrDtstart?.rrules ?? [];
@@ -304,10 +311,14 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * const withRule = rruleSet.addRRule(new RRule(Frequency.Weekly));
    * ```
    */
-  public addRRule<RRDT extends DT>(rrule: RRule<RRDT>): RRuleSet<DT> {
+  public addRRule<NRRDT extends DT | undefined>(
+    rrule: RRule<NRRDT>,
+  ): RRuleSet<DT, RRDT | NRRDT, ERDT> {
+    const rrules: readonly RRule<RRDT | NRRDT>[] = [...this.rrules, rrule];
+
     return new RRuleSet({
       ...this.toOptions(),
-      rrules: [...this.rrules, rrule],
+      rrules,
     });
   }
 
@@ -317,10 +328,12 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * @param rrules - The new array of recurrence rules
    * @returns A new RRuleSet instance
    */
-  public setRRules(rrules: readonly RRule<DT>[]): RRuleSet<DT> {
+  public setRRules<NRDT extends DT | undefined>(
+    rrules: readonly RRule<NRDT>[],
+  ): RRuleSet<DT, NRDT> {
     return new RRuleSet({
       ...this.toOptions(),
-      rrules: rrules,
+      rrules,
     });
   }
 
@@ -343,10 +356,14 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * }));
    * ```
    */
-  public addExRule(rrule: RRule<DT>): RRuleSet<DT> {
+  public addExRule<NERDT extends DT | undefined>(
+    rrule: RRule<NERDT>,
+  ): RRuleSet<DT, RRDT, ERDT | NERDT> {
+    const exrules: RRule<ERDT | NERDT>[] = [...this.exrules, rrule];
+
     return new RRuleSet({
       ...this.toOptions(),
-      exrules: [...this.exrules, rrule],
+      exrules,
     });
   }
 
@@ -356,7 +373,9 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
    * @param rrules - The new array of exclusion rules
    * @returns A new RRuleSet instance
    */
-  public setExRules(rrules: readonly RRule<DT>[]): RRuleSet<DT> {
+  public setExRules<ERDT extends DT | undefined>(
+    rrules: readonly RRule<ERDT>[],
+  ): RRuleSet<DT, RRDT, ERDT> {
     return new RRuleSet({
       ...this.toOptions(),
       exrules: rrules,
@@ -675,7 +694,7 @@ export class RRuleSet<DT extends DateTime<Time> | DateTime<undefined>>
     };
   }
 
-  private toOptions(): RRuleSetOptions<DT> {
+  private toOptions(): RRuleSetOptions<DT, RRDT, ERDT> {
     return {
       dtstart: this.dtstart,
       rrules: this.rrules,

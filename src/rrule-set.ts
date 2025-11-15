@@ -311,10 +311,14 @@ export class RRuleSet<
    * const withRule = rruleSet.addRRule(new RRule(Frequency.Weekly));
    * ```
    */
-  public addRRule(rrule: RRule<RRDT>): RRuleSet<DT, RRDT, ERDT> {
+  public addRRule<NRRDT extends DT | undefined>(
+    rrule: RRule<NRRDT>,
+  ): RRuleSet<DT, RRDT | NRRDT, ERDT> {
+    const rrules: readonly RRule<RRDT | NRRDT>[] = [...this.rrules, rrule];
+
     return new RRuleSet({
       ...this.toOptions(),
-      rrules: [...this.rrules, rrule],
+      rrules,
     });
   }
 
@@ -352,10 +356,14 @@ export class RRuleSet<
    * }));
    * ```
    */
-  public addExRule(rrule: RRule<ERDT>): RRuleSet<DT, RRDT, ERDT> {
+  public addExRule<NERDT extends DT | undefined>(
+    rrule: RRule<NERDT>,
+  ): RRuleSet<DT, RRDT, ERDT | NERDT> {
+    const exrules: RRule<ERDT | NERDT>[] = [...this.exrules, rrule];
+
     return new RRuleSet({
       ...this.toOptions(),
-      exrules: [...this.exrules, rrule],
+      exrules,
     });
   }
 

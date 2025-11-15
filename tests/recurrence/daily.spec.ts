@@ -16,7 +16,7 @@ describe('Daily', () => {
         value: DateTime.date(1997, 9, 2),
         tzid: 'US/Eastern',
       }),
-    ).addRRule(new RRule<DateTime<undefined>>(Frequency.Daily).setCount(10));
+    ).addRRule(new RRule(Frequency.Daily).setCount(10));
 
     const dates = set.all();
     const asString = set.toString();

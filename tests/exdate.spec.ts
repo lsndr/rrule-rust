@@ -1,8 +1,9 @@
 import { DateTime, ExDate } from '../src';
+import { describe, it, expect } from 'vitest';
 
 describe(ExDate, () => {
   describe('fromPlain', () => {
-    test.each([
+    it.each([
       {
         values: [
           {
@@ -63,7 +64,7 @@ describe(ExDate, () => {
   });
 
   describe('toPlain', () => {
-    test.each([
+    it.each([
       new ExDate(
         [DateTime.create(1997, 9, 3, 9, 0, 0, false)],
         'Europe/Moscow',

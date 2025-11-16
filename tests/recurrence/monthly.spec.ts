@@ -8,6 +8,7 @@ import {
   ExDate,
   RDate,
 } from '../../src';
+import { describe, it, expect } from 'vitest';
 
 describe('Monthly', () => {
   it('monthly on the 1st Friday for 10 occurrences', () => {

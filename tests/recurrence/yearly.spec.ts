@@ -8,6 +8,7 @@ import {
   DtStart,
   ExDate,
 } from '../../src';
+import { describe, it, expect } from 'vitest';
 
 describe('Yearly', () => {
   it('yearly in June and July for 10 occurrences', () => {

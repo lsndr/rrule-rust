@@ -1,8 +1,9 @@
 import { DateTime, RDate } from '../src';
+import { describe, it, expect } from 'vitest';
 
 describe(RDate, () => {
   describe('fromPlain', () => {
-    test.each([
+    it.each([
       {
         values: [
           {
@@ -63,7 +64,7 @@ describe(RDate, () => {
   });
 
   describe('toPlain', () => {
-    test.each([
+    it.each([
       new RDate([DateTime.create(1997, 9, 3, 9, 0, 0, false)], 'Europe/Moscow'),
       new RDate([DateTime.create(2005, 9, 4, 9, 1, 22, true)]),
       new RDate([DateTime.date(2025, 5, 6)]),

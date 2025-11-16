@@ -49,11 +49,11 @@ export class Sandbox {
       `
       ${
         this.esm
-          ? `import * as src_1 from 'rrule-rust';`
-          : `const src_1 = require('rrule-rust');`
+          ? `import * as lib from 'rrule-rust';`
+          : `const lib = require('rrule-rust');`
       }
 
-    const code = ${code.toString()};
+    const code = ${code.toString().replaceAll('__vite_ssr_import_0__', 'lib')};
 
     console.log(JSON.stringify(code()));
 `,

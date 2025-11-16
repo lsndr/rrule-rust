@@ -1,5 +1,6 @@
 import { DateTime, Frequency, RRule, Weekday } from '../src';
 import { Month } from '../src/lib';
+import { describe, it, expect } from 'vitest';
 
 describe(RRule, () => {
   describe('constructor', () => {

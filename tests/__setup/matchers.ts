@@ -1,16 +1,13 @@
-import { iterableEquality } from '@jest/expect-utils';
+import { expect } from 'vitest';
 
 interface ToPlain {
   toPlain(): unknown;
 }
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace -- Required for jest
-  namespace jest {
-    interface Matchers<R> {
-      toEqualPlain<E extends ToPlain>(expected: E | undefined): R;
-      toEqualPlain<E extends ToPlain>(expected: readonly E[]): R;
-    }
+declare module 'vitest' {
+  export interface Assertion {
+    toEqualPlain<E extends ToPlain>(expected: E | undefined): void;
+    toEqualPlain<E extends ToPlain>(expected: readonly E[]): void;
   }
 }
 
@@ -27,7 +24,7 @@ expect.extend({
       receivedPlain = received.map((r) => r.toPlain());
       expectedPlain = expected.map((e) => e.toPlain());
 
-      pass = this.equals(receivedPlain, expectedPlain, [iterableEquality]);
+      pass = this.equals(receivedPlain, expectedPlain);
     } else if (!Array.isArray(received) && !Array.isArray(expected)) {
       receivedPlain = received?.toPlain();
       expectedPlain = expected?.toPlain();
@@ -41,7 +38,7 @@ expect.extend({
 
     return {
       message: () =>
-        `Expected plain does not match received plain:\r\n\r\n${this.utils.printDiffOrStringify(expectedPlain, receivedPlain, 'Expected', 'Received', true)}`,
+        `Expected plain does not match received plain:\r\n\r\n${this.utils.printDiffOrStringify(receivedPlain, expectedPlain)}`,
       pass,
     };
   },

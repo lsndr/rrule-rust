@@ -211,7 +211,9 @@ jobs:
           - '20'
           - '22'
           - '24'
-    runs-on: ${{ contains(matrix.target, 'aarch64') && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+        exclude:
+          - target: armv7-unknown-linux-gnueabihf
+            node: '24'
     if: ${{ !(matrix.target == 'armv7-unknown-linux-gnueabihf' && matrix.node == '24') }}
     steps:
       - uses: actions/checkout@v5

@@ -50,15 +50,15 @@ jobs:
           - host: ubuntu-latest
             target: wasm32-wasip1-threads
             build: npm run build:lib -- --target wasm32-wasip1-threads
-    name: stable - ${{ matrix.settings.target }} - node@22
+    name: stable - ${{ matrix.settings.target }} - node@24
     runs-on: ${{ matrix.settings.host }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         if: ${{ !matrix.settings.docker }}
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - name: Install
         uses: dtolnay/rust-toolchain@stable
@@ -98,7 +98,7 @@ jobs:
         if: ${{ !matrix.settings.docker }}
         shell: bash
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: bindings-${{ matrix.settings.target }}
           path: |
@@ -109,16 +109,16 @@ jobs:
     runs-on: ubuntu-latest
     name: Build FreeBSD
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build
         id: build
-        uses: cross-platform-actions/action@v0.29.0
+        uses: cross-platform-actions/action@v0.30.0
         env:
           DEBUG: napi:*
           RUSTUP_IO_THREADS: 1
         with:
           operating_system: freebsd
-          version: '14.2'
+          version: '14.3'
           memory: 8G
           cpu_count: 3
           environment_variables: DEBUG RUSTUP_IO_THREADS
@@ -144,7 +144,7 @@ jobs:
             rm -rf node_modules
             rm -rf target
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: bindings-freebsd
           path: src/lib/${{ env.APP_NAME }}.*.node
@@ -172,11 +172,12 @@ jobs:
         node:
           - '20'
           - '22'
+          - '24'
     runs-on: ${{ matrix.settings.host }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: ${{ matrix.node }}
           architecture: ${{ matrix.settings.architecture }}
@@ -207,14 +208,17 @@ jobs:
           - aarch64-unknown-linux-musl
           - armv7-unknown-linux-gnueabihf
         node:
-          - '18'
           - '20'
           - '22'
+          - '24'
+        exclude:
+          - target: armv7-unknown-linux-gnueabihf
+            node: '24'
     runs-on: ${{ contains(matrix.target, 'aarch64') && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
           cache: npm
@@ -266,16 +270,16 @@ jobs:
       - build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - name: Install dependencies
         run: npm ci --cpu "wasm32"
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: bindings-wasm32-wasip1-threads
           path: src/lib

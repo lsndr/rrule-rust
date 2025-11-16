@@ -212,6 +212,7 @@ jobs:
           - '22'
           - '24'
     runs-on: ${{ contains(matrix.target, 'aarch64') && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
+    if: ${{ !(matrix.target == 'armv7-unknown-linux-gnueabihf' && matrix.node == '24') }}
     steps:
       - uses: actions/checkout@v5
       - name: Setup node

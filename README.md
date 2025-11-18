@@ -29,13 +29,14 @@ For more usage examples and advanced scenarios, see the [tests directory](https:
 ```typescript
 import { RRule, RRuleSet, Frequency, DateTime, DtStart } from 'rrule-rust';
 
-const rrule = new RRule({
-  frequency: Frequency.Daily,
-  count: 5,
-});
 const set = new RRuleSet({
   dtstart: new DtStart(DateTime.local(1997, 9, 2, 9, 0, 0), 'US/Eastern'),
-  rrules: [rrule],
+  rrules: [
+    new RRule({
+      frequency: Frequency.Daily,
+      count: 5,
+    }),
+  ],
 });
 
 const dates = set.all(); // [ DateTime, DateTime, DateTime, DateTime, DateTime ]

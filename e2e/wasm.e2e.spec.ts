@@ -30,7 +30,7 @@ describe('WASM', () => {
 
       return {
         asString: set.toString(),
-        dates: set.all(),
+        dates: set.all().map((dt) => dt.toString()),
       };
     });
 
@@ -48,7 +48,7 @@ describe('WASM', () => {
         DateTime.create(2000, 7, 10, 9, 0, 0, false),
         DateTime.create(2001, 6, 10, 9, 0, 0, false),
         DateTime.create(2001, 7, 10, 9, 0, 0, false),
-      ],
+      ].map((dt) => dt.toString()),
     });
   });
 });

@@ -2,6 +2,56 @@ import { DateTime } from '../src';
 import * as luxon from 'luxon';
 
 describe(DateTime, () => {
+  describe('toTimestamp', () => {
+    test.each([
+      {
+        datetime: DateTime.utc(2005, 9, 4, 9, 1, 2),
+        expected: Date.UTC(2005, 9 - 1, 4, 9, 1, 2),
+      },
+      {
+        datetime: DateTime.fromNumbers(2025, 11, 8, 1, 50, 42, 3600 * 4),
+        expected: Date.UTC(2025, 11 - 1, 7, 21, 50, 42),
+      },
+    ])('should return date for date $datetime', ({ datetime, expected }) => {
+      expect(datetime.toTimestamp()).toBe(expected);
+    });
+
+    test.each([
+      DateTime.local(2005, 9, 4, 9, 1, 2),
+      DateTime.create(2005, 9, 4, 9, 1, 2, false),
+      DateTime.date(2005, 9, 4),
+    ])('should fail to return timestamp for non-utc date %s', (datetime) => {
+      expect(() => datetime.toTimestamp()).toThrow(
+        new Error('There is no information about time zone offset'),
+      );
+    });
+  });
+
+  describe('toDate', () => {
+    test.each([
+      {
+        datetime: DateTime.utc(2005, 9, 4, 9, 1, 2),
+        expected: new Date(Date.UTC(2005, 9 - 1, 4, 9, 1, 2)),
+      },
+      {
+        datetime: DateTime.fromNumbers(2025, 11, 8, 1, 50, 42, 3600 * 4),
+        expected: new Date(Date.UTC(2025, 11 - 1, 7, 21, 50, 42)),
+      },
+    ])('should return date for date $datetime', ({ datetime, expected }) => {
+      expect(datetime.toDate()).toEqual(expected);
+    });
+
+    test.each([
+      DateTime.local(2005, 9, 4, 9, 1, 2),
+      DateTime.create(2005, 9, 4, 9, 1, 2, false),
+      DateTime.date(2005, 9, 4),
+    ])('should fail to return date for non-utc date %s', (datetime) => {
+      expect(() => datetime.toDate()).toThrow(
+        new Error('There is no information about time zone offset'),
+      );
+    });
+  });
+
   describe('create', () => {
     test.each([
       {
@@ -36,10 +86,10 @@ describe(DateTime, () => {
       expect(datetime.year).toBe(input.year);
       expect(datetime.month).toBe(input.month);
       expect(datetime.day).toBe(input.day);
-      expect(datetime.hour).toBe(input.hour);
-      expect(datetime.minute).toBe(input.minute);
-      expect(datetime.second).toBe(input.second);
-      expect(datetime.utc).toBe(input.utc);
+      expect(datetime.time.hour).toBe(input.hour);
+      expect(datetime.time.minute).toBe(input.minute);
+      expect(datetime.time.second).toBe(input.second);
+      expect(datetime.time.utc).toBe(input.utc);
     });
   });
 
@@ -47,7 +97,7 @@ describe(DateTime, () => {
     test('should create utc object from', () => {
       const datetime = DateTime.utc(2005, 9, 4, 9, 1, 2);
 
-      expect(datetime.utc).toBeTruthy();
+      expect(datetime.time.utc).toBeTruthy();
     });
   });
 
@@ -55,21 +105,12 @@ describe(DateTime, () => {
     test('should create local object from', () => {
       const datetime = DateTime.local(2005, 9, 4, 9, 1, 2);
 
-      expect(datetime.utc).toBeFalsy();
+      expect(datetime.time.utc).toBeFalsy();
     });
   });
 
-  describe('fromObject', () => {
+  describe('fromPlain', () => {
     test.each([
-      {
-        year: 1997,
-        month: 9,
-        day: 7,
-        hour: 4,
-        minute: 0,
-        second: 0,
-        utc: undefined,
-      },
       {
         year: 1997,
         month: 9,
@@ -89,19 +130,32 @@ describe(DateTime, () => {
         utc: true,
       },
     ])('should create datetime from %j', (input) => {
-      const datetime = DateTime.fromObject(input, { utc: input.utc });
+      const datetime = DateTime.fromPlain(input);
 
       expect(datetime.year).toBe(input.year);
       expect(datetime.month).toBe(input.month);
       expect(datetime.day).toBe(input.day);
-      expect(datetime.hour).toBe(input.hour);
-      expect(datetime.minute).toBe(input.minute);
-      expect(datetime.second).toBe(input.second);
-      expect(datetime.utc).toBe(!!input.utc);
+      expect(datetime.time.hour).toBe(input.hour);
+      expect(datetime.time.minute).toBe(input.minute);
+      expect(datetime.time.second).toBe(input.second);
+      expect(datetime.time.utc).toBe(!!input.utc);
+    });
+
+    test('should be be compatible with luxon', () => {
+      const luxonDateTime = luxon.DateTime.now();
+
+      const object = DateTime.fromPlain(luxonDateTime);
+
+      expect(luxonDateTime.year).toBe(object.year);
+      expect(luxonDateTime.month).toBe(object.month);
+      expect(luxonDateTime.day).toBe(object.day);
+      expect(luxonDateTime.hour).toBe(object.time.hour);
+      expect(luxonDateTime.minute).toBe(object.time.minute);
+      expect(luxonDateTime.second).toBe(object.time.second);
     });
   });
 
-  describe('toObject', () => {
+  describe('toPlain', () => {
     test.each([
       {
         year: 1997,
@@ -121,7 +175,7 @@ describe(DateTime, () => {
         second: 22,
         utc: true,
       },
-    ])('should convert %j to plain object', (input) => {
+    ])('should convert datetime %j to plain object', (input) => {
       const datetime = DateTime.create(
         input.year,
         input.month,
@@ -131,7 +185,66 @@ describe(DateTime, () => {
         input.second,
         input.utc,
       );
-      const object = datetime.toObject();
+      const object = datetime.toPlain();
+
+      expect(object).toEqual({
+        year: input.year,
+        month: input.month,
+        day: input.day,
+        hour: input.hour,
+        minute: input.minute,
+        second: input.second,
+        utc: input.utc,
+      });
+    });
+
+    test.each([
+      {
+        year: 2005,
+        month: 9,
+        day: 4,
+      },
+    ])('should convert date %j to plain object', (input) => {
+      const datetime = DateTime.create(input.year, input.month, input.day);
+      const object = datetime.toPlain();
+
+      expect(object).toEqual({
+        year: input.year,
+        month: input.month,
+        day: input.day,
+      });
+    });
+
+    test.each([
+      {
+        year: 1997,
+        month: 9,
+        day: 3,
+        hour: 9,
+        minute: 0,
+        second: 0,
+        utc: false,
+      },
+      {
+        year: 2005,
+        month: 9,
+        day: 4,
+        hour: 9,
+        minute: 1,
+        second: 22,
+        utc: true,
+      },
+    ])('should convert %j to plain object (strip utc)', (input) => {
+      const datetime = DateTime.create(
+        input.year,
+        input.month,
+        input.day,
+        input.hour,
+        input.minute,
+        input.second,
+        input.utc,
+      );
+      const object = datetime.toPlain({ stripUtc: true });
 
       expect(object).toEqual({
         year: input.year,
@@ -145,7 +258,7 @@ describe(DateTime, () => {
 
     test("should be be compatible with Luxon's DateTime.fromObject", () => {
       const datetime = DateTime.create(1997, 9, 3, 9, 4, 7, false);
-      const object = datetime.toObject();
+      const object = datetime.toPlain({ stripUtc: true });
 
       const luxonDateTime = luxon.DateTime.fromObject(object);
 
@@ -202,7 +315,7 @@ describe(DateTime, () => {
 
     test("should be be compatible with Luxon's DateTime.fromObject", () => {
       const datetime = DateTime.create(1997, 9, 3, 9, 4, 7, false);
-      const object = datetime.toObject();
+      const object = datetime.toPlain({ stripUtc: true });
 
       const luxonDateTime = luxon.DateTime.fromObject(object);
 
@@ -259,10 +372,10 @@ describe(DateTime, () => {
       expect(datetime.year).toBe(expected.year);
       expect(datetime.month).toBe(expected.month);
       expect(datetime.day).toBe(expected.day);
-      expect(datetime.hour).toBe(expected.hour);
-      expect(datetime.minute).toBe(expected.minute);
-      expect(datetime.second).toBe(expected.second);
-      expect(datetime.utc).toBe(expected.utc);
+      expect(datetime.time?.hour).toBe(expected.hour);
+      expect(datetime.time?.minute).toBe(expected.minute);
+      expect(datetime.time?.second).toBe(expected.second);
+      expect(datetime.time?.utc).toBe(expected.utc);
     });
 
     test.each([
@@ -273,7 +386,7 @@ describe(DateTime, () => {
     ])('should fail create datetime from %s', (input) => {
       const act = () => DateTime.fromString(input);
 
-      expect(act).toThrow('Invalid date time string');
+      expect(act).toThrow('Invalid date');
     });
   });
 });

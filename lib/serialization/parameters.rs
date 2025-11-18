@@ -6,6 +6,12 @@ pub struct Parameters {
   params: IndexMap<String, String>,
 }
 
+impl Default for Parameters {
+  fn default() -> Self {
+    Self::new()
+  }
+}
+
 impl Parameters {
   pub fn new() -> Self {
     Self {
@@ -51,7 +57,7 @@ impl Parameters {
     self.params.is_empty()
   }
 
-  pub fn iter(&self) -> indexmap::map::Iter<String, String> {
+  pub fn iter(&self) -> indexmap::map::Iter<'_, String, String> {
     self.params.iter()
   }
 

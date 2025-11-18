@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "stripInternal": true,
+    "outDir": "./dist/node"
+  },
+  "extends": "./tsconfig.json",
+  "include": ["./src/**/*"],
+  "exclude": ["**/*.spec.ts", "src/lib"]
+}

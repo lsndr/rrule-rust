@@ -1,6 +1,6 @@
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
-use crate::serialization::properties::Properties;
+use crate::{rrule::value_type::ValueType, serialization::properties::Properties};
 
 use super::{
   calendar::Calendar,
@@ -51,20 +51,40 @@ impl RRuleSet {
     &self.rdates
   }
 
-  pub fn set_rrules(self, rrules: Vec<RRule>) -> Self {
-    Self { rrules, ..self }
+  pub fn set_rrules(self, rrules: Vec<RRule>) -> Result<Self, String> {
+    self.verify_rrules(&rrules)?;
+
+    Ok(Self { rrules, ..self })
   }
 
-  pub fn set_exrules(self, exrules: Vec<RRule>) -> Self {
-    Self { exrules, ..self }
+  pub fn set_exrules(self, exrules: Vec<RRule>) -> Result<Self, String> {
+    self.verify_rrules(&exrules)?;
+
+    Ok(Self { exrules, ..self })
   }
 
-  pub fn set_exdates(self, exdates: Vec<ExDate>) -> Self {
-    Self { exdates, ..self }
+  pub fn set_exdates(self, exdates: Vec<ExDate>) -> Result<Self, String> {
+    for exdate in exdates.iter() {
+      if let Some(vt) = exdate.derive_value_type() {
+        if self.dtstart().derive_value_type() != vt {
+          return Err("EXDATE value type does not match DTSTART value type".to_string());
+        }
+      }
+    }
+
+    Ok(Self { exdates, ..self })
   }
 
-  pub fn set_rdates(self, rdates: Vec<RDate>) -> Self {
-    Self { rdates, ..self }
+  pub fn set_rdates(self, rdates: Vec<RDate>) -> Result<Self, String> {
+    for rdate in rdates.iter() {
+      if let Some(vt) = rdate.derive_value_type() {
+        if self.dtstart().derive_value_type() != vt {
+          return Err("RDATE value type does not match DTSTART value type".to_string());
+        }
+      }
+    }
+
+    Ok(Self { rdates, ..self })
   }
 
   pub fn set_from_string(mut self, str: &str) -> Result<Self, String> {
@@ -99,10 +119,6 @@ impl RRuleSet {
     Ok(self)
   }
 
-  pub fn to_string(&self) -> String {
-    self.to_properties().to_string()
-  }
-
   pub fn to_properties(&self) -> Properties {
     let mut properties = Properties::new();
 
@@ -129,6 +145,7 @@ impl RRuleSet {
 
   pub fn iterator(&self) -> Result<RRuleSetIterator, String> {
     Ok(RRuleSetIterator {
+      value_type: self.dtstart.derive_value_type(),
       iter: self.to_rrule_set()?.into_iter(),
     })
   }
@@ -171,13 +188,23 @@ impl RRuleSet {
       rdates.push(rdate);
     }
 
-    Ok(Self {
-      dtstart,
-      rrules,
-      exrules,
-      exdates,
-      rdates,
-    })
+    Self::new(dtstart)
+      .set_exdates(exdates)?
+      .set_rdates(rdates)?
+      .set_rrules(rrules)?
+      .set_exrules(exrules)
+  }
+
+  fn verify_rrules(&self, rrules: &[RRule]) -> Result<(), String> {
+    for rrule in rrules.iter() {
+      if let Some(until) = rrule.until() {
+        if until.derive_value_type() != self.dtstart().derive_value_type() {
+          return Err("RRULE UNTIL value type does not match DTSTART value type".to_string());
+        }
+      }
+    }
+
+    Ok(())
   }
 }
 
@@ -229,17 +256,32 @@ impl ToRRuleSet for RRuleSet {
 }
 
 pub struct RRuleSetIterator {
+  value_type: ValueType,
   iter: rrule::RRuleSetIter,
 }
 
-impl<'a> Iterator for RRuleSetIterator {
+impl Iterator for RRuleSetIterator {
   type Item = DateTime;
 
+  #[inline]
   fn next(&mut self) -> Option<Self::Item> {
     self.iter.next().map(|date_time| {
       let date_time: DateTime = (&date_time).into();
 
-      date_time
+      if self.value_type == ValueType::Date {
+        DateTime {
+          time: None,
+          ..date_time
+        }
+      } else {
+        date_time
+      }
     })
+  }
+}
+
+impl fmt::Display for RRuleSet {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(f, "{}", self.to_properties())
   }
 }

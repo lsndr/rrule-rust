@@ -7,6 +7,8 @@
 
 `rrule-rust` is a library for handling recurrence rules, powered by Rust's high-performance [rrule](https://crates.io/crates/rrule) crate.
 
+> 🚀 It provides significant performance improvements over pure JavaScript implementation, especially when working with non-UTC timezones.
+
 1. [Quick Start](#quick-start)
 2. [Performance](#performance)
 
@@ -16,26 +18,23 @@
   npm i rrule-rust
 ```
 
-If you need a browser-compatible version with WASM support, install it from the `alpha` channel:
+If you need a browser-compatible version with WASM support:
 
 ```
-  npm i rrule-rust@alpha
+  npm i rrule-rust --cpu "wasm32"
 ```
-
-> The WebAssembly (WASM) version is currently available on the `alpha` channel, as it relies on an alpha release of [napi.rs](https://napi.rs/). Once napi.rs v3 is officially released, WASM support will be included in the main (`latest`) release channel.
 
 For more usage examples and advanced scenarios, see the [tests directory](https://github.com/lsndr/rrule-rust/tree/master/tests) in the repository.
 
 ```typescript
-import { RRule, RRuleSet, Frequency, DateTime } from 'rrule-rust';
+import { RRule, RRuleSet, Frequency, DateTime, DtStart } from 'rrule-rust';
 
 const rrule = new RRule({
   frequency: Frequency.Daily,
   count: 5,
 });
 const set = new RRuleSet({
-  dtstart: DateTime.create(1997, 9, 2, 9, 0, 0, false),
-  tzid: 'US/Eastern',
+  dtstart: new DtStart(DateTime.local(1997, 9, 2, 9, 0, 0), 'US/Eastern'),
   rrules: [rrule],
 });
 
@@ -45,19 +44,35 @@ const asString = set.toString(); // DTSTART;TZID=US/Eastern:19970902T090000\nFRE
 
 ## Performance
 
-```
-  Host: MacBook Pro, 14-inch, 2023
-  OS: macOS 14.4.1 (23E224)
-  Processor: Apple M3 Pro
-  Memory: 36 GB LPDDR5
-```
+**Test Environment:**
 
-|          | rrule        | rrule-rust    |              |
-| -------- | ------------ | ------------- | ------------ |
-| UTC TZ   | 15 904 ops/s | 108 538 ops/s | ~6x faster   |
-| Other TZ | 260 ops/s    | 106 034 ops/s | ~400x faster |
+- **Host:** MacBook Pro, 14-inch, 2023
+- **OS:** macOS 14.4.1 (23E224)
+- **Processor:** Apple M3 Pro
+- **Memory:** 36 GB LPDDR5
+- **Node.js:** v24.11.1
 
-You can run benchmarks using `npm run benchmark`.
+**Test Case:** Generating 30 daily occurrences using `rruleSet.all()`
+
+#### UTC Timezone
+
+| Implementation   | Without Cache  | With Cache        |
+| ---------------- | -------------- | ----------------- |
+| **rrule-rust**   | ~240,000 ops/s | ~14,000,000 ops/s |
+| **rrule (node)** | ~20,000 ops/s  | ~1,300,000 ops/s  |
+
+#### Other Timezone (Pacific/Kiritimati)
+
+| Implementation   | Without Cache  | With Cache        |
+| ---------------- | -------------- | ----------------- |
+| **rrule-rust**   | ~235,000 ops/s | ~14,000,000 ops/s |
+| **rrule (node)** | ~420 ops/s     | ~1,300,000 ops/s  |
+
+**Run benchmarks yourself:**
+
+```bash
+npm run benchmark
+```
 
 ## License
 

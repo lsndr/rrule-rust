@@ -1,10 +1,8 @@
-import { DateTime, Frequency, Month, RRule, RRuleSet } from '../src';
+import { DateTime, DtStart, Frequency, Month, RRule, RRuleSet } from '../src';
 import { Sandbox } from './sandbox/sandbox';
 
 describe('Commonjs', () => {
-  const sandbox = new Sandbox({
-    esm: false,
-  });
+  const sandbox = new Sandbox();
 
   beforeAll(() => {
     sandbox.install();
@@ -22,9 +20,11 @@ describe('Commonjs', () => {
         count: 10,
       });
       const set = new RRuleSet(
-        DateTime.create(1997, 6, 10, 9, 0, 0, false),
-        'US/Eastern',
-      ).addRrule(rrule);
+        new DtStart({
+          value: DateTime.create(1997, 6, 10, 9, 0, 0, false),
+          tzid: 'US/Eastern',
+        }),
+      ).addRRule(rrule);
 
       return {
         asString: set.toString(),

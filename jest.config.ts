@@ -11,5 +11,6 @@ export default {
       },
     ],
   },
+  setupFilesAfterEnv: ['./jest.setup.ts'],
 } satisfies JestConfigWithTsJest;
 /* eslint-enable import-x/no-default-export -- Required by Jest */

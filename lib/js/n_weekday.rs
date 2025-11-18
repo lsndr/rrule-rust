@@ -8,11 +8,11 @@ pub struct NWeekday {
   pub weekday: Weekday,
 }
 
-impl Into<n_weekday::NWeekday> for NWeekday {
-  fn into(self) -> n_weekday::NWeekday {
+impl From<NWeekday> for n_weekday::NWeekday {
+  fn from(val: NWeekday) -> Self {
     n_weekday::NWeekday {
-      n: self.n,
-      weekday: self.weekday.into(),
+      n: val.n,
+      weekday: val.weekday.into(),
     }
   }
 }

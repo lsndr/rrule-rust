@@ -8,7 +8,8 @@
           { "type": "docs", "release": "patch" },
           { "type": "perf", "release": "patch" },
           { "type": "refactor", "release": "patch" },
-          { "type": "build", "scope": "deps", "release": "patch" }
+          { "type": "build", "scope": "deps", "release": "patch" },
+          { "type": "revert",  "release": "patch" }
         ]
       }
     ],
@@ -22,7 +23,7 @@
         "presetConfig": {
           "types": [
             { "type": "build", "section": "Build System", "hidden": true },
-            { "type": "chore", "scope": "deps", "section": "Build System", "hidden": false },
+            { "type": "build", "scope": "deps", "section": "Build System", "hidden": false },
             { "type": "chore", "section": "Build System", "hidden": true },
             { "type": "ci", "section": "Continuous Integration", "hidden": true },
             { "type": "docs", "section": "Documentation", "hidden": false },

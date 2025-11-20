@@ -14,17 +14,3 @@ updates:
       napi:
         patterns:
           - '*napi*'
-  - package-ecosystem: 'npm'
-    target-branch: 'alpha'
-    directory: '/'
-    schedule:
-      interval: 'weekly'
-  - package-ecosystem: 'cargo'
-    target-branch: 'alpha'
-    directory: '/'
-    schedule:
-      interval: 'weekly'
-    groups:
-      napi:
-        patterns:
-          - '*napi*'

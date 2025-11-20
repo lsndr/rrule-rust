@@ -71,7 +71,8 @@
     "typescript-eslint": "^8.32.1"
   },
   "engines": {
-    "node": ">= 10"
+    "node": ">= 20",
+    "npm": ">= 10"
   },
   "scripts": {
     "artifacts": "napi artifacts --build-output-dir src/lib",

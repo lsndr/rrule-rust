@@ -242,7 +242,7 @@ jobs:
             }
           " >> $GITHUB_OUTPUT
       - name: Install dependencies
-        run: npm ci --libc "musl" --libc "gnu" --cpu "arm64" --cpu "x64" --cpu "arm"
+        run: npm ci
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -277,7 +277,7 @@ jobs:
           node-version: 24
           cache: npm
       - name: Install dependencies
-        run: npm ci --cpu "wasm32"
+        run: npm ci
       - name: Download artifacts
         uses: actions/download-artifact@v6
         with:

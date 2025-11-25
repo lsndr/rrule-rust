@@ -4,17 +4,20 @@ interface ToPlain {
   toPlain(): unknown;
 }
 
+interface ToEqualPlainMatcher<R> {
+  toEqualPlain<E extends ToPlain>(expected: E | undefined): R;
+  toEqualPlain<E extends ToPlain>(expected: readonly E[]): R;
+}
+
 declare module 'vitest' {
-  export interface Assertion {
-    toEqualPlain<E extends ToPlain>(expected: E | undefined): void;
-    toEqualPlain<E extends ToPlain>(expected: readonly E[]): void;
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- required for declaration merging
+  interface Matchers<T = any> extends ToEqualPlainMatcher<T> {}
 }
 
 expect.extend({
-  toEqualPlain(
-    received: ToPlain[] | ToPlain | undefined,
-    expected: ToPlain[] | ToPlain | undefined,
+  toEqualPlain<E extends ToPlain>(
+    received: E[] | E | undefined,
+    expected: E[] | E | undefined,
   ) {
     let pass = false;
     let expectedPlain: unknown;

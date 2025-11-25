@@ -1,5 +1,5 @@
-import { DateTime } from '../src/datetime';
-import { DtStart } from '../src/dtstart';
+import { DateTime } from '../../src/datetime';
+import { DtStart } from '../../src/dtstart';
 import { describe, it, expect } from 'vitest';
 
 describe('DtStart', () => {

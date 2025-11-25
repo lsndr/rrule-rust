@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { rimrafSync } from 'rimraf';
+import isCi from 'is-ci';
 import * as path from 'path';
 
 export interface SandboxOptions {
@@ -69,10 +70,18 @@ export class Sandbox {
   }
 
   private getVersion() {
-    const version = process.env['E2E_LIBRARY_VERSION'];
+    let version = process.env['E2E_LIBRARY_VERSION'];
 
     if (!version) {
-      throw new Error('E2E_LIBRARY_VERSION is required');
+      if (isCi) {
+        throw new Error('E2E_LIBRARY_VERSION is required');
+      }
+
+      console.warn(
+        'E2E_LIBRARY_VERSION is not set, using "next" for local testing',
+      );
+
+      version = 'next';
     }
 
     return version;

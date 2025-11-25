@@ -1,4 +1,11 @@
-import { RRuleSet, DateTime, RRule, DtStart, ExDate, RDate } from '../../src';
+import {
+  RRuleSet,
+  DateTime,
+  RRule,
+  DtStart,
+  ExDate,
+  RDate,
+} from '../../../src';
 import { describe, it, expect } from 'vitest';
 
 describe(RRuleSet, () => {

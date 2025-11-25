@@ -5,7 +5,7 @@ import {
   Weekday,
   DateTime,
   DtStart,
-} from '../../src';
+} from '../../../src';
 import { describe, it, expect } from 'vitest';
 
 describe('Weekly', () => {

@@ -1,4 +1,4 @@
-import { DateTime, Frequency, RRule, Weekday } from '../../src';
+import { DateTime, Frequency, RRule, Weekday } from '../../../src';
 import { describe, it, expect } from 'vitest';
 
 describe(RRule, () => {

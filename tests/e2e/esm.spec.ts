@@ -1,10 +1,17 @@
-import { DateTime, Frequency, Month, RRule, RRuleSet, DtStart } from '../src';
+import {
+  DateTime,
+  Frequency,
+  Month,
+  RRule,
+  RRuleSet,
+  DtStart,
+} from '../../src';
 import { Sandbox } from './sandbox/sandbox';
 import { beforeAll, afterAll, describe, it, expect } from 'vitest';
 
-describe('WASM', () => {
+describe('ESM', () => {
   const sandbox = new Sandbox({
-    cpu: ['wasm32'],
+    esm: true,
   });
 
   beforeAll(() => {

@@ -1,4 +1,4 @@
-import { DateTime } from '../src';
+import { DateTime } from '../../src';
 import * as luxon from 'luxon';
 import { describe, it, expect } from 'vitest';
 

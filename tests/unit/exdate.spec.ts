@@ -1,4 +1,4 @@
-import { DateTime, ExDate } from '../src';
+import { DateTime, ExDate } from '../../src';
 import { describe, it, expect } from 'vitest';
 
 describe(ExDate, () => {

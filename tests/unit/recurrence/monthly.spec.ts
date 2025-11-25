@@ -7,7 +7,7 @@ import {
   DtStart,
   ExDate,
   RDate,
-} from '../../src';
+} from '../../../src';
 import { describe, it, expect } from 'vitest';
 
 describe('Monthly', () => {

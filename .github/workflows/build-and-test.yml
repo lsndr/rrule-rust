@@ -243,6 +243,9 @@ jobs:
           " >> $GITHUB_OUTPUT
       - name: Install dependencies
         run: npm ci
+      - name: Install rollup exclude (armv7-unknown-linux-gnueabihf)
+        if: ${{ contains(matrix.target, 'armv7-unknown-linux-gnueabihf') }}
+        run: npm i @rollup/rollup-linux-arm-gnueabihf --save=false
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:

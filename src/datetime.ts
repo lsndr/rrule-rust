@@ -467,9 +467,11 @@ export class DateTime<T extends Time | undefined> {
    * ```
    */
   public toPlain(
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- Needed for proper overload resolution
     options: ToPlainDateTimeOptions & { stripUtc: false },
   ): T extends Time ? DateTimeLike : DateLike;
   public toPlain(
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents -- Needed for proper overload resolution
     options: ToPlainDateTimeOptions & { stripUtc: true },
   ): T extends Time ? StripUtc<DateTimeLike> : DateLike;
   public toPlain(): T extends Time ? DateTimeLike : DateLike;

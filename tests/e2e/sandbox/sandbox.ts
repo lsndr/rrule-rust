@@ -1,6 +1,7 @@
 import { execSync } from 'child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { rimrafSync } from 'rimraf';
+import isCi from 'is-ci';
 import * as path from 'path';
 
 export interface SandboxOptions {
@@ -49,11 +50,11 @@ export class Sandbox {
       `
       ${
         this.esm
-          ? `import * as src_1 from 'rrule-rust';`
-          : `const src_1 = require('rrule-rust');`
+          ? `import * as lib from 'rrule-rust';`
+          : `const lib = require('rrule-rust');`
       }
 
-    const code = ${code.toString()};
+    const code = ${code.toString().replaceAll('__vite_ssr_import_0__', 'lib')};
 
     console.log(JSON.stringify(code()));
 `,
@@ -69,10 +70,18 @@ export class Sandbox {
   }
 
   private getVersion() {
-    const version = process.env['E2E_LIBRARY_VERSION'];
+    let version = process.env['E2E_LIBRARY_VERSION'];
 
     if (!version) {
-      throw new Error('E2E_LIBRARY_VERSION is required');
+      if (isCi) {
+        throw new Error('E2E_LIBRARY_VERSION is required');
+      }
+
+      console.warn(
+        'E2E_LIBRARY_VERSION is not set, using "next" for local testing',
+      );
+
+      version = 'next';
     }
 
     return version;

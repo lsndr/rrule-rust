@@ -1,10 +1,16 @@
-import { DateTime, Frequency, Month, RRule, RRuleSet, DtStart } from '../src';
+import {
+  DateTime,
+  DtStart,
+  Frequency,
+  Month,
+  RRule,
+  RRuleSet,
+} from '../../src';
 import { Sandbox } from './sandbox/sandbox';
+import { beforeAll, afterAll, describe, it, expect } from 'vitest';
 
-describe('ESM', () => {
-  const sandbox = new Sandbox({
-    esm: true,
-  });
+describe('Commonjs', () => {
+  const sandbox = new Sandbox();
 
   beforeAll(() => {
     sandbox.install();

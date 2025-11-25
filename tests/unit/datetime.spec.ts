@@ -1,9 +1,10 @@
-import { DateTime } from '../src';
+import { DateTime } from '../../src';
 import * as luxon from 'luxon';
+import { describe, it, expect } from 'vitest';
 
 describe(DateTime, () => {
   describe('toTimestamp', () => {
-    test.each([
+    it.each([
       {
         datetime: DateTime.utc(2005, 9, 4, 9, 1, 2),
         expected: Date.UTC(2005, 9 - 1, 4, 9, 1, 2),
@@ -16,7 +17,7 @@ describe(DateTime, () => {
       expect(datetime.toTimestamp()).toBe(expected);
     });
 
-    test.each([
+    it.each([
       DateTime.local(2005, 9, 4, 9, 1, 2),
       DateTime.create(2005, 9, 4, 9, 1, 2, false),
       DateTime.date(2005, 9, 4),
@@ -28,7 +29,7 @@ describe(DateTime, () => {
   });
 
   describe('toDate', () => {
-    test.each([
+    it.each([
       {
         datetime: DateTime.utc(2005, 9, 4, 9, 1, 2),
         expected: new Date(Date.UTC(2005, 9 - 1, 4, 9, 1, 2)),
@@ -41,7 +42,7 @@ describe(DateTime, () => {
       expect(datetime.toDate()).toEqual(expected);
     });
 
-    test.each([
+    it.each([
       DateTime.local(2005, 9, 4, 9, 1, 2),
       DateTime.create(2005, 9, 4, 9, 1, 2, false),
       DateTime.date(2005, 9, 4),
@@ -53,7 +54,7 @@ describe(DateTime, () => {
   });
 
   describe('create', () => {
-    test.each([
+    it.each([
       {
         year: 3025,
         month: 9,
@@ -94,7 +95,7 @@ describe(DateTime, () => {
   });
 
   describe('utc', () => {
-    test('should create utc object from', () => {
+    it('should create utc object from', () => {
       const datetime = DateTime.utc(2005, 9, 4, 9, 1, 2);
 
       expect(datetime.time.utc).toBeTruthy();
@@ -102,7 +103,7 @@ describe(DateTime, () => {
   });
 
   describe('local', () => {
-    test('should create local object from', () => {
+    it('should create local object from', () => {
       const datetime = DateTime.local(2005, 9, 4, 9, 1, 2);
 
       expect(datetime.time.utc).toBeFalsy();
@@ -110,7 +111,7 @@ describe(DateTime, () => {
   });
 
   describe('fromPlain', () => {
-    test.each([
+    it.each([
       {
         year: 1997,
         month: 9,
@@ -141,7 +142,7 @@ describe(DateTime, () => {
       expect(datetime.time.utc).toBe(!!input.utc);
     });
 
-    test('should be be compatible with luxon', () => {
+    it('should be be compatible with luxon', () => {
       const luxonDateTime = luxon.DateTime.now();
 
       const object = DateTime.fromPlain(luxonDateTime);
@@ -156,7 +157,7 @@ describe(DateTime, () => {
   });
 
   describe('toPlain', () => {
-    test.each([
+    it.each([
       {
         year: 1997,
         month: 9,
@@ -198,7 +199,7 @@ describe(DateTime, () => {
       });
     });
 
-    test.each([
+    it.each([
       {
         year: 2005,
         month: 9,
@@ -215,7 +216,7 @@ describe(DateTime, () => {
       });
     });
 
-    test.each([
+    it.each([
       {
         year: 1997,
         month: 9,
@@ -256,7 +257,7 @@ describe(DateTime, () => {
       });
     });
 
-    test("should be be compatible with Luxon's DateTime.fromObject", () => {
+    it("should be be compatible with Luxon's DateTime.fromObject", () => {
       const datetime = DateTime.create(1997, 9, 3, 9, 4, 7, false);
       const object = datetime.toPlain({ stripUtc: true });
 
@@ -272,7 +273,7 @@ describe(DateTime, () => {
   });
 
   describe('toString', () => {
-    test.each([
+    it.each([
       {
         input: {
           year: 1997,
@@ -313,7 +314,7 @@ describe(DateTime, () => {
       expect(asString).toBe(expected);
     });
 
-    test("should be be compatible with Luxon's DateTime.fromObject", () => {
+    it("should be be compatible with Luxon's DateTime.fromObject", () => {
       const datetime = DateTime.create(1997, 9, 3, 9, 4, 7, false);
       const object = datetime.toPlain({ stripUtc: true });
 
@@ -329,7 +330,7 @@ describe(DateTime, () => {
   });
 
   describe('fromString', () => {
-    test.each([
+    it.each([
       {
         input: '19970907T040011',
         expected: {
@@ -378,7 +379,7 @@ describe(DateTime, () => {
       expect(datetime.time?.utc).toBe(expected.utc);
     });
 
-    test.each([
+    it.each([
       '23njr',
       '18-05-2024',
       '1970-01-01T00:00:00.000Z',

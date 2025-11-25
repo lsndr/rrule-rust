@@ -7,7 +7,8 @@ import {
   DateTime,
   DtStart,
   ExDate,
-} from '../../src';
+} from '../../../src';
+import { describe, it, expect } from 'vitest';
 
 describe('Daily', () => {
   it('daily for 10 occurrences (date-only)', () => {

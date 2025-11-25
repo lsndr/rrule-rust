@@ -1,4 +1,5 @@
-import { DateTime, Frequency, RRule, Weekday } from '../../src';
+import { DateTime, Frequency, RRule, Weekday } from '../../../src';
+import { describe, it, expect } from 'vitest';
 
 describe(RRule, () => {
   it.each([
@@ -46,28 +47,28 @@ describe(RRule, () => {
   it('should throw error on invalid individual recurrence rule', () => {
     const act = () => RRule.parse('Invalid');
 
-    expect(act).toThrow(new Error('Invalid RRULE: Invalid'));
+    expect(act).toThrowError('Invalid RRULE: Invalid');
   });
 
-  test('should throw error on invalid individual recurrence rule frequency', () => {
+  it('should throw error on invalid individual recurrence rule frequency', () => {
     const act = () => RRule.parse('FREQ=Invalid');
 
     expect(act).toThrow('Invalid FREQ value: Invalid');
   });
 
-  test('should throw error on invalid individual recurrence rule interval', () => {
+  it('should throw error on invalid individual recurrence rule interval', () => {
     const act = () => RRule.parse('FREQ=DAILY;INTERVAL=Invalid');
 
     expect(act).toThrow('Invalid INTERVAL value: Invalid');
   });
 
-  test('should throw error on invalid individual recurrence rule until', () => {
+  it('should throw error on invalid individual recurrence rule until', () => {
     const act = () => RRule.parse('FREQ=DAILY;UNTIL=Invalid');
 
     expect(act).toThrow('Invalid UNTIL value: Invalid');
   });
 
-  test('should throw error on invalid individual recurrence rule week start', () => {
+  it('should throw error on invalid individual recurrence rule week start', () => {
     const act = () => RRule.parse('FREQ=DAILY;WKST=Invalid');
 
     expect(act).toThrow('Invalid WKST value: Invalid');

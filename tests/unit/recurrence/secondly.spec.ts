@@ -1,4 +1,5 @@
-import { RRule, RRuleSet, Frequency, DateTime, DtStart } from '../../src';
+import { RRule, RRuleSet, Frequency, DateTime, DtStart } from '../../../src';
+import { describe, it, expect } from 'vitest';
 
 describe('Secondly', () => {
   it('Secondly for 5 occurrences', () => {

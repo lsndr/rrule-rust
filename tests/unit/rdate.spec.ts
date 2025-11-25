@@ -1,8 +1,9 @@
-import { DateTime, ExDate } from '../src';
+import { DateTime, RDate } from '../../src';
+import { describe, it, expect } from 'vitest';
 
-describe(ExDate, () => {
+describe(RDate, () => {
   describe('fromPlain', () => {
-    test.each([
+    it.each([
       {
         values: [
           {
@@ -40,10 +41,10 @@ describe(ExDate, () => {
           },
         ],
       },
-    ])('should create exdate from %j', (input) => {
-      const exdate = ExDate.fromPlain(input);
+    ])('should create rdate from %j', (input) => {
+      const rdate = RDate.fromPlain(input);
 
-      exdate.values.forEach((dt, index) => {
+      rdate.values.forEach((dt, index) => {
         const expected = input.values[index];
 
         expect(dt.year).toBe(expected?.year);
@@ -58,23 +59,20 @@ describe(ExDate, () => {
         // @ts-expect-error time may be undefined
         expect(dt.time?.utc).toBe(expected?.utc);
       });
-      expect(exdate.tzid).toBe(input.tzid);
+      expect(rdate.tzid).toBe(input.tzid);
     });
   });
 
   describe('toPlain', () => {
-    test.each([
-      new ExDate(
-        [DateTime.create(1997, 9, 3, 9, 0, 0, false)],
-        'Europe/Moscow',
-      ),
-      new ExDate([DateTime.create(2005, 9, 4, 9, 1, 22, true)]),
-      new ExDate([DateTime.date(2025, 5, 6)]),
-    ])('should convert exdate %s to plain object', (exdate) => {
-      const plain = exdate.toPlain();
+    it.each([
+      new RDate([DateTime.create(1997, 9, 3, 9, 0, 0, false)], 'Europe/Moscow'),
+      new RDate([DateTime.create(2005, 9, 4, 9, 1, 22, true)]),
+      new RDate([DateTime.date(2025, 5, 6)]),
+    ])('should convert rdate %s to plain object', (rdate) => {
+      const plain = rdate.toPlain();
 
       plain.values.forEach((dt, index) => {
-        const expected = exdate.values[index];
+        const expected = rdate.values[index];
 
         expect(dt.year).toBe(expected?.year);
         expect(dt.month).toBe(expected?.month);
@@ -88,7 +86,7 @@ describe(ExDate, () => {
         // @ts-expect-error time may be undefined
         expect(dt.utc).toBe(expected.time?.utc);
       });
-      expect(plain.tzid).toBe(exdate.tzid);
+      expect(plain.tzid).toBe(rdate.tzid);
     });
   });
 });

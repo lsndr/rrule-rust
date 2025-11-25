@@ -6,7 +6,8 @@ import {
   RRuleSet,
   ExDate,
   RDate,
-} from '../src';
+} from '../../src';
+import { describe, it, expect } from 'vitest';
 
 describe(RRuleSet, () => {
   describe('constructor', () => {

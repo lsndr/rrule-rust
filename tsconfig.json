@@ -24,6 +24,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["./tests/.config/matchers.d.ts"],
+  "include": ["./tests/.config/matchers.d.ts", "**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

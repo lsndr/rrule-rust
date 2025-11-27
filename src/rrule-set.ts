@@ -213,10 +213,10 @@ export class RRuleSet<
    * const str = `DTSTART:20240115T090000
    * RRULE:FREQ=WEEKLY;BYDAY=MO
    * EXDATE:20240101,20241225`;
-   * const rruleSet = RRuleSet.parse(str);
+   * const rruleSet = RRuleSet.fromString(str);
    * ```
    */
-  public static parse<DT extends DateTime<Time> | DateTime<undefined>>(
+  public static fromString<DT extends DateTime<Time> | DateTime<undefined>>(
     str: string,
   ): RRuleSet<DT> {
     return this.fromRust(Rust.parse(str));

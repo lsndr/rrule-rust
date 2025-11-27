@@ -18,12 +18,6 @@
   npm i rrule-rust
 ```
 
-If you need a browser-compatible version with WASM support:
-
-```
-  npm i rrule-rust --cpu "wasm32"
-```
-
 For more usage examples and advanced scenarios, see the [tests directory](https://github.com/lsndr/rrule-rust/tree/master/tests) in the repository.
 
 ```typescript

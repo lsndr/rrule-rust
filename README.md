@@ -14,8 +14,10 @@
 
 ## Quick Start
 
+Install the package using npm:
+
 ```
-  npm i rrule-rust
+npm i rrule-rust
 ```
 
 For more usage examples and advanced scenarios, see the [tests directory](https://github.com/lsndr/rrule-rust/tree/master/tests) in the repository.

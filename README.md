@@ -14,14 +14,10 @@
 
 ## Quick Start
 
-```
-  npm i rrule-rust
-```
-
-If you need a browser-compatible version with WASM support:
+Install the package using npm:
 
 ```
-  npm i rrule-rust --cpu "wasm32"
+npm i rrule-rust
 ```
 
 For more usage examples and advanced scenarios, see the [tests directory](https://github.com/lsndr/rrule-rust/tree/master/tests) in the repository.

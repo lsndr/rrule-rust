@@ -9,15 +9,17 @@ export interface SandboxOptions {
   cpu?: string[];
 }
 
+export interface RunOptions {
+  env?: Record<string, string | undefined>;
+}
+
 export class Sandbox {
   private readonly projectPath: string;
   private readonly esm: boolean;
-  private readonly cpu: string[];
 
   public constructor(options?: SandboxOptions) {
     this.projectPath = path.resolve(__dirname, 'app');
     this.esm = options?.esm ?? false;
-    this.cpu = options?.cpu ?? [];
   }
 
   public install(): void {
@@ -29,11 +31,7 @@ export class Sandbox {
       execSync(`npm pkg set type=module`, { cwd: this.projectPath });
     }
 
-    let cmd = `npm install rrule-rust@${this.getVersion()}`;
-
-    if (this.cpu.length > 0) {
-      cmd += ` --cpu ${this.cpu.join(' --cpu ')}`;
-    }
+    const cmd = `npm install rrule-rust@${this.getVersion()}`;
 
     execSync(cmd, {
       cwd: this.projectPath,
@@ -44,7 +42,7 @@ export class Sandbox {
     rimrafSync(path.resolve(this.projectPath));
   }
 
-  public run<T>(code: () => T): T {
+  public run<T>(code: () => T, options?: RunOptions): T {
     writeFileSync(
       path.resolve(this.projectPath, 'index.js'),
       `
@@ -62,7 +60,13 @@ export class Sandbox {
 
     try {
       return JSON.parse(
-        execSync('node index.js', { cwd: this.projectPath }).toString(),
+        execSync('node index.js', {
+          cwd: this.projectPath,
+          env: {
+            ...process.env,
+            ...options?.env,
+          },
+        }).toString(),
       );
     } finally {
       rmSync(path.resolve(this.projectPath, 'index.js'));

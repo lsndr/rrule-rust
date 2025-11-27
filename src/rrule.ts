@@ -256,10 +256,10 @@ export class RRule<
    *
    * @example
    * ```typescript
-   * const rrule = RRule.parse("FREQ=WEEKLY;BYDAY=MO,WE,FR;COUNT=10");
+   * const rrule = RRule.fromString("FREQ=WEEKLY;BYDAY=MO,WE,FR;COUNT=10");
    * ```
    */
-  public static parse<DT extends DateTime<Time> | DateTime<undefined>>(
+  public static fromString<DT extends DateTime<Time> | DateTime<undefined>>(
     str: string,
   ): RRule<DT> {
     const rust = Rust.parse(str);

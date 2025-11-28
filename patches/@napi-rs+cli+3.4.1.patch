@@ -1,66 +1,37 @@
 diff --git a/node_modules/@napi-rs/cli/dist/cli.js b/node_modules/@napi-rs/cli/dist/cli.js
-index f341703..269d611 100755
+index f341703..39d125f 100755
 --- a/node_modules/@napi-rs/cli/dist/cli.js
 +++ b/node_modules/@napi-rs/cli/dist/cli.js
-@@ -958,32 +958,19 @@ function requireNative() {
- nativeBinding = requireNative()
- 
- if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
--  let wasiBinding = null
--  let wasiBindingError = null
-+  nativeBinding = null
-   try {
--    wasiBinding = require('./${localName}.wasi.cjs')
--    nativeBinding = wasiBinding
-+    nativeBinding = require('./${localName}.wasi.cjs')
-   } catch (err) {
--    if (process.env.NAPI_RS_FORCE_WASI) {
--      wasiBindingError = err
--    }
-+    loadErrors.push(err)
-   }
-   if (!nativeBinding) {
-     try {
--      wasiBinding = require('${pkgName}-wasm32-wasi')
--      nativeBinding = wasiBinding
-+      nativeBinding = require('${pkgName}-wasm32-wasi')
-     } catch (err) {
--      if (process.env.NAPI_RS_FORCE_WASI) {
--        wasiBindingError.cause = err
--        loadErrors.push(err)
--      }
-+      loadErrors.push(err)
+@@ -968,13 +968,17 @@ if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
+       wasiBindingError = err
      }
    }
--  if (process.env.NAPI_RS_FORCE_WASI === 'error' && !wasiBinding) {
--    const error = new Error('WASI binding not found and NAPI_RS_FORCE_WASI is set to error')
--    error.cause = wasiBindingError
--    throw error
--  }
- }
- 
- if (!nativeBinding) {
-@@ -1112,15 +1099,17 @@ const __sharedMemory = new WebAssembly.Memory({
- 
- let __wasmFilePath = __nodePath.join(__dirname, '${wasmFileName}.wasm')
- const __wasmDebugFilePath = __nodePath.join(__dirname, '${wasmFileName}.debug.wasm')
-+const __wasmPackageFilePath = __nodePath.resolve('node_modules/${packageName}-wasm32-wasi/${wasmFileName}.wasm')
-+const __wasmPackageDebugFilePath = __nodePath.resolve('node_modules/${packageName}-wasm32-wasi/${wasmFileName}.debug.wasm')
- 
+-  if (!nativeBinding) {
++  if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
+     try {
+       wasiBinding = require('${pkgName}-wasm32-wasi')
+       nativeBinding = wasiBinding
+     } catch (err) {
+       if (process.env.NAPI_RS_FORCE_WASI) {
+-        wasiBindingError.cause = err
++        if (!wasiBindingError) {
++          wasiBindingError = err
++        } else {
++          wasiBindingError.cause = err
++        }
+         loadErrors.push(err)
+       }
+     }
+@@ -1116,11 +1120,7 @@ const __wasmDebugFilePath = __nodePath.join(__dirname, '${wasmFileName}.debug.wa
  if (__nodeFs.existsSync(__wasmDebugFilePath)) {
    __wasmFilePath = __wasmDebugFilePath
--} else if (!__nodeFs.existsSync(__wasmFilePath)) {
+ } else if (!__nodeFs.existsSync(__wasmFilePath)) {
 -  try {
 -    __wasmFilePath = __nodePath.resolve('${packageName}-wasm32-wasi')
 -  } catch {
 -    throw new Error('Cannot find ${wasmFileName}.wasm file, and ${packageName}-wasm32-wasi package is not installed.')
 -  }
-+} else if (__nodeFs.existsSync(__wasmFilePath)) {
-+  // already set
-+} else if (__nodeFs.existsSync(__wasmPackageDebugFilePath)) {
-+  __wasmFilePath = __wasmPackageDebugFilePath
-+} else if (__nodeFs.existsSync(__wasmPackageFilePath)) {
-+  __wasmFilePath = __wasmPackageFilePath
++  __wasmFilePath = __nodePath.resolve('node_modules/${packageName}-wasm32-wasi/${wasmFileName}.debug.wasm')
  }
  
  const { instance: __napiInstance, module: __wasiModule, napiModule: __napiModule } = __emnapiInstantiateNapiModuleSync(__nodeFs.readFileSync(__wasmFilePath), {

@@ -17,6 +17,10 @@
     "email": "alexander@lsndr.me",
     "url": "https://lsndr.me"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "napi": {
     "binaryName": "rrule-rust",
     "packageName": "@rrule-rust/lib",
@@ -79,12 +83,14 @@
     "artifacts": "napi artifacts --build-output-dir src/lib",
     "build:lib": "napi build --no-const-enum --platform --release --output-dir src/lib",
     "prebuild": "fse remove --quiet ./dist",
+    "postbuild": "npm run build:npm",
     "build": "npm run build:lib && npm run build:node && npm run build:browser",
     "prebuild:node": "fse remove --quiet ./dist/node",
     "build:node": "tsc -p ./tsconfig.node.json && fse copy --quiet ./src/lib/index.js ./dist/node/lib/index.js && fse copy --quiet ./src/lib/rrule-rust.wasi.cjs ./dist/node/lib/rrule-rust.wasi.cjs",
     "prebuild:browser": "fse remove --quiet ./dist/browser",
     "build:browser": "tsc -p ./tsconfig.browser.json && fse copy --quiet ./src/lib/browser.js ./dist/browser/lib/index.js",
     "build:tests": "tsc -p ./tsconfig.test.json",
+    "build:npm": "napi create-npm-dirs && cd npm/wasm32-wasi && npm pkg delete cpu",
     "test": "cross-env TZ=Europe/Moscow vitest run --config ./tests/.config/vitest.unit.config.ts",
     "test:e2e": "vitest run --no-file-parallelism --config ./tests/.config/vitest.e2e.config.ts",
     "universal": "napi universal",

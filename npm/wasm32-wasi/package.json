@@ -9,11 +9,12 @@
     "wasi-worker.mjs",
     "wasi-worker-browser.mjs"
   ],
-  "description": "RRule implementation for Node.js written in Rust",
+  "description": "RRule implementation for browsers and Node.js written in Rust",
   "keywords": [
     "rrule",
     "icalendar",
     "rust",
+    "wasm",
     "rs"
   ],
   "author": {
@@ -26,11 +27,12 @@
     "node": ">=14.0.0"
   },
   "repository": "lsndr/rrule-rust",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "browser": "rrule-rust.wasi-browser.js",
   "dependencies": {
-    "@napi-rs/wasm-runtime": "^1.0.3"
-  },
-  "publishConfig": {
-    "access": "public"
+    "@napi-rs/wasm-runtime": "^1.0.7"
   }
 }

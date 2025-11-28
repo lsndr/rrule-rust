@@ -12,9 +12,9 @@ pub enum Weekday {
   Sunday,
 }
 
-impl Into<weekday::Weekday> for Weekday {
-  fn into(self) -> weekday::Weekday {
-    match self {
+impl From<Weekday> for weekday::Weekday {
+  fn from(val: Weekday) -> Self {
+    match val {
       Weekday::Monday => weekday::Weekday::Monday,
       Weekday::Tuesday => weekday::Weekday::Tuesday,
       Weekday::Wednesday => weekday::Weekday::Wednesday,

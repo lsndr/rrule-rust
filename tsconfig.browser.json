@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "stripInternal": true,
+    "outDir": "./dist/browser"
+  },
+  "extends": "./tsconfig.json",
+  "include": ["./src/**/*"],
+  "exclude": ["**/*.spec.ts", "src/lib"]
+}

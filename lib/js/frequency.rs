@@ -12,9 +12,9 @@ pub enum Frequency {
   Secondly,
 }
 
-impl Into<frequency::Frequency> for Frequency {
-  fn into(self) -> frequency::Frequency {
-    match self {
+impl From<Frequency> for frequency::Frequency {
+  fn from(val: Frequency) -> Self {
+    match val {
       Frequency::Yearly => frequency::Frequency::Yearly,
       Frequency::Monthly => frequency::Frequency::Monthly,
       Frequency::Weekly => frequency::Frequency::Weekly,

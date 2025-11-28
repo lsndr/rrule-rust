@@ -1,10 +1,16 @@
+use std::iter::Skip;
+
+use super::exdate::ExDate;
+use super::rdate::RDate;
 use super::rrule::RRule;
 use crate::rrule::datetime::DateTime;
 use crate::rrule::dtstart::DtStart;
-use crate::rrule::exdate::ExDate;
-use crate::rrule::rdate::RDate;
-use crate::rrule::{rrule, rrule_set};
-use napi::bindgen_prelude::{Array, Reference, SharedReference};
+use crate::rrule::value_type::ValueType;
+use crate::rrule::{exdate, rdate, rrule, rrule_set};
+#[cfg(not(target_family = "wasm"))]
+use napi::bindgen_prelude::{Int32Array, Int32ArraySlice, Reference, SharedReference};
+#[cfg(target_family = "wasm")]
+use napi::bindgen_prelude::{Int32Array, Reference, SharedReference};
 use napi::Env;
 use napi_derive::napi;
 use replace_with::replace_with_or_abort_and_return;
@@ -18,12 +24,13 @@ pub struct RRuleSet {
 impl RRuleSet {
   #[napi(constructor)]
   pub fn new(
-    dtstart: i64,
+    dtstart: Int32Array,
     tzid: Option<String>,
+    dtstart_value: Option<String>,
     #[napi(ts_arg_type = "(readonly RRule[]) | undefined | null")] rrules: Option<Vec<&RRule>>,
     #[napi(ts_arg_type = "(readonly RRule[]) | undefined | null")] exrules: Option<Vec<&RRule>>,
-    #[napi(ts_arg_type = "(readonly number[]) | undefined | null")] exdates: Option<Vec<i64>>,
-    #[napi(ts_arg_type = "(readonly number[]) | undefined | null")] rdates: Option<Vec<i64>>,
+    #[napi(ts_arg_type = "(readonly ExDate[]) | undefined | null")] exdates: Option<Vec<&ExDate>>,
+    #[napi(ts_arg_type = "(readonly RDate[]) | undefined | null")] rdates: Option<Vec<&RDate>>,
   ) -> napi::Result<Self> {
     let tzid: Option<chrono_tz::Tz> = match tzid {
       Some(tzid) => Some(
@@ -34,7 +41,12 @@ impl RRuleSet {
       None => None,
     };
 
-    let dtstart = DtStart::new(dtstart.into(), tzid)
+    let dtstat_value = dtstart_value
+      .map(|value| value.parse::<ValueType>())
+      .transpose()
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
+
+    let dtstart = DtStart::new(dtstart.into(), tzid, dtstat_value)
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
     let rrules: Vec<rrule::RRule> = rrules
@@ -49,13 +61,13 @@ impl RRuleSet {
       .map(|rrule| rrule.into())
       .collect();
 
-    let exdates: Vec<ExDate> = exdates
+    let exdates: Vec<exdate::ExDate> = exdates
       .unwrap_or_default()
       .into_iter()
       .map(Into::into)
       .collect();
 
-    let rdates: Vec<RDate> = rdates
+    let rdates: Vec<rdate::RDate> = rdates
       .unwrap_or_default()
       .into_iter()
       .map(Into::into)
@@ -63,27 +75,25 @@ impl RRuleSet {
 
     let rrule_set = rrule_set::RRuleSet::new(dtstart)
       .set_rrules(rrules)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
       .set_exrules(exrules)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
       .set_exdates(exdates)
-      .set_rdates(rdates);
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
+      .set_rdates(rdates)
+      .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
     Ok(Self { rrule_set })
   }
 
   #[napi(getter)]
   pub fn tzid(&self) -> napi::Result<Option<String>> {
-    Ok(
-      self
-        .rrule_set
-        .dtstart()
-        .tzid()
-        .and_then(|tzid| Some(tzid.to_string())),
-    )
+    Ok(self.rrule_set.dtstart().tzid().map(|tzid| tzid.to_string()))
   }
 
   #[napi(getter)]
-  pub fn dtstart(&self) -> napi::Result<i64> {
-    Ok(self.rrule_set.dtstart().datetime().into())
+  pub fn dtstart(&self) -> napi::Result<Int32Array> {
+    Ok(self.rrule_set.dtstart().value().into())
   }
 
   #[napi(getter, ts_return_type = "RRule[]")]
@@ -104,50 +114,34 @@ impl RRuleSet {
       self
         .rrule_set
         .exrules()
-        .into_iter()
+        .iter()
         .map(|rrule| rrule.clone().into())
         .collect(),
     )
   }
 
-  #[napi(getter, ts_return_type = "number[]")]
-  pub fn exdates(&self) -> napi::Result<Vec<i64>> {
-    let mut exdates = Vec::<i64>::new();
-
-    for exdate in self.rrule_set.exdates() {
-      let datetimes = exdate
-        .to_datetimes(&self.rrule_set.dtstart())
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
-
-      for datetime in datetimes.iter() {
-        let datetime = datetime.with_timezone(&self.rrule_set.dtstart().timezone());
-        let datetime = DateTime::from(&datetime);
-
-        exdates.push((&datetime).into());
-      }
-    }
-
-    Ok(exdates)
+  #[napi(getter, ts_return_type = "ExDate[]")]
+  pub fn exdates(&self) -> napi::Result<Vec<ExDate>> {
+    Ok(
+      self
+        .rrule_set
+        .exdates()
+        .iter()
+        .map(|exdate| exdate.clone().into())
+        .collect(),
+    )
   }
 
-  #[napi(getter, ts_return_type = "number[]")]
-  pub fn rdates(&self) -> napi::Result<Vec<i64>> {
-    let mut rdates = Vec::<i64>::new();
-
-    for rdate in self.rrule_set.rdates() {
-      let datetimes = rdate
-        .to_datetimes(&self.rrule_set.dtstart())
-        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
-
-      for datetime in datetimes.iter() {
-        let datetime = datetime.with_timezone(&self.rrule_set.dtstart().timezone());
-        let datetime = DateTime::from(&datetime);
-
-        rdates.push((&datetime).into());
-      }
-    }
-
-    Ok(rdates)
+  #[napi(getter, ts_return_type = "RDate[]")]
+  pub fn rdates(&self) -> napi::Result<Vec<RDate>> {
+    Ok(
+      self
+        .rrule_set
+        .rdates()
+        .iter()
+        .map(|rdate| rdate.clone().into())
+        .collect(),
+    )
   }
 
   #[napi(factory, ts_return_type = "RRuleSet")]
@@ -159,55 +153,75 @@ impl RRuleSet {
     Ok(Self { rrule_set })
   }
 
-  #[napi(ts_return_type = "number[]")]
-  pub fn all(&self, limit: Option<i32>) -> napi::Result<Vec<i64>> {
-    let iterator = self
+  #[napi]
+  pub fn all(&self, limit: Option<i32>) -> napi::Result<Int32Array> {
+    let mut arr = match limit {
+      Some(l) => Vec::<i32>::with_capacity((l as usize) * 7),
+      None => Vec::<i32>::with_capacity(700),
+    };
+
+    let iter = self
       .rrule_set
       .iterator()
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
-    let iter = iterator.map(|date| (&date).into());
 
-    if let Some(limit) = limit {
-      return Ok(iter.take(limit as usize).collect());
+    for (index, datetime) in iter.enumerate() {
+      if let Some(limit) = limit {
+        if index as i32 >= limit {
+          break;
+        }
+      }
+
+      arr.push(datetime.year() as i32);
+      arr.push(datetime.month() as i32);
+      arr.push(datetime.day() as i32);
+
+      if let Some(time) = datetime.time() {
+        arr.push(time.hour() as i32);
+        arr.push(time.minute() as i32);
+        arr.push(time.second() as i32);
+        arr.push(time.offset().unwrap_or(-1));
+      } else {
+        arr.push(-1);
+        arr.push(-1);
+        arr.push(-1);
+        arr.push(-1);
+      }
     }
 
-    Ok(iter.collect())
+    Ok(Int32Array::new(arr))
   }
 
   fn is_after(&self, timestamp: i64, after_timestamp: i64, inclusive: Option<bool>) -> bool {
-    let inclusive = inclusive.unwrap_or(false);
+    let is_inclusive = inclusive.unwrap_or(false);
 
-    if inclusive && timestamp < after_timestamp {
-      return false;
-    } else if !inclusive && timestamp <= after_timestamp {
-      return false;
+    if is_inclusive {
+      timestamp >= after_timestamp
+    } else {
+      timestamp > after_timestamp
     }
-
-    true
   }
 
   fn is_before(&self, timestamp: i64, before_timestamp: i64, inclusive: Option<bool>) -> bool {
-    let inclusive = inclusive.unwrap_or(false);
+    let is_inclusive = inclusive.unwrap_or(false);
 
-    if inclusive && timestamp > before_timestamp {
-      return false;
-    } else if !inclusive && timestamp >= before_timestamp {
-      return false;
+    if is_inclusive {
+      timestamp <= before_timestamp
+    } else {
+      timestamp < before_timestamp
     }
-
-    true
   }
 
-  #[napi(ts_return_type = "number[]")]
+  #[napi]
   pub fn between(
     &self,
-    env: Env,
-    after_datetime: i64,
-    before_datetime: i64,
+    after_datetime: Int32Array,
+    before_datetime: Int32Array,
     inclusive: Option<bool>,
-  ) -> napi::Result<Array> {
-    let mut arr = env.create_array(0).unwrap();
-    let timezone = self.rrule_set.dtstart().timezone();
+  ) -> napi::Result<Int32Array> {
+    let mut arr = Vec::<i32>::new();
+
+    let timezone = self.rrule_set.dtstart().derive_timezone();
     let after_timestamp = DateTime::from(after_datetime)
       .to_datetime(&timezone)
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
@@ -231,15 +245,27 @@ impl RRuleSet {
       let is_before = self.is_before(date_timestamp, before_timestamp, inclusive);
 
       if is_after && is_before {
-        let datetime: i64 = (&date).into();
+        arr.push(date.year() as i32);
+        arr.push(date.month() as i32);
+        arr.push(date.day() as i32);
 
-        arr.insert(datetime).unwrap();
+        if let Some(time) = date.time() {
+          arr.push(time.hour() as i32);
+          arr.push(time.minute() as i32);
+          arr.push(time.second() as i32);
+          arr.push(time.offset().unwrap_or(-1));
+        } else {
+          arr.push(-1);
+          arr.push(-1);
+          arr.push(-1);
+          arr.push(-1);
+        }
       } else if !is_before {
         break;
       }
     }
 
-    Ok(arr)
+    Ok(Int32Array::new(arr))
   }
 
   #[napi]
@@ -262,14 +288,18 @@ impl RRuleSet {
   }
 
   #[napi]
-  pub fn iterator(&self, this: Reference<RRuleSet>, env: Env) -> napi::Result<RRuleSetIterator> {
+  pub fn iterator(
+    &self,
+    this: Reference<RRuleSet>,
+    env: Env,
+    skip: Option<i32>,
+  ) -> napi::Result<RRuleSetIterator> {
     let iterator = this.share_with(env, |set: &mut RRuleSet| {
-      Ok(
-        set
-          .rrule_set
-          .iterator()
-          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?,
-      )
+      set
+        .rrule_set
+        .iterator()
+        .map(|iter| iter.skip(skip.unwrap_or(0) as usize))
+        .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))
     })?;
 
     Ok(RRuleSetIterator { iterator })
@@ -278,13 +308,53 @@ impl RRuleSet {
 
 #[napi]
 pub struct RRuleSetIterator {
-  iterator: SharedReference<RRuleSet, rrule_set::RRuleSetIterator>,
+  iterator: SharedReference<RRuleSet, Skip<rrule_set::RRuleSetIterator>>,
 }
 
 #[napi]
 impl RRuleSetIterator {
+  #[napi(ts_return_type = "boolean | Int32Array | null")]
+  #[allow(clippy::should_implement_trait)]
+  #[cfg(not(target_family = "wasm"))]
+  pub fn next(&mut self, mut store: Int32ArraySlice<'_>) -> bool {
+    let next = self.iterator.next();
+
+    match next {
+      Some(dt) => unsafe {
+        let data: &mut [i32] = store.as_mut();
+
+        // TODO: remove code duplication
+        data[0] = dt.year() as i32;
+        data[1] = dt.month() as i32;
+        data[2] = dt.day() as i32;
+
+        if let Some(time) = dt.time() {
+          data[3] = time.hour() as i32;
+          data[4] = time.minute() as i32;
+          data[5] = time.second() as i32;
+          data[6] = time.offset().unwrap_or(-1);
+        } else {
+          data[3] = -1;
+          data[4] = -1;
+          data[5] = -1;
+          data[6] = -1;
+        }
+
+        true
+      },
+      None => false,
+    }
+  }
+
   #[napi]
-  pub fn next(&mut self) -> Option<i64> {
-    self.iterator.next().map(|date: DateTime| (&date).into())
+  #[allow(clippy::should_implement_trait)]
+  #[cfg(target_family = "wasm")]
+  pub fn next(&mut self) -> Option<Int32Array> {
+    let next = self.iterator.next();
+
+    match next {
+      Some(dt) => Some((&dt).into()),
+      None => None,
+    }
   }
 }

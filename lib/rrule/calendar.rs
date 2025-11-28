@@ -11,30 +11,22 @@ pub struct Calendar {
   rdates: Vec<RDate>,
 }
 
-impl
-  Into<(
+impl From<Calendar>
+  for (
     Vec<DtStart>,
     Vec<RRule>,
     Vec<RRule>,
     Vec<ExDate>,
     Vec<RDate>,
-  )> for Calendar
+  )
 {
-  fn into(
-    self,
-  ) -> (
-    Vec<DtStart>,
-    Vec<RRule>,
-    Vec<RRule>,
-    Vec<ExDate>,
-    Vec<RDate>,
-  ) {
+  fn from(val: Calendar) -> Self {
     (
-      self.dtstarts,
-      self.rrules,
-      self.exrules,
-      self.exdates,
-      self.rdates,
+      val.dtstarts,
+      val.rrules,
+      val.exrules,
+      val.exdates,
+      val.rdates,
     )
   }
 }

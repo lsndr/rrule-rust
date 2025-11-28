@@ -22,30 +22,30 @@ impl From<rrule::NWeekday> for NWeekday {
   }
 }
 
-impl Into<rrule::NWeekday> for &NWeekday {
-  fn into(self) -> rrule::NWeekday {
-    match self.n {
-      Some(n) => rrule::NWeekday::Nth(n, (&self.weekday).into()),
-      None => rrule::NWeekday::Every((&self.weekday).into()),
+impl From<&NWeekday> for rrule::NWeekday {
+  fn from(val: &NWeekday) -> Self {
+    match val.n {
+      Some(n) => rrule::NWeekday::Nth(n, (&val.weekday).into()),
+      None => rrule::NWeekday::Every((&val.weekday).into()),
     }
   }
 }
 
-impl Into<rrule::NWeekday> for NWeekday {
-  fn into(self) -> rrule::NWeekday {
-    (&self).into()
+impl From<NWeekday> for rrule::NWeekday {
+  fn from(val: NWeekday) -> Self {
+    (&val).into()
   }
 }
 
-impl Into<String> for &NWeekday {
-  fn into(self) -> String {
-    match self.n {
+impl From<&NWeekday> for String {
+  fn from(val: &NWeekday) -> Self {
+    match val.n {
       Some(n) => {
-        let weekday: String = (&self.weekday).into();
+        let weekday: String = (&val.weekday).into();
 
         format!("{}{}", n, weekday)
       }
-      None => (&self.weekday).into(),
+      None => (&val.weekday).into(),
     }
   }
 }
@@ -81,7 +81,7 @@ fn extract_weekday(str: &str) -> Result<Weekday, String> {
 fn extract_number(str: &str) -> Result<i16, String> {
   let number = str
     .chars()
-    .take_while(|c| c.is_digit(10) || *c == '-')
+    .take_while(|c| c.is_ascii_digit() || *c == '-')
     .collect::<String>();
 
   number

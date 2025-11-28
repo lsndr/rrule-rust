@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 use super::property::{Error, Property};
 
@@ -13,22 +13,6 @@ impl Properties {
 
   pub fn push(&mut self, property: Property) {
     self.items.push(property);
-  }
-
-  pub fn to_string(&self) -> String {
-    let mut string = String::new();
-    let mut iter = self.items.iter();
-
-    if let Some(property) = iter.next() {
-      string.push_str(&property.to_string());
-    }
-
-    for property in iter {
-      string.push('\n');
-      string.push_str(&property.to_string());
-    }
-
-    string
   }
 
   pub fn from_str(str: &str) -> Result<Properties, Error> {
@@ -62,5 +46,23 @@ impl FromStr for Properties {
 
   fn from_str(str: &str) -> Result<Self, Self::Err> {
     Properties::from_str(str)
+  }
+}
+
+impl fmt::Display for Properties {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    let mut string = String::new();
+    let mut iter = self.items.iter();
+
+    if let Some(property) = iter.next() {
+      string.push_str(&property.to_string());
+    }
+
+    for property in iter {
+      string.push('\n');
+      string.push_str(&property.to_string());
+    }
+
+    write!(f, "{}", string)
   }
 }

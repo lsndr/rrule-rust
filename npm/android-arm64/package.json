@@ -1,9 +1,6 @@
 {
   "name": "@rrule-rust/lib-android-arm64",
   "version": "0.0.0",
-  "os": [
-    "android"
-  ],
   "cpu": [
     "arm64"
   ],
@@ -11,11 +8,30 @@
   "files": [
     "rrule-rust.android-arm64.node"
   ],
+  "description": "RRule implementation for browsers and Node.js written in Rust",
+  "keywords": [
+    "rrule",
+    "icalendar",
+    "rust",
+    "wasm",
+    "rs"
+  ],
+  "author": {
+    "name": "lsndr",
+    "email": "alexander@lsndr.me",
+    "url": "https://lsndr.me"
+  },
   "license": "MIT",
   "engines": {
-    "node": ">= 10"
+    "node": ">= 20",
+    "npm": ">= 10"
   },
+  "repository": "lsndr/rrule-rust",
   "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
     "access": "public"
-  }
+  },
+  "os": [
+    "android"
+  ]
 }

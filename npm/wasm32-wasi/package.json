@@ -1,0 +1,38 @@
+{
+  "name": "@rrule-rust/lib-wasm32-wasi",
+  "version": "0.0.0",
+  "main": "rrule-rust.wasi.cjs",
+  "files": [
+    "rrule-rust.wasm32-wasi.wasm",
+    "rrule-rust.wasi.cjs",
+    "rrule-rust.wasi-browser.js",
+    "wasi-worker.mjs",
+    "wasi-worker-browser.mjs"
+  ],
+  "description": "RRule implementation for browsers and Node.js written in Rust",
+  "keywords": [
+    "rrule",
+    "icalendar",
+    "rust",
+    "wasm",
+    "rs"
+  ],
+  "author": {
+    "name": "lsndr",
+    "email": "alexander@lsndr.me",
+    "url": "https://lsndr.me"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": "lsndr/rrule-rust",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
+  "browser": "rrule-rust.wasi-browser.js",
+  "dependencies": {
+    "@napi-rs/wasm-runtime": "^1.0.7"
+  }
+}

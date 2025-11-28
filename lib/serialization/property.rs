@@ -8,6 +8,7 @@ pub enum Value {
 }
 
 #[derive(Debug)]
+#[allow(clippy::enum_variant_names)]
 pub enum Error {
   InvalidProperty(String),
   InvalidParameter(String),
@@ -41,33 +42,6 @@ impl Property {
 
   pub fn value(&self) -> &Value {
     &self.value
-  }
-
-  pub fn to_string(&self) -> String {
-    let mut string = format!("{}", self.name);
-
-    for (key, value) in self.parameters.iter() {
-      string.push_str(&format!(";{}={}", key, value));
-    }
-
-    string.push_str(":");
-
-    match &self.value {
-      Value::Single(value) => string.push_str(value),
-      Value::Parameters(values) => {
-        let mut values = values.iter();
-
-        if let Some((key, value)) = values.next() {
-          string.push_str(&format!("{}={}", key, value));
-
-          for (key, value) in values {
-            string.push_str(&format!(";{}={}", key, value));
-          }
-        }
-      }
-    }
-
-    string
   }
 
   pub fn new(name: String, parameters: Parameters, value: Value) -> Property {
@@ -121,9 +95,9 @@ impl Property {
 
       if let Some(name) = key {
         params.insert(name.to_uppercase(), value.to_string());
-      } else if params.len() == 0 && param_string.len() > 0 {
+      } else if params.is_empty() && !param_string.is_empty() {
         return Ok(Value::Single(param_string.to_string()));
-      } else if params.len() > 0 {
+      } else if !params.is_empty() {
         return Err(Error::InvalidParameters(str.to_string()));
       }
     }
@@ -152,5 +126,34 @@ impl FromStr for Property {
 
   fn from_str(str: &str) -> Result<Self, Self::Err> {
     Property::from_string(str)
+  }
+}
+
+impl fmt::Display for Property {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    let mut string = self.name.to_string();
+
+    for (key, value) in self.parameters.iter() {
+      string.push_str(&format!(";{}={}", key, value));
+    }
+
+    string.push(':');
+
+    match &self.value {
+      Value::Single(value) => string.push_str(value),
+      Value::Parameters(values) => {
+        let mut values = values.iter();
+
+        if let Some((key, value)) = values.next() {
+          string.push_str(&format!("{}={}", key, value));
+
+          for (key, value) in values {
+            string.push_str(&format!(";{}={}", key, value));
+          }
+        }
+      }
+    }
+
+    write!(f, "{}", string)
   }
 }

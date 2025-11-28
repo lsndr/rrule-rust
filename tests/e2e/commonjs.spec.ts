@@ -6,7 +6,7 @@ import {
   RRule,
   RRuleSet,
 } from '../../src';
-import { Sandbox } from './sandbox/sandbox';
+import { Sandbox } from './../.config/sandbox';
 import { beforeAll, afterAll, describe, it, expect } from 'vitest';
 
 describe('Commonjs', () => {

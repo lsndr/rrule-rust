@@ -60,6 +60,7 @@
     "is-ci": "^4.1.0",
     "luxon": "^3.4.4",
     "mkdirp": "^3.0.1",
+    "patch-package": "^8.0.1",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
     "rrule": "^2.7.2",
@@ -94,6 +95,7 @@
     "lint": "eslint --max-warnings=0 && cargo clippy -- -Dwarnings",
     "lint:fix": "eslint --max-warnings=0 --fix && cargo clippy --fix --allow-dirty",
     "prepare": "husky",
-    "prepublishOnly": "npm run build && napi prepublish -t npm"
+    "prepublishOnly": "npm run build && napi prepublish -t npm",
+    "postinstall": "patch-package"
   }
 }

@@ -34,15 +34,17 @@ const __sharedMemory = new WebAssembly.Memory({
 
 let __wasmFilePath = __nodePath.join(__dirname, 'rrule-rust.wasm32-wasi.wasm')
 const __wasmDebugFilePath = __nodePath.join(__dirname, 'rrule-rust.wasm32-wasi.debug.wasm')
+const __wasmPackageFilePath = __nodePath.resolve('node_modules/@rrule-rust/lib-wasm32-wasi/rrule-rust.wasm32-wasi.wasm')
+const __wasmPackageDebugFilePath = __nodePath.resolve('node_modules/@rrule-rust/lib-wasm32-wasi/rrule-rust.wasm32-wasi.debug.wasm')
 
 if (__nodeFs.existsSync(__wasmDebugFilePath)) {
   __wasmFilePath = __wasmDebugFilePath
-} else if (!__nodeFs.existsSync(__wasmFilePath)) {
-  try {
-    __wasmFilePath = __nodePath.resolve('@rrule-rust/lib-wasm32-wasi')
-  } catch {
-    throw new Error('Cannot find rrule-rust.wasm32-wasi.wasm file, and @rrule-rust/lib-wasm32-wasi package is not installed.')
-  }
+} else if (__nodeFs.existsSync(__wasmFilePath)) {
+  // already set
+} else if (__nodeFs.existsSync(__wasmPackageDebugFilePath)) {
+  __wasmFilePath = __wasmPackageDebugFilePath
+} else if (__nodeFs.existsSync(__wasmPackageFilePath)) {
+  __wasmFilePath = __wasmPackageFilePath
 }
 
 const { instance: __napiInstance, module: __wasiModule, napiModule: __napiModule } = __emnapiInstantiateNapiModuleSync(__nodeFs.readFileSync(__wasmFilePath), {

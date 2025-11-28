@@ -526,31 +526,18 @@ function requireNative() {
 nativeBinding = requireNative()
 
 if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
-  let wasiBinding = null
-  let wasiBindingError = null
+  nativeBinding = null
   try {
-    wasiBinding = require('./rrule-rust.wasi.cjs')
-    nativeBinding = wasiBinding
+    nativeBinding = require('./rrule-rust.wasi.cjs')
   } catch (err) {
-    if (process.env.NAPI_RS_FORCE_WASI) {
-      wasiBindingError = err
-    }
+    loadErrors.push(err)
   }
   if (!nativeBinding) {
     try {
-      wasiBinding = require('@rrule-rust/lib-wasm32-wasi')
-      nativeBinding = wasiBinding
+      nativeBinding = require('@rrule-rust/lib-wasm32-wasi')
     } catch (err) {
-      if (process.env.NAPI_RS_FORCE_WASI) {
-        wasiBindingError.cause = err
-        loadErrors.push(err)
-      }
+      loadErrors.push(err)
     }
-  }
-  if (process.env.NAPI_RS_FORCE_WASI === 'error' && !wasiBinding) {
-    const error = new Error('WASI binding not found and NAPI_RS_FORCE_WASI is set to error')
-    error.cause = wasiBindingError
-    throw error
   }
 }
 

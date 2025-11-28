@@ -95,6 +95,6 @@
     "lint": "eslint --max-warnings=0 && cargo clippy -- -Dwarnings",
     "lint:fix": "eslint --max-warnings=0 --fix && cargo clippy --fix --allow-dirty",
     "prepare": "patch-package && husky",
-    "prepublishOnly": "npm run build && napi prepublish -t npm --no-gh-release --skip-optional-publish"
+    "prepublishOnly": "npm run build && napi prepublish -t npm --no-gh-release"
   }
 }

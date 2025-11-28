@@ -94,8 +94,7 @@
     "format:fix": "cargo fmt --all && prettier --write .",
     "lint": "eslint --max-warnings=0 && cargo clippy -- -Dwarnings",
     "lint:fix": "eslint --max-warnings=0 --fix && cargo clippy --fix --allow-dirty",
-    "prepare": "husky",
-    "prepublishOnly": "npm run build && napi prepublish -t npm",
-    "postinstall": "patch-package"
+    "prepare": "patch-package && husky",
+    "prepublishOnly": "npm run build && napi prepublish -t npm"
   }
 }

@@ -1,8 +1,8 @@
 diff --git a/node_modules/@napi-rs/cli/dist/cli.js b/node_modules/@napi-rs/cli/dist/cli.js
-index f341703..8015f29 100755
+index f341703..39d125f 100755
 --- a/node_modules/@napi-rs/cli/dist/cli.js
 +++ b/node_modules/@napi-rs/cli/dist/cli.js
-@@ -968,7 +968,7 @@ if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
+@@ -968,13 +968,17 @@ if (!nativeBinding || process.env.NAPI_RS_FORCE_WASI) {
        wasiBindingError = err
      }
    }
@@ -11,7 +11,18 @@ index f341703..8015f29 100755
      try {
        wasiBinding = require('${pkgName}-wasm32-wasi')
        nativeBinding = wasiBinding
-@@ -1116,11 +1116,7 @@ const __wasmDebugFilePath = __nodePath.join(__dirname, '${wasmFileName}.debug.wa
+     } catch (err) {
+       if (process.env.NAPI_RS_FORCE_WASI) {
+-        wasiBindingError.cause = err
++        if (!wasiBindingError) {
++          wasiBindingError = err
++        } else {
++          wasiBindingError.cause = err
++        }
+         loadErrors.push(err)
+       }
+     }
+@@ -1116,11 +1120,7 @@ const __wasmDebugFilePath = __nodePath.join(__dirname, '${wasmFileName}.debug.wa
  if (__nodeFs.existsSync(__wasmDebugFilePath)) {
    __wasmFilePath = __wasmDebugFilePath
  } else if (!__nodeFs.existsSync(__wasmFilePath)) {

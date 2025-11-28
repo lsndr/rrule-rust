@@ -1,9 +1,8 @@
 import { execSync } from 'child_process';
-import { mkdirSync, rmSync, writeFileSync, mkdtempSync } from 'fs';
+import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { rimrafSync } from 'rimraf';
 import isCi from 'is-ci';
 import * as path from 'path';
-import { tmpdir } from 'os';
 
 export interface SandboxOptions {
   esm?: boolean;
@@ -19,7 +18,7 @@ export class Sandbox {
   private readonly esm: boolean;
 
   public constructor(options?: SandboxOptions) {
-    this.projectPath = mkdtempSync(tmpdir());
+    this.projectPath = path.resolve(__dirname, 'sandbox');
     this.esm = options?.esm ?? false;
   }
 

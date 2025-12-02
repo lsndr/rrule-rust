@@ -134,8 +134,7 @@ export class RRuleSet<
   DT extends DateTime<Time> | DateTime<undefined>,
   RRDT extends DT | undefined = DT | undefined,
   ERDT extends DT | undefined = DT | undefined,
-> implements Iterable<DateTime<Time> | DateTime<undefined>>
-{
+> implements Iterable<DateTime<Time> | DateTime<undefined>> {
   /** The start date/time for the recurrence set */
   public readonly dtstart: DtStart<DT>;
   /** Array of recurrence rules to include */

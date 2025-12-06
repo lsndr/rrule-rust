@@ -110,6 +110,117 @@ describe(DateTime, () => {
     });
   });
 
+  describe('fromDate', () => {
+    it.each([
+      {
+        year: 2024,
+        month: 1,
+        day: 15,
+        hour: 14,
+        minute: 30,
+        second: 0,
+      },
+      {
+        year: 2005,
+        month: 9,
+        day: 4,
+        hour: 9,
+        minute: 1,
+        second: 2,
+      },
+      {
+        year: 1970,
+        month: 1,
+        day: 1,
+        hour: 0,
+        minute: 0,
+        second: 0,
+      },
+    ])(
+      'should create UTC datetime from Date $input',
+      ({ year, month, day, hour, minute, second }) => {
+        const datetime = DateTime.fromDate(
+          new Date(Date.UTC(year, month - 1, day, hour, minute, second)),
+        );
+
+        expect(datetime.year).toBe(year);
+        expect(datetime.month).toBe(month);
+        expect(datetime.day).toBe(day);
+        expect(datetime.time.hour).toBe(hour);
+        expect(datetime.time.minute).toBe(minute);
+        expect(datetime.time.second).toBe(second);
+        expect(datetime.time.utc).toBe(true);
+      },
+    );
+
+    it('should be convertible back to Date', () => {
+      const originalDate = new Date(Date.UTC(2024, 5, 20, 10, 30, 45));
+      const datetime = DateTime.fromDate(originalDate);
+      const convertedDate = datetime.toDate();
+
+      expect(convertedDate.getTime()).toBe(originalDate.getTime());
+    });
+  });
+
+  describe('fromTimestamp', () => {
+    it.each([
+      {
+        timestamp: Date.UTC(2024, 0, 15, 14, 30, 0),
+        expected: {
+          year: 2024,
+          month: 1,
+          day: 15,
+          hour: 14,
+          minute: 30,
+          second: 0,
+        },
+      },
+      {
+        timestamp: Date.UTC(2005, 8, 4, 9, 1, 2),
+        expected: {
+          year: 2005,
+          month: 9,
+          day: 4,
+          hour: 9,
+          minute: 1,
+          second: 2,
+        },
+      },
+      {
+        timestamp: 0,
+        expected: {
+          year: 1970,
+          month: 1,
+          day: 1,
+          hour: 0,
+          minute: 0,
+          second: 0,
+        },
+      },
+    ])(
+      'should create UTC datetime from timestamp $input',
+      ({ timestamp, expected }) => {
+        const datetime = DateTime.fromTimestamp(timestamp);
+
+        expect(datetime.year).toBe(expected.year);
+        expect(datetime.month).toBe(expected.month);
+        expect(datetime.day).toBe(expected.day);
+        expect(datetime.time.hour).toBe(expected.hour);
+        expect(datetime.time.minute).toBe(expected.minute);
+        expect(datetime.time.second).toBe(expected.second);
+        expect(datetime.time.utc).toBe(true);
+      },
+    );
+
+    it('should be convertible back to timestamp', () => {
+      const originalTimestamp = Date.UTC(2024, 5, 20, 10, 30, 45);
+      const datetime = DateTime.fromTimestamp(originalTimestamp);
+      const convertedTimestamp = datetime.toTimestamp();
+
+      expect(convertedTimestamp).toBe(originalTimestamp);
+    });
+  });
+
   describe('fromPlain', () => {
     it.each([
       {

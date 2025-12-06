@@ -248,6 +248,65 @@ export class DateTime<T extends Time | undefined> {
   }
 
   /**
+   * Creates a new UTC DateTime object from a JavaScript Date object.
+   *
+   * The resulting DateTime will have `utc` set to `true` and will represent
+   * the same moment in time as the input Date object.
+   *
+   * @param date - A JavaScript Date object
+   * @returns A DateTime instance with UTC time
+   *
+   * @example
+   * ```typescript
+   * const jsDate = new Date('2024-01-15T14:30:00.000Z');
+   * const datetime = DateTime.fromDate(jsDate);
+   * console.log(datetime.year); // 2024
+   * console.log(datetime.month); // 1
+   * console.log(datetime.day); // 15
+   * console.log(datetime.time.hour); // 14
+   * console.log(datetime.time.minute); // 30
+   * console.log(datetime.time.second); // 0
+   * console.log(datetime.time.utc); // true
+   * ```
+   */
+  public static fromDate(date: Date): DateTime<Time> {
+    return DateTime.utc(
+      date.getUTCFullYear(),
+      date.getUTCMonth() + 1,
+      date.getUTCDate(),
+      date.getUTCHours(),
+      date.getUTCMinutes(),
+      date.getUTCSeconds(),
+    );
+  }
+
+  /**
+   * Creates a new UTC DateTime object from a Unix timestamp in milliseconds.
+   *
+   * The resulting DateTime will have `utc` set to `true` and will represent
+   * the moment in time corresponding to the given timestamp.
+   *
+   * @param timestamp - Unix timestamp in milliseconds since January 1, 1970 00:00:00 UTC
+   * @returns A DateTime instance with UTC time
+   *
+   * @example
+   * ```typescript
+   * const timestamp = Date.UTC(2024, 0, 15, 14, 30, 0); // 1705329000000
+   * const datetime = DateTime.fromTimestamp(timestamp);
+   * console.log(datetime.year); // 2024
+   * console.log(datetime.month); // 1
+   * console.log(datetime.day); // 15
+   * console.log(datetime.time.hour); // 14
+   * console.log(datetime.time.minute); // 30
+   * console.log(datetime.time.second); // 0
+   * console.log(datetime.time.utc); // true
+   * ```
+   */
+  public static fromTimestamp(timestamp: number): DateTime<Time> {
+    return DateTime.fromDate(new Date(timestamp));
+  }
+
+  /**
    * Creates a new DateTime object from a plain object representation.
    *
    * @param plain - A plain object with date or date-time components
@@ -310,7 +369,6 @@ export class DateTime<T extends Time | undefined> {
    * const utc = DateTime.fromString("20240115T143000Z");
    * ```
    */
-  // TODO: add template expression
   public static fromString(str: string): DateTime<Time> | DateTime<undefined> {
     if (!(str.length === 8 || (str.length <= 16 && str.length >= 15))) {
       throw new TypeError('Invalid date time string');

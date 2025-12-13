@@ -33,6 +33,6 @@
   },
   "browser": "rrule-rust.wasi-browser.js",
   "dependencies": {
-    "@napi-rs/wasm-runtime": "^1.0.7"
+    "@napi-rs/wasm-runtime": "^1.1.0"
   }
 }

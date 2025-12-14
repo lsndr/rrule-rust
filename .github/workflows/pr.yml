@@ -58,5 +58,30 @@ jobs:
       - name: Build Tests
         run: |
           npm run build:tests
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+      - name: Install
+        run: |
+          npm ci
+      - name: Build
+        run: |
+          npm run build
+      - name: Check for untracked files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Error: Build produced untracked or modified files:"
+            git status --porcelain
+            exit 1
+          fi
+          echo "Working tree is clean"
   build_and_test:
     uses: ./.github/workflows/build-and-test.yml

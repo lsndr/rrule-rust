@@ -272,4 +272,80 @@ describe('Daily', () => {
     expect(set.exrules).toEqualPlain([]);
     expect([...set]).toEqualPlain(dates);
   });
+
+  describe('folds and gaps', () => {
+    it('daily for 10 occurrences across ST => DST', () => {
+      const rrule = new RRule(Frequency.Daily).setCount(10);
+
+      const set = new RRuleSet(
+        new DtStart(DateTime.local(2025, 3, 8, 2, 0, 0), 'US/Pacific'),
+      ).addRRule(rrule);
+
+      expect(set.toString()).toBe(
+        'DTSTART;TZID=US/Pacific:20250308T020000\nRRULE:FREQ=DAILY;COUNT=10',
+      );
+
+      const all = set.all();
+      expect(all).toEqualPlain([
+        DateTime.create(2025, 3, 8, 2, 0, 0, false),
+        DateTime.create(2025, 3, 9, 3, 0, 0, false),
+        DateTime.create(2025, 3, 10, 2, 0, 0, false),
+        DateTime.create(2025, 3, 11, 2, 0, 0, false),
+        DateTime.create(2025, 3, 12, 2, 0, 0, false),
+        DateTime.create(2025, 3, 13, 2, 0, 0, false),
+        DateTime.create(2025, 3, 14, 2, 0, 0, false),
+        DateTime.create(2025, 3, 15, 2, 0, 0, false),
+        DateTime.create(2025, 3, 16, 2, 0, 0, false),
+        DateTime.create(2025, 3, 17, 2, 0, 0, false),
+      ]);
+
+      const between = set.between(
+        DateTime.local(2025, 3, 9, 2, 0, 0),
+        DateTime.local(2025, 3, 11, 2, 0, 0),
+        true,
+      );
+      expect(between).toEqualPlain([
+        DateTime.create(2025, 3, 9, 3, 0, 0, false),
+        DateTime.create(2025, 3, 10, 2, 0, 0, false),
+        DateTime.create(2025, 3, 11, 2, 0, 0, false),
+      ]);
+    });
+
+    it('daily for 10 occurrences across DST => ST', () => {
+      const rrule = new RRule(Frequency.Daily).setCount(10);
+
+      const set = new RRuleSet(
+        new DtStart(DateTime.local(2025, 11, 1, 1, 0, 0), 'US/Pacific'),
+      ).addRRule(rrule);
+
+      expect(set.toString()).toBe(
+        'DTSTART;TZID=US/Pacific:20251101T010000\nRRULE:FREQ=DAILY;COUNT=10',
+      );
+
+      const all = set.all();
+      expect(all).toEqualPlain([
+        DateTime.create(2025, 11, 1, 1, 0, 0, false),
+        DateTime.create(2025, 11, 2, 1, 0, 0, false),
+        DateTime.create(2025, 11, 3, 1, 0, 0, false),
+        DateTime.create(2025, 11, 4, 1, 0, 0, false),
+        DateTime.create(2025, 11, 5, 1, 0, 0, false),
+        DateTime.create(2025, 11, 6, 1, 0, 0, false),
+        DateTime.create(2025, 11, 7, 1, 0, 0, false),
+        DateTime.create(2025, 11, 8, 1, 0, 0, false),
+        DateTime.create(2025, 11, 9, 1, 0, 0, false),
+        DateTime.create(2025, 11, 10, 1, 0, 0, false),
+      ]);
+
+      const between = set.between(
+        DateTime.local(2025, 11, 2, 1, 0, 0),
+        DateTime.local(2025, 11, 4, 1, 0, 0),
+        true,
+      );
+      expect(between).toEqualPlain([
+        DateTime.create(2025, 11, 2, 1, 0, 0, false),
+        DateTime.create(2025, 11, 3, 1, 0, 0, false),
+        DateTime.create(2025, 11, 4, 1, 0, 0, false),
+      ]);
+    });
+  });
 });

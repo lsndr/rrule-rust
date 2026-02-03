@@ -2,9 +2,11 @@ use std::fmt;
 use std::str::FromStr;
 
 use chrono::Datelike;
+use chrono::NaiveDate;
 use chrono::Offset;
 use chrono::TimeZone;
 use chrono::Timelike;
+use chrono_tz::GapInfo;
 use napi::bindgen_prelude::Int32Array;
 
 use crate::rrule::time::Time;
@@ -52,13 +54,35 @@ impl DateTime {
       None => (0, 0, 0),
     };
 
-    match timezone
-      .with_ymd_and_hms(self.year as i32, self.month, self.day, hour, minute, second)
-      .single()
+    if let Some(local_datetime) = NaiveDate::from_ymd_opt(self.year as i32, self.month, self.day)
+      .and_then(|d| d.and_hms_opt(hour, minute, second))
     {
-      Some(datetime) => Ok(datetime),
-      None => Err(format!("Invalid datetime: {}", self)),
+      let datetime_in_tz = timezone.from_local_datetime(&local_datetime);
+
+      if let Some(single_datetime) = datetime_in_tz.single() {
+        return Ok(single_datetime);
+      }
+
+      if let Some(folded_datetime) = datetime_in_tz.earliest() {
+        return Ok(folded_datetime);
+      }
+
+      if let Some(gap_info) = GapInfo::new(&local_datetime, timezone) {
+        if let (Some((_, before_gap_tz)), Some(after_gap_datetime)) = (gap_info.begin, gap_info.end)
+        {
+          if let Some(gapped_adjusted_datetime) = timezone
+            .from_local_datetime(
+              &(local_datetime - before_gap_tz.fix() + after_gap_datetime.offset().fix()),
+            )
+            .single()
+          {
+            return Ok(gapped_adjusted_datetime);
+          }
+        }
+      }
     }
+
+    Err(format!("Invalid datetime: {}", self))
   }
 
   pub fn derive_value_type(&self) -> ValueType {

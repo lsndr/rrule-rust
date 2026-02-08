@@ -65,6 +65,55 @@ export interface ToPlainDateTimeOptions {
  * - `DateTime<Time>` - A date with time information
  * - `DateTime<undefined>` - A date without time information
  *
+ * ## Handling DST Transitions (Folds and Gaps)
+ *
+ * When working with local times in timezones that observe Daylight Saving Time (DST),
+ * there are two edge cases that can occur during DST transitions:
+ *
+ * ### Gaps (Spring Forward)
+ *
+ * When clocks "spring forward" (e.g., from 2:00 AM to 3:00 AM), there is a period of
+ * time that doesn't exist. For example, in `US/Pacific` on March 9, 2025, the time
+ * 2:00 AM - 2:59 AM does not exist because clocks jump directly from 1:59:59 AM to 3:00 AM.
+ *
+ * **Behavior:** When a recurrence falls within a gap, the library moves the time forward
+ * by the gap duration. For example, if a daily recurrence is scheduled for 2:00 AM and
+ * falls on March 9, 2025 in `US/Pacific`, it will be adjusted to 3:00 AM.
+ *
+ * ```typescript
+ * const rrule = new RRule(Frequency.Daily).setCount(3);
+ * const set = new RRuleSet(
+ *   new DtStart(DateTime.local(2025, 3, 8, 2, 0, 0), 'US/Pacific'),
+ * ).addRRule(rrule);
+ *
+ * const dates = set.all();
+ * // dates[0]: March 8, 2025 at 2:00 AM (before DST)
+ * // dates[1]: March 9, 2025 at 3:00 AM (adjusted forward due to gap)
+ * // dates[2]: March 10, 2025 at 2:00 AM (after DST)
+ * ```
+ *
+ * ### Folds (Fall Back)
+ *
+ * When clocks "fall back" (e.g., from 2:00 AM back to 1:00 AM), there is a period of
+ * time that occurs twice. For example, in `US/Pacific` on November 2, 2025, the time
+ * 1:00 AM - 1:59 AM occurs twice—once in PDT (UTC-7) and once in PST (UTC-8).
+ *
+ * **Behavior:** When a recurrence falls within a fold, the library chooses the earlier
+ * instant (the first occurrence of that local time). This matches the Temporal API's
+ * "compatible" disambiguation behavior.
+ *
+ * ```typescript
+ * const rrule = new RRule(Frequency.Daily).setCount(3);
+ * const set = new RRuleSet(
+ *   new DtStart(DateTime.local(2025, 11, 1, 1, 0, 0), 'US/Pacific'),
+ * ).addRRule(rrule);
+ *
+ * const dates = set.all();
+ * // dates[0]: November 1, 2025 at 1:00 AM
+ * // dates[1]: November 2, 2025 at 1:00 AM (first/earlier occurrence chosen)
+ * // dates[2]: November 3, 2025 at 1:00 AM
+ * ```
+ *
  * @example
  * ```typescript
  * // Create a date-only DateTime

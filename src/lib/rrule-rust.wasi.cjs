@@ -38,7 +38,11 @@ const __wasmDebugFilePath = __nodePath.join(__dirname, 'rrule-rust.wasm32-wasi.d
 if (__nodeFs.existsSync(__wasmDebugFilePath)) {
   __wasmFilePath = __wasmDebugFilePath
 } else if (!__nodeFs.existsSync(__wasmFilePath)) {
-  __wasmFilePath = __nodePath.resolve('node_modules/@rrule-rust/lib-wasm32-wasi/rrule-rust.wasm32-wasi.debug.wasm')
+  try {
+    __wasmFilePath = require.resolve('@rrule-rust/lib-wasm32-wasi/rrule-rust.wasm32-wasi.wasm')
+  } catch {
+    throw new Error('Cannot find rrule-rust.wasm32-wasi.wasm file, and @rrule-rust/lib-wasm32-wasi package is not installed.')
+  }
 }
 
 const { instance: __napiInstance, module: __wasiModule, napiModule: __napiModule } = __emnapiInstantiateNapiModuleSync(__nodeFs.readFileSync(__wasmFilePath), {

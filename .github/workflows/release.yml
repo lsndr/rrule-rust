@@ -5,13 +5,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 on:
-  push:
-    branches:
-      - master
-      - next
-      - alpha
-      - beta
-      - '*.x'
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
@@ -29,18 +23,18 @@ jobs:
       - build_and_test
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Setup LTS Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 'lts/*'
           registry-url: 'https://registry.npmjs.org'
       - name: Install dependencies
         run: npm ci
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
       - name: Move artifacts

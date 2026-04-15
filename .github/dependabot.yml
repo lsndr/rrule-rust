@@ -14,3 +14,8 @@ updates:
       napi:
         patterns:
           - '*napi*'
+  - package-ecosystem: 'github-actions'
+    target-branch: 'next'
+    directory: '/'
+    schedule:
+      interval: 'weekly'

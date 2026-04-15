@@ -6,6 +6,11 @@ concurrency:
   cancel-in-progress: true
 on:
   pull_request: null
+  push:
+    branches:
+      - master
+      - next
+      - alpha
 jobs:
   format:
     name: Format

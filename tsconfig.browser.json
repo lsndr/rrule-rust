@@ -3,6 +3,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "stripInternal": true,
+    "rootDir": "./src",
     "outDir": "./dist/browser"
   },
   "extends": "./tsconfig.json",

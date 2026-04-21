@@ -12,8 +12,8 @@ chrono = "0.4.44"
 chrono-tz = "0.10.4"
 indexmap = "2.14.0"
 itertools = "0.14.0"
-napi = "3.8.4"
-napi-derive = "3.5.3"
+napi = "3.8.5"
+napi-derive = "3.5.4"
 replace_with = "0.1.8"
 rrule = { version = "0.14.0", features = ["exrule"] }
 

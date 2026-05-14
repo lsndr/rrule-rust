@@ -437,6 +437,6 @@ describe('Monthly', () => {
   it('errors on invalid by-weekday', () => {
     expect(() =>
       new RRule(Frequency.Monthly).setByWeekday(['invalid' as any]).toString(),
-    ).toThrow('Value is non of these types `NWeekday`, `Weekday`');
+    ).toThrow('Value is none of these types `NWeekday`, `Weekday`');
   });
 });

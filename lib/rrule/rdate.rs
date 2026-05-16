@@ -26,7 +26,7 @@ impl RDate {
         if datetimes.is_empty() {
           None
         } else {
-          Some(datetimes[0].derive_value_type().clone())
+          Some(datetimes[0].derive_value_type())
         }
       }
     };
@@ -48,8 +48,8 @@ impl RDate {
     })
   }
 
-  pub fn tzid(&self) -> &Option<chrono_tz::Tz> {
-    &self.tzid
+  pub fn tzid(&self) -> Option<chrono_tz::Tz> {
+    self.tzid
   }
 
   pub fn values(&self) -> &Vec<DateTime> {
@@ -91,7 +91,7 @@ impl RDate {
     self
       .values
       .iter()
-      .map(|datetime| datetime.to_datetime(&self.tzid.unwrap_or(tzid)))
+      .map(|datetime| datetime.to_datetime(self.tzid.unwrap_or(tzid)))
       .collect()
   }
 
@@ -113,33 +113,29 @@ impl RDate {
       parameters.insert("VALUE".to_string(), value.to_string());
     }
 
-    if let Some(value) = &self.value_type() {
-      parameters.insert("VALUE".to_string(), value.to_string());
-    }
-
     Property::new("RDATE".to_string(), parameters, Value::Single(value))
   }
 
   pub fn from_property(property: Property) -> Result<Self, String> {
-    let datetimes = match property.value() {
-      Value::Single(value) => value,
-      _ => return Err("Invalid RDATE value".to_string()),
-    };
-    let datetimes = datetimes
-      .split(',')
-      .map(|date| date.parse::<DateTime>())
-      .collect::<Result<Vec<DateTime>, String>>()?;
-
-    let tzid = match property.parameters().get("TZID") {
-      Some(value) => {
-        let tz: chrono_tz::Tz = value
+    let tzid: Option<chrono_tz::Tz> = match property.parameters().get("TZID") {
+      Some(value) => Some(
+        value
           .parse()
-          .map_err(|_| format!("Invalid timezone: {}", value))?;
-
-        Some(tz)
-      }
+          .map_err(|_| format!("Invalid timezone: {}", value))?,
+      ),
       None => None,
     };
+
+    let fallback = tzid.unwrap_or(chrono_tz::Tz::UTC);
+
+    let datetimes_str = match property.value() {
+      Value::Single(value) => value.as_str(),
+      _ => return Err("Invalid RDATE value".to_string()),
+    };
+    let datetimes = datetimes_str
+      .split(',')
+      .map(|date| DateTime::from_str_with_tz(date, fallback))
+      .collect::<Result<Vec<DateTime>, String>>()?;
 
     let value_type = match property.parameters().get("VALUE") {
       Some(value) => {

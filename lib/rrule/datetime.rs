@@ -1,326 +1,242 @@
 use std::fmt;
 use std::str::FromStr;
 
-use chrono::Datelike;
-use chrono::NaiveDate;
-use chrono::Offset;
-use chrono::TimeZone;
-use chrono::Timelike;
+use chrono::{Datelike, NaiveDate, Offset, TimeZone, Timelike};
 use chrono_tz::GapInfo;
 use napi::bindgen_prelude::Int32Array;
 
-use crate::rrule::time::Time;
 use crate::rrule::value_type::ValueType;
 
-#[derive(Clone)]
-pub struct DateTime {
-  pub year: u32,
-  pub month: u32,
-  pub day: u32,
-  pub time: Option<Time>,
+#[derive(Clone, Copy)]
+pub enum DateTime {
+  Date(NaiveDate),
+  DateTime(chrono::DateTime<chrono_tz::Tz>),
 }
 
 impl DateTime {
-  pub fn day(&self) -> u32 {
-    self.day
-  }
-
-  pub fn month(&self) -> u32 {
-    self.month
-  }
-
-  pub fn year(&self) -> u32 {
-    self.year
-  }
-
-  pub fn time(&self) -> &Option<Time> {
-    &self.time
-  }
-
   pub fn to_datetime(
-    &self,
-    timezone: &chrono_tz::Tz,
+    self,
+    fallback_tz: chrono_tz::Tz,
   ) -> Result<chrono::DateTime<chrono_tz::Tz>, String> {
-    let timezone = match &self.time {
-      Some(time) => match time.offset {
-        Some(0) => &chrono_tz::Tz::UTC,
-        _ => timezone,
-      },
-      None => timezone,
-    };
-
-    let (hour, minute, second) = match &self.time {
-      Some(time) => (time.hour, time.minute, time.second),
-      None => (0, 0, 0),
-    };
-
-    if let Some(local_datetime) = NaiveDate::from_ymd_opt(self.year as i32, self.month, self.day)
-      .and_then(|d| d.and_hms_opt(hour, minute, second))
-    {
-      let datetime_in_tz = timezone.from_local_datetime(&local_datetime);
-
-      if let Some(single_datetime) = datetime_in_tz.single() {
-        return Ok(single_datetime);
-      }
-
-      if let Some(folded_datetime) = datetime_in_tz.earliest() {
-        return Ok(folded_datetime);
-      }
-
-      if let Some(gap_info) = GapInfo::new(&local_datetime, timezone) {
-        if let (Some((_, before_gap_tz)), Some(after_gap_datetime)) = (gap_info.begin, gap_info.end)
-        {
-          if let Some(gapped_adjusted_datetime) = timezone
-            .from_local_datetime(
-              &(local_datetime - before_gap_tz.fix() + after_gap_datetime.offset().fix()),
-            )
-            .single()
-          {
-            return Ok(gapped_adjusted_datetime);
-          }
-        }
-      }
+    match self {
+      Self::DateTime(dt) => Ok(dt),
+      Self::Date(d) => local_to_datetime(d.year(), d.month(), d.day(), 0, 0, 0, fallback_tz),
     }
-
-    Err(format!("Invalid datetime: {}", self))
   }
 
   pub fn derive_value_type(&self) -> ValueType {
-    match &self.time {
-      Some(_) => ValueType::DateTime,
-      None => ValueType::Date,
+    match self {
+      Self::Date(_) => ValueType::Date,
+      Self::DateTime(_) => ValueType::DateTime,
     }
   }
 
-  fn from_str(str: &str) -> Result<Self, String> {
-    if !(str.len() == 8 || (str.len() <= 16 && str.len() >= 15)) {
-      return Err(format!("Invalid datetime string: {}", str));
+  pub fn date(&self) -> NaiveDate {
+    match self {
+      Self::Date(d) => *d,
+      Self::DateTime(dt) => dt.date_naive(),
     }
-
-    let year = str
-      .get(0..4)
-      .ok_or(format!("Can not extract year from: {}", str))?;
-    let year: u32 = year
-      .parse()
-      .map_err(|_| format!("Invalid year: {}", year))?;
-
-    let month = str
-      .get(4..6)
-      .ok_or(format!("Can not extract month from: {}", str))?;
-    let month: u32 = month
-      .parse()
-      .map_err(|_| format!("Invalid month: {}", month))?;
-    let day = str
-      .get(6..8)
-      .ok_or(format!("Can not extract day from: {}", str))?;
-    let day: u32 = day.parse().map_err(|_| format!("Invalid day: {}", day))?;
-
-    if str.len() > 8 {
-      let hour = str
-        .get(9..11)
-        .ok_or(format!("Can not extract hour from: {}", str))?;
-      let hour: u32 = hour
-        .parse()
-        .map_err(|_| format!("Invalid hour: {}", hour))?;
-
-      let minute = str
-        .get(11..13)
-        .ok_or(format!("Can not extract minute from: {}", str))?;
-      let minute: u32 = minute
-        .parse()
-        .map_err(|_| format!("Invalid minute: {}", minute))?;
-
-      let second = str
-        .get(13..15)
-        .ok_or(format!("Can not extract second from: {}", str))?;
-      let second: u32 = second
-        .parse()
-        .map_err(|_| format!("Invalid second: {}", second))?;
-
-      let utc = str.get(15..16).unwrap_or("").to_uppercase() == "Z";
-      let offset = if utc { Some(0) } else { None };
-
-      return Ok(Self {
-        year,
-        month,
-        day,
-        time: Some(Time {
-          hour,
-          minute,
-          second,
-          offset,
-        }),
-      });
-    }
-
-    Ok(Self {
-      year,
-      month,
-      day,
-      time: None,
-    })
   }
+
+  pub fn as_datetime(&self) -> Option<chrono::DateTime<chrono_tz::Tz>> {
+    match self {
+      Self::DateTime(dt) => Some(*dt),
+      Self::Date(_) => None,
+    }
+  }
+
+  pub fn from_str_with_tz(s: &str, fallback_tz: chrono_tz::Tz) -> Result<Self, String> {
+    if !(s.len() == 8 || (s.len() >= 15 && s.len() <= 16)) {
+      return Err(format!("Invalid datetime string: {}", s));
+    }
+
+    let year: i32 = parse_field(s, 0, 4, "year")?;
+    let month: u32 = parse_field(s, 4, 6, "month")?;
+    let day: u32 = parse_field(s, 6, 8, "day")?;
+
+    if s.len() == 8 {
+      let d =
+        NaiveDate::from_ymd_opt(year, month, day).ok_or_else(|| format!("Invalid date: {}", s))?;
+      return Ok(Self::Date(d));
+    }
+
+    let hour: u32 = parse_field(s, 9, 11, "hour")?;
+    let minute: u32 = parse_field(s, 11, 13, "minute")?;
+    let second: u32 = parse_field(s, 13, 15, "second")?;
+
+    let tz = if s.len() == 16 && s.as_bytes()[15].eq_ignore_ascii_case(&b'Z') {
+      chrono_tz::Tz::UTC
+    } else {
+      fallback_tz
+    };
+
+    let dt = local_to_datetime(year, month, day, hour, minute, second, tz)?;
+    Ok(Self::DateTime(dt))
+  }
+}
+
+fn parse_field<T: FromStr>(s: &str, start: usize, end: usize, name: &str) -> Result<T, String> {
+  s.get(start..end)
+    .ok_or_else(|| format!("Cannot extract {} from: {}", name, s))?
+    .parse()
+    .map_err(|_| format!("Invalid {}: {}", name, s.get(start..end).unwrap_or("")))
+}
+
+fn local_to_datetime(
+  year: i32,
+  month: u32,
+  day: u32,
+  hour: u32,
+  minute: u32,
+  second: u32,
+  tz: chrono_tz::Tz,
+) -> Result<chrono::DateTime<chrono_tz::Tz>, String> {
+  if let Some(naive) =
+    NaiveDate::from_ymd_opt(year, month, day).and_then(|d| d.and_hms_opt(hour, minute, second))
+  {
+    let local = tz.from_local_datetime(&naive);
+
+    if let Some(dt) = local.single() {
+      return Ok(dt);
+    }
+
+    if let Some(dt) = local.earliest() {
+      return Ok(dt);
+    }
+
+    if let Some(gap_info) = GapInfo::new(&naive, &tz) {
+      if let (Some((_, before_gap_tz)), Some(after_gap_datetime)) = (gap_info.begin, gap_info.end) {
+        if let Some(dt) = tz
+          .from_local_datetime(&(naive - before_gap_tz.fix() + after_gap_datetime.offset().fix()))
+          .single()
+        {
+          return Ok(dt);
+        }
+      }
+    }
+  }
+
+  Err(format!(
+    "Invalid datetime: {:04}-{:02}-{:02}T{:02}:{:02}:{:02} in {}",
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+    tz.name()
+  ))
+}
+
+pub fn tz_from_index(idx: i32) -> Option<chrono_tz::Tz> {
+  if idx < 0 {
+    return None;
+  }
+  chrono_tz::TZ_VARIANTS.get(idx as usize).copied()
+}
+
+pub fn index_from_tz(tz: chrono_tz::Tz) -> i32 {
+  chrono_tz::TZ_VARIANTS
+    .iter()
+    .position(|&t| t == tz)
+    .unwrap_or(0) as i32
 }
 
 impl From<(i32, i32, i32, i32, i32, i32, i32)> for DateTime {
   fn from(arr: (i32, i32, i32, i32, i32, i32, i32)) -> Self {
-    DateTime {
-      year: arr.0 as u32,
-      month: arr.1 as u32,
-      day: arr.2 as u32,
-      time: match arr.3 {
-        -1 => None,
-        _ => Some(Time {
-          hour: arr.3 as u32,
-          minute: arr.4 as u32,
-          second: arr.5 as u32,
-          offset: match arr.6 {
-            -1 => None,
-            offset => Some(offset),
-          },
-        }),
-      },
+    if arr.3 == -1 {
+      let d = NaiveDate::from_ymd_opt(arr.0, arr.1 as u32, arr.2 as u32).unwrap_or(NaiveDate::MIN);
+      Self::Date(d)
+    } else {
+      let tz = tz_from_index(arr.6).unwrap_or(chrono_tz::Tz::UTC);
+      local_to_datetime(
+        arr.0,
+        arr.1 as u32,
+        arr.2 as u32,
+        arr.3 as u32,
+        arr.4 as u32,
+        arr.5 as u32,
+        tz,
+      )
+      .map(Self::DateTime)
+      .unwrap_or_else(|_| {
+        Self::DateTime(chrono_tz::UTC.from_utc_datetime(&chrono::NaiveDateTime::MIN))
+      })
     }
   }
 }
 
 impl From<Int32Array> for DateTime {
   fn from(arr: Int32Array) -> Self {
-    let year = arr[0] as u32;
-    let month = arr[1] as u32;
-    let day = arr[2] as u32;
-    let hour = arr[3];
-    let minute = arr[4];
-    let second = arr[5];
-    let offset = match arr[6] {
-      -1 => None,
-      offset => Some(offset),
-    };
-
-    let time = match hour {
-      -1 => None,
-      _ => Some(Time {
-        hour: hour as u32,
-        minute: minute as u32,
-        second: second as u32,
-        offset,
-      }),
-    };
-
-    DateTime {
-      year,
-      month,
-      day,
-      time,
-    }
+    (arr[0], arr[1], arr[2], arr[3], arr[4], arr[5], arr[6]).into()
   }
 }
 
-// TODO: chrono datetime is alwats converted into DateTime with Time
-// Probabbly there should be a method to convert into DateTime without Time
-// And this trait must me removed
 impl From<&chrono::DateTime<chrono_tz::Tz>> for DateTime {
-  fn from(datetime: &chrono::DateTime<chrono_tz::Tz>) -> Self {
-    let offset = datetime.offset().fix().local_minus_utc();
-    let year = datetime.year() as u32;
-    let month = datetime.month();
-    let day = datetime.day();
-    let hour = datetime.hour();
-    let minute = datetime.minute();
-    let second = datetime.second();
-
-    DateTime {
-      year,
-      month,
-      day,
-      time: Some(Time {
-        hour,
-        minute,
-        second,
-        offset: Some(offset),
-      }),
-    }
+  fn from(dt: &chrono::DateTime<chrono_tz::Tz>) -> Self {
+    Self::DateTime(*dt)
   }
 }
 
 impl From<&chrono::DateTime<rrule::Tz>> for DateTime {
-  fn from(datetime: &chrono::DateTime<rrule::Tz>) -> Self {
-    let offset = datetime.offset().fix().local_minus_utc();
-    let year = datetime.year() as u32;
-    let month = datetime.month();
-    let day = datetime.day();
-    let hour = datetime.hour();
-    let minute = datetime.minute();
-    let second = datetime.second();
-
-    DateTime {
-      year,
-      month,
-      day,
-
-      time: Some(Time {
-        hour,
-        minute,
-        second,
-        offset: Some(offset),
-      }),
-    }
+  fn from(dt: &chrono::DateTime<rrule::Tz>) -> Self {
+    let chrono_tz = match dt.timezone() {
+      rrule::Tz::Tz(tz) => tz,
+      rrule::Tz::Local(_) => chrono_tz::Tz::UTC,
+    };
+    Self::DateTime(dt.with_timezone(&chrono_tz))
   }
 }
 
 impl From<&DateTime> for Int32Array {
   fn from(val: &DateTime) -> Self {
-    Int32Array::from(vec![
-      val.year as i32,
-      val.month as i32,
-      val.day as i32,
-      match &val.time {
-        Some(time) => time.hour as i32,
-        None => -1,
-      },
-      match &val.time {
-        Some(time) => time.minute as i32,
-        None => -1,
-      },
-      match &val.time {
-        Some(time) => time.second as i32,
-        None => -1,
-      },
-      match &val.time {
-        Some(time) => time.offset.unwrap_or(-1),
-        None => -1,
-      },
-    ])
+    let d = val.date();
+    let mut arr = vec![d.year(), d.month() as i32, d.day() as i32];
+    if let Some(dt) = val.as_datetime() {
+      arr.push(dt.hour() as i32);
+      arr.push(dt.minute() as i32);
+      arr.push(dt.second() as i32);
+      arr.push(index_from_tz(dt.timezone()));
+    } else {
+      arr.push(-1);
+      arr.push(-1);
+      arr.push(-1);
+      arr.push(-1);
+    }
+    Int32Array::from(arr)
   }
 }
 
 impl FromStr for DateTime {
   type Err = String;
 
-  fn from_str(str: &str) -> Result<Self, Self::Err> {
-    DateTime::from_str(str)
+  fn from_str(s: &str) -> Result<Self, Self::Err> {
+    Self::from_str_with_tz(s, chrono_tz::Tz::UTC)
   }
 }
 
 impl fmt::Display for DateTime {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    let string = match &self.time {
-      Some(time) => format!(
-        "{:04}{:02}{:02}T{:02}{:02}{:02}{}",
-        self.year,
-        self.month,
-        self.day,
-        time.hour,
-        time.minute,
-        time.second,
-        match time.offset {
-          Some(0) => "Z",
-          _ => "",
-        }
-      ),
-      None => format!("{:04}{:02}{:02}", self.year, self.month, self.day),
-    };
-
-    write!(f, "{}", string)
+    match self {
+      Self::Date(d) => write!(f, "{:04}{:02}{:02}", d.year(), d.month(), d.day()),
+      Self::DateTime(dt) => {
+        let suffix = if dt.timezone() == chrono_tz::Tz::UTC {
+          "Z"
+        } else {
+          ""
+        };
+        write!(
+          f,
+          "{:04}{:02}{:02}T{:02}{:02}{:02}{}",
+          dt.year(),
+          dt.month(),
+          dt.day(),
+          dt.hour(),
+          dt.minute(),
+          dt.second(),
+          suffix
+        )
+      }
+    }
   }
 }

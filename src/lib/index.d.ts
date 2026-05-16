@@ -63,6 +63,8 @@ export declare enum Frequency {
   Secondly = 6
 }
 
+export declare function getTimezones(): Array<string>
+
 export declare enum Month {
   January = 1,
   February = 2,

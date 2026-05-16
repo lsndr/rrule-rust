@@ -5,4 +5,5 @@ pub mod n_weekday;
 pub mod rdate;
 pub mod rrule;
 pub mod rrule_set;
+pub mod timezones;
 pub mod weekday;

@@ -10,6 +10,5 @@ pub mod rdate;
 #[allow(clippy::module_inception)]
 pub mod rrule;
 pub mod rrule_set;
-pub mod time;
 pub mod value_type;
 pub mod weekday;

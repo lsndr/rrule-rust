@@ -1,5 +1,5 @@
 use crate::rrule::{
-  datetime::{self},
+  datetime::{self, index_from_tz},
   exdate,
 };
 use napi::bindgen_prelude::Int32Array;
@@ -42,18 +42,19 @@ impl ExDate {
 
   #[napi(getter)]
   pub fn values(&self) -> napi::Result<Int32Array> {
+    use chrono::{Datelike, Timelike};
     let mut arr = Vec::new();
 
     for datetime in self.exdate.values().iter() {
-      arr.push(datetime.year() as i32);
-      arr.push(datetime.month() as i32);
-      arr.push(datetime.day() as i32);
-
-      if let Some(time) = datetime.time() {
-        arr.push(time.hour() as i32);
-        arr.push(time.minute() as i32);
-        arr.push(time.second() as i32);
-        arr.push(time.offset().unwrap_or(-1));
+      let d = datetime.date();
+      arr.push(d.year());
+      arr.push(d.month() as i32);
+      arr.push(d.day() as i32);
+      if let Some(dt) = datetime.as_datetime() {
+        arr.push(dt.hour() as i32);
+        arr.push(dt.minute() as i32);
+        arr.push(dt.second() as i32);
+        arr.push(index_from_tz(dt.timezone()));
       } else {
         arr.push(-1);
         arr.push(-1);
@@ -67,7 +68,7 @@ impl ExDate {
 
   #[napi(getter)]
   pub fn tzid(&self) -> napi::Result<Option<String>> {
-    Ok(self.exdate.tzid().and_then(|tzid| Some(tzid.to_string())))
+    Ok(self.exdate.tzid().map(|tzid| tzid.to_string()))
   }
 }
 

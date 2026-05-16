@@ -3,7 +3,7 @@ use std::iter::Skip;
 use super::exdate::ExDate;
 use super::rdate::RDate;
 use super::rrule::RRule;
-use crate::rrule::datetime::DateTime;
+use crate::rrule::datetime::{index_from_tz, DateTime};
 use crate::rrule::dtstart::DtStart;
 use crate::rrule::value_type::ValueType;
 use crate::rrule::{exdate, rdate, rrule, rrule_set};
@@ -172,21 +172,7 @@ impl RRuleSet {
         }
       }
 
-      arr.push(datetime.year() as i32);
-      arr.push(datetime.month() as i32);
-      arr.push(datetime.day() as i32);
-
-      if let Some(time) = datetime.time() {
-        arr.push(time.hour() as i32);
-        arr.push(time.minute() as i32);
-        arr.push(time.second() as i32);
-        arr.push(time.offset().unwrap_or(-1));
-      } else {
-        arr.push(-1);
-        arr.push(-1);
-        arr.push(-1);
-        arr.push(-1);
-      }
+      push_datetime(&mut arr, &datetime);
     }
 
     Ok(Int32Array::new(arr))
@@ -223,11 +209,11 @@ impl RRuleSet {
 
     let timezone = self.rrule_set.dtstart().derive_timezone();
     let after_timestamp = DateTime::from(after_datetime)
-      .to_datetime(&timezone)
+      .to_datetime(timezone)
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
       .timestamp_millis();
     let before_timestamp = DateTime::from(before_datetime)
-      .to_datetime(&timezone)
+      .to_datetime(timezone)
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
       .timestamp_millis();
 
@@ -238,28 +224,14 @@ impl RRuleSet {
 
     for date in iterator {
       let date_timestamp = date
-        .to_datetime(&timezone)
+        .to_datetime(timezone)
         .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?
         .timestamp_millis();
       let is_after = self.is_after(date_timestamp, after_timestamp, inclusive);
       let is_before = self.is_before(date_timestamp, before_timestamp, inclusive);
 
       if is_after && is_before {
-        arr.push(date.year() as i32);
-        arr.push(date.month() as i32);
-        arr.push(date.day() as i32);
-
-        if let Some(time) = date.time() {
-          arr.push(time.hour() as i32);
-          arr.push(time.minute() as i32);
-          arr.push(time.second() as i32);
-          arr.push(time.offset().unwrap_or(-1));
-        } else {
-          arr.push(-1);
-          arr.push(-1);
-          arr.push(-1);
-          arr.push(-1);
-        }
+        push_datetime(&mut arr, &date);
       } else if !is_before {
         break;
       }
@@ -306,6 +278,25 @@ impl RRuleSet {
   }
 }
 
+fn push_datetime(arr: &mut Vec<i32>, datetime: &DateTime) {
+  use chrono::{Datelike, Timelike};
+  let d = datetime.date();
+  arr.push(d.year());
+  arr.push(d.month() as i32);
+  arr.push(d.day() as i32);
+  if let Some(dt) = datetime.as_datetime() {
+    arr.push(dt.hour() as i32);
+    arr.push(dt.minute() as i32);
+    arr.push(dt.second() as i32);
+    arr.push(index_from_tz(dt.timezone()));
+  } else {
+    arr.push(-1);
+    arr.push(-1);
+    arr.push(-1);
+    arr.push(-1);
+  }
+}
+
 #[napi]
 pub struct RRuleSetIterator {
   iterator: SharedReference<RRuleSet, Skip<rrule_set::RRuleSetIterator>>,
@@ -321,25 +312,23 @@ impl RRuleSetIterator {
 
     match next {
       Some(dt) => unsafe {
+        use chrono::{Datelike, Timelike};
         let data: &mut [i32] = store.as_mut();
-
-        // TODO: remove code duplication
-        data[0] = dt.year() as i32;
-        data[1] = dt.month() as i32;
-        data[2] = dt.day() as i32;
-
-        if let Some(time) = dt.time() {
-          data[3] = time.hour() as i32;
-          data[4] = time.minute() as i32;
-          data[5] = time.second() as i32;
-          data[6] = time.offset().unwrap_or(-1);
+        let d = dt.date();
+        data[0] = d.year();
+        data[1] = d.month() as i32;
+        data[2] = d.day() as i32;
+        if let Some(zdt) = dt.as_datetime() {
+          data[3] = zdt.hour() as i32;
+          data[4] = zdt.minute() as i32;
+          data[5] = zdt.second() as i32;
+          data[6] = index_from_tz(zdt.timezone());
         } else {
           data[3] = -1;
           data[4] = -1;
           data[5] = -1;
           data[6] = -1;
         }
-
         true
       },
       None => false,

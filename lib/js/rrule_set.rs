@@ -25,28 +25,18 @@ impl RRuleSet {
   #[napi(constructor)]
   pub fn new(
     dtstart: Int32Array,
-    tzid: Option<String>,
     dtstart_value: Option<String>,
     #[napi(ts_arg_type = "(readonly RRule[]) | undefined | null")] rrules: Option<Vec<&RRule>>,
     #[napi(ts_arg_type = "(readonly RRule[]) | undefined | null")] exrules: Option<Vec<&RRule>>,
     #[napi(ts_arg_type = "(readonly ExDate[]) | undefined | null")] exdates: Option<Vec<&ExDate>>,
     #[napi(ts_arg_type = "(readonly RDate[]) | undefined | null")] rdates: Option<Vec<&RDate>>,
   ) -> napi::Result<Self> {
-    let tzid: Option<chrono_tz::Tz> = match tzid {
-      Some(tzid) => Some(
-        tzid
-          .parse()
-          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?,
-      ),
-      None => None,
-    };
-
     let dtstat_value = dtstart_value
       .map(|value| value.parse::<ValueType>())
       .transpose()
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
-    let dtstart = DtStart::new(dtstart.into(), tzid, dtstat_value)
+    let dtstart = DtStart::new(dtstart.into(), dtstat_value)
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
     let rrules: Vec<rrule::RRule> = rrules
@@ -84,11 +74,6 @@ impl RRuleSet {
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
     Ok(Self { rrule_set })
-  }
-
-  #[napi(getter)]
-  pub fn tzid(&self) -> napi::Result<Option<String>> {
-    Ok(self.rrule_set.dtstart().tzid().map(|tzid| tzid.to_string()))
   }
 
   #[napi(getter)]

@@ -7,7 +7,6 @@ use crate::{
 #[derive(Clone)]
 pub struct DtStart {
   value: DateTime,
-  tzid: Option<chrono_tz::Tz>,
   value_type: Option<ValueType>,
 }
 
@@ -20,14 +19,7 @@ impl DtStart {
     &self.value_type
   }
 
-  pub fn tzid(&self) -> Option<&chrono_tz::Tz> {
-    self.tzid.as_ref()
-  }
-
   pub fn derive_timezone(&self) -> chrono_tz::Tz {
-    if let Some(tz) = self.tzid {
-      return tz;
-    }
     match self.value {
       DateTime::DateTime(dt) => dt.timezone(),
       DateTime::Date(_) => chrono_tz::Tz::UTC,
@@ -48,21 +40,11 @@ impl DtStart {
   pub fn to_property(&self) -> property::Property {
     let mut parameters = Parameters::new();
 
-    let emit_tzid = self.tzid.or_else(|| {
-      if let DateTime::DateTime(dt) = self.value {
-        let tz = dt.timezone();
-        if tz != chrono_tz::Tz::UTC {
-          Some(tz)
-        } else {
-          None
-        }
-      } else {
-        None
+    if let DateTime::DateTime(dt) = self.value {
+      let tz = dt.timezone();
+      if tz != chrono_tz::Tz::UTC {
+        parameters.insert("TZID".to_string(), tz.to_string());
       }
-    });
-
-    if let Some(tzid) = emit_tzid {
-      parameters.insert("TZID".to_string(), tzid.to_string());
     }
 
     if let Some(value) = &self.value_type {
@@ -80,7 +62,6 @@ impl DtStart {
 
   pub fn new(
     value: DateTime,
-    tzid: Option<chrono_tz::Tz>,
     value_type: Option<ValueType>,
   ) -> Result<Self, String> {
     if let Some(vt) = &value_type {
@@ -89,24 +70,16 @@ impl DtStart {
       }
     }
 
-    Ok(Self {
-      value,
-      tzid,
-      value_type,
-    })
+    Ok(Self { value, value_type })
   }
 
   pub fn from_property(property: property::Property) -> Result<Self, String> {
-    let tzid: Option<chrono_tz::Tz> = match property.parameters().get("TZID") {
-      Some(value) => Some(
-        value
-          .parse()
-          .map_err(|_| format!("Invalid timezone: {}", value))?,
-      ),
-      None => None,
+    let fallback = match property.parameters().get("TZID") {
+      Some(value) => value
+        .parse()
+        .map_err(|_| format!("Invalid timezone: {}", value))?,
+      None => chrono_tz::Tz::UTC,
     };
-
-    let fallback = tzid.unwrap_or(chrono_tz::Tz::UTC);
 
     let value_str = match property.value() {
       property::Value::Single(value) => value.as_str(),
@@ -125,7 +98,7 @@ impl DtStart {
       None => None,
     };
 
-    Self::new(value, tzid, value_type)
+    Self::new(value, value_type)
   }
 }
 

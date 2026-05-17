@@ -13,16 +13,7 @@ pub struct RDate {
 #[napi]
 impl RDate {
   #[napi(constructor)]
-  pub fn new(dates: Int32Array, tzid: Option<String>) -> napi::Result<Self> {
-    let tzid: Option<chrono_tz::Tz> = match tzid {
-      Some(tzid) => Some(
-        tzid
-          .parse()
-          .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?,
-      ),
-      None => None,
-    };
-
+  pub fn new(dates: Int32Array) -> napi::Result<Self> {
     let mut datetimes = Vec::<datetime::DateTime>::new();
 
     for chunk in dates.chunks(7) {
@@ -34,7 +25,7 @@ impl RDate {
       );
     }
 
-    let rdate = rdate::RDate::new(datetimes, tzid, None)
+    let rdate = rdate::RDate::new(datetimes, None)
       .map_err(|e| napi::Error::new(napi::Status::GenericFailure, e))?;
 
     Ok(Self { rdate })
@@ -64,11 +55,6 @@ impl RDate {
     }
 
     Ok(Int32Array::new(arr))
-  }
-
-  #[napi(getter)]
-  pub fn tzid(&self) -> napi::Result<Option<String>> {
-    Ok(self.rdate.tzid().map(|tzid| tzid.to_string()))
   }
 }
 

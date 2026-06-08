@@ -60,10 +60,7 @@ impl DtStart {
     )
   }
 
-  pub fn new(
-    value: DateTime,
-    value_type: Option<ValueType>,
-  ) -> Result<Self, String> {
+  pub fn new(value: DateTime, value_type: Option<ValueType>) -> Result<Self, String> {
     if let Some(vt) = &value_type {
       if vt != &value.derive_value_type() {
         return Err("DTSTART value and value type do not match".to_string());

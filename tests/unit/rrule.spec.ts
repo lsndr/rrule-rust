@@ -1,14 +1,15 @@
-import { DateTime, Frequency, RRule, Weekday } from '../../src';
+import { Frequency, RRule, Weekday } from '../../src';
 import { Month } from '../../src/lib';
 import { describe, it, expect } from 'vitest';
 
 describe(RRule, () => {
   describe('constructor', () => {
     it('should create rrule from object', () => {
+      const until = Temporal.ZonedDateTime.from('1997-12-24T00:00:00[UTC]');
       const rrule = new RRule({
         frequency: Frequency.Weekly,
         interval: 2,
-        until: DateTime.create(1997, 12, 24, 0, 0, 0, true),
+        until,
         weekstart: Weekday.Sunday,
         byWeekday: [Weekday.Monday, Weekday.Wednesday, Weekday.Friday],
         byHour: [1, 2, 3],
@@ -23,7 +24,7 @@ describe(RRule, () => {
 
       expect(rrule.frequency).toBe(Frequency.Weekly);
       expect(rrule.interval).toBe(2);
-      expect(rrule.until).toEqual(DateTime.create(1997, 12, 24, 0, 0, 0, true));
+      expect(rrule.until?.toString()).toBe(until.toString());
       expect(rrule.weekstart).toBe(Weekday.Sunday);
       expect(rrule.byWeekday).toEqual([
         Weekday.Monday,
@@ -99,12 +100,12 @@ describe(RRule, () => {
   describe('setUntil', () => {
     it('should set until', () => {
       const rrule = new RRule(Frequency.Weekly);
-      const until = DateTime.create(1997, 12, 24, 0, 0, 0, true);
+      const until = Temporal.ZonedDateTime.from('1997-12-24T00:00:00[UTC]');
 
       const newRrule = rrule.setUntil(until);
 
       expect(rrule.until).toBeUndefined();
-      expect(newRrule.until).toBe(until);
+      expect(newRrule.until?.toString()).toBe(until.toString());
     });
   });
 

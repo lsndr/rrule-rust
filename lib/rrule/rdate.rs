@@ -14,10 +14,7 @@ pub struct RDate {
 }
 
 impl RDate {
-  pub fn new(
-    datetimes: Vec<DateTime>,
-    value_type: Option<ValueType>,
-  ) -> Result<Self, String> {
+  pub fn new(datetimes: Vec<DateTime>, value_type: Option<ValueType>) -> Result<Self, String> {
     let expected_value_type = match &value_type {
       Some(vt) => Some(vt.clone()),
       None => {

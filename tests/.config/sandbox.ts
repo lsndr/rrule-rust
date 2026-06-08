@@ -60,7 +60,7 @@ export class Sandbox {
 
     try {
       return JSON.parse(
-        execSync('node index.js', {
+        execSync('node --harmony-temporal index.js', {
           cwd: this.projectPath,
           env: {
             ...process.env,

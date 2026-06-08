@@ -1,11 +1,4 @@
-import {
-  DateTime,
-  DtStart,
-  Frequency,
-  Month,
-  RRule,
-  RRuleSet,
-} from '../../src';
+import { Frequency, Month, RRule, RRuleSet } from '../../src';
 import { Sandbox } from './../.config/sandbox';
 import { beforeAll, afterAll, describe, it, expect } from 'vitest';
 
@@ -32,10 +25,7 @@ describe('Commonjs', () => {
               count: 10,
             });
             const set = new RRuleSet(
-              new DtStart({
-                value: DateTime.create(1997, 6, 10, 9, 0, 0, false),
-                tzid: 'US/Eastern',
-              }),
+              Temporal.ZonedDateTime.from('1997-06-10T09:00:00[America/New_York]'),
             ).addRRule(rrule);
 
             return {
@@ -50,19 +40,19 @@ describe('Commonjs', () => {
 
         expect(result).toEqual({
           asString:
-            'DTSTART;TZID=US/Eastern:19970610T090000\nRRULE:FREQ=YEARLY;COUNT=10;BYMONTH=6,7',
+            'DTSTART;TZID=America/New_York:19970610T090000\nRRULE:FREQ=YEARLY;COUNT=10;BYMONTH=6,7',
           dates: [
-            DateTime.create(1997, 6, 10, 9, 0, 0, false),
-            DateTime.create(1997, 7, 10, 9, 0, 0, false),
-            DateTime.create(1998, 6, 10, 9, 0, 0, false),
-            DateTime.create(1998, 7, 10, 9, 0, 0, false),
-            DateTime.create(1999, 6, 10, 9, 0, 0, false),
-            DateTime.create(1999, 7, 10, 9, 0, 0, false),
-            DateTime.create(2000, 6, 10, 9, 0, 0, false),
-            DateTime.create(2000, 7, 10, 9, 0, 0, false),
-            DateTime.create(2001, 6, 10, 9, 0, 0, false),
-            DateTime.create(2001, 7, 10, 9, 0, 0, false),
-          ].map((dt) => dt.toString()),
+            '1997-06-10T09:00:00-04:00[America/New_York]',
+            '1997-07-10T09:00:00-04:00[America/New_York]',
+            '1998-06-10T09:00:00-04:00[America/New_York]',
+            '1998-07-10T09:00:00-04:00[America/New_York]',
+            '1999-06-10T09:00:00-04:00[America/New_York]',
+            '1999-07-10T09:00:00-04:00[America/New_York]',
+            '2000-06-10T09:00:00-04:00[America/New_York]',
+            '2000-07-10T09:00:00-04:00[America/New_York]',
+            '2001-06-10T09:00:00-04:00[America/New_York]',
+            '2001-07-10T09:00:00-04:00[America/New_York]',
+          ],
         });
       });
     },

@@ -13,6 +13,7 @@
     "resolveJsonModule": true,
     "sourceMap": false,
     "incremental": true,
+    "lib": ["es2021", "esnext.temporal"],
     "types": ["node"],
     "removeComments": false,
     "allowUnreachableCode": false,
@@ -24,6 +25,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["./tests/.config/matchers.d.ts", "**/*.ts"],
+  "include": ["**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

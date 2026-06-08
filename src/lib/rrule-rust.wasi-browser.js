@@ -63,5 +63,6 @@ export const RRule = __napiModule.exports.RRule
 export const RRuleSet = __napiModule.exports.RRuleSet
 export const RRuleSetIterator = __napiModule.exports.RRuleSetIterator
 export const Frequency = __napiModule.exports.Frequency
+export const getTimezones = __napiModule.exports.getTimezones
 export const Month = __napiModule.exports.Month
 export const Weekday = __napiModule.exports.Weekday

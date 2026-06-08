@@ -1,4 +1,4 @@
-import { DateTime, Frequency, RRule, Weekday } from '../../../src';
+import { Frequency, RRule, Weekday } from '../../../src';
 import { describe, it, expect } from 'vitest';
 
 describe(RRule, () => {
@@ -9,7 +9,7 @@ describe(RRule, () => {
       expected: {
         frequency: Frequency.Weekly,
         interval: 2,
-        until: DateTime.create(1997, 12, 24, 0, 0, 0, true),
+        untilStr: '1997-12-24T00:00:00+00:00[UTC]',
         weekstart: Weekday.Sunday,
         byWeekday: [
           { weekday: Weekday.Monday },
@@ -26,6 +26,7 @@ describe(RRule, () => {
         frequency: Frequency.Monthly,
         interval: 2,
         count: 10,
+        untilStr: undefined,
         byWeekday: [
           { n: 1, weekday: Weekday.Sunday },
           { n: -1, weekday: Weekday.Sunday },
@@ -38,7 +39,7 @@ describe(RRule, () => {
 
     expect(rule.frequency).toBe(expected.frequency);
     expect(rule.interval).toBe(expected.interval);
-    expect(rule.until).toEqualPlain(expected.until);
+    expect(rule.until?.toString()).toBe(expected.untilStr);
     expect(rule.weekstart).toBe(expected.weekstart);
     expect(rule.byWeekday).toEqual(expected.byWeekday);
     expect(rule.toString()).toBe(expected.asString);

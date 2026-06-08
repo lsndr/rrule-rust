@@ -1,14 +1,18 @@
-import { RRule, RRuleSet, Frequency, DateTime, DtStart } from '../../../src';
+import { RRule, RRuleSet, Frequency } from '../../../src';
 import { describe, it, expect } from 'vitest';
+
+function fmt(dt: Temporal.ZonedDateTime | Temporal.PlainDate): string {
+  if ('hour' in dt) {
+    return `${dt.year}-${String(dt.month).padStart(2, '0')}-${String(dt.day).padStart(2, '0')}T${String(dt.hour).padStart(2, '0')}:${String(dt.minute).padStart(2, '0')}:${String(dt.second).padStart(2, '0')}`;
+  }
+  return `${dt.year}-${String(dt.month).padStart(2, '0')}-${String(dt.day).padStart(2, '0')}`;
+}
 
 describe('Secondly', () => {
   it('Secondly for 5 occurrences', () => {
     const rrule = new RRule(Frequency.Secondly).setCount(5);
     const set = new RRuleSet(
-      new DtStart({
-        value: DateTime.create(2024, 6, 8, 4, 0, 0, false),
-        tzid: 'America/Cancun',
-      }),
+      Temporal.ZonedDateTime.from('2024-06-08T04:00:00[America/Cancun]'),
     ).addRRule(rrule);
 
     const dates = set.all();
@@ -17,13 +21,13 @@ describe('Secondly', () => {
     expect(asString).toBe(
       'DTSTART;TZID=America/Cancun:20240608T040000\nRRULE:FREQ=SECONDLY;COUNT=5',
     );
-    expect(dates).toEqualPlain([
-      DateTime.create(2024, 6, 8, 4, 0, 0, false),
-      DateTime.create(2024, 6, 8, 4, 0, 1, false),
-      DateTime.create(2024, 6, 8, 4, 0, 2, false),
-      DateTime.create(2024, 6, 8, 4, 0, 3, false),
-      DateTime.create(2024, 6, 8, 4, 0, 4, false),
+    expect(dates.map(fmt)).toEqual([
+      '2024-06-08T04:00:00',
+      '2024-06-08T04:00:01',
+      '2024-06-08T04:00:02',
+      '2024-06-08T04:00:03',
+      '2024-06-08T04:00:04',
     ]);
-    expect([...set]).toEqualPlain(dates);
+    expect([...set].map(fmt)).toEqual(dates.map(fmt));
   });
 });

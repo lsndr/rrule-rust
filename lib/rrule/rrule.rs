@@ -324,7 +324,7 @@ impl ToRRule for RRule {
     }
 
     if let Some(until) = &self.until {
-      let until = until.to_datetime(dtstart.tzid().unwrap_or(&chrono_tz::Tz::UTC))?;
+      let until = until.to_datetime(dtstart.derive_timezone())?;
       let until = until.with_timezone(&rrule::Tz::Tz(chrono_tz::Tz::UTC));
 
       rrule = rrule.until(until);

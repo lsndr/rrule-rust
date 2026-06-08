@@ -269,10 +269,7 @@ impl Iterator for RRuleSetIterator {
       let date_time: DateTime = (&date_time).into();
 
       if self.value_type == ValueType::Date {
-        DateTime {
-          time: None,
-          ..date_time
-        }
+        DateTime::Date(date_time.date())
       } else {
         date_time
       }

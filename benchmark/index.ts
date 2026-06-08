@@ -1,3 +1,4 @@
+import '../src/polyfill';
 import * as b from 'benny';
 import * as Node from 'rrule';
 import * as Rust from '../src';
@@ -8,18 +9,13 @@ function buildRust(tzid: string) {
     count: 30,
     interval: 1,
   });
+  const dtstart = Temporal.ZonedDateTime.from(`2023-02-21T23:59:00[${tzid}]`);
   const setCached = new Rust.RRuleSet({
-    dtstart: new Rust.DtStart(
-      Rust.DateTime.local(2023, 2, 21, 23, 59, 0),
-      tzid,
-    ),
+    dtstart,
     rrules: [rrule],
   });
   const setNoCache = new Rust.RRuleSet({
-    dtstart: new Rust.DtStart(
-      Rust.DateTime.local(2023, 2, 21, 23, 59, 0),
-      tzid,
-    ),
+    dtstart,
     rrules: [rrule],
   });
   setNoCache.cache.disable();

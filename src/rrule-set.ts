@@ -1,171 +1,55 @@
-import { RRule, type RRuleLike } from './rrule';
-import { type RRuleSetIterator, RRuleSet as Rust } from './lib';
+import { RRule } from './rrule';
 import {
-  type Time,
-  DateTime,
-  type DateTimeLike,
-  type DateLike,
-} from './datetime';
-import { DtStart, type DtStartLike } from './dtstart';
-import { ExDate, type ExDateLike } from './exdate';
-import { RDate, type RDateLike } from './rdate';
+  type RRuleSetIterator,
+  RRuleSet as Rust,
+  ExDate as RustExDate,
+  RDate as RustRDate,
+} from './lib';
+import {
+  type RRuleValue,
+  fromInt32,
+  fromFlatInt32,
+  toInt32,
+  toFlatInt32,
+} from './temporal';
 import { OperationCache } from './cache';
 
-/**
- * Interface for controlling caching behavior of RRuleSet operations.
- *
- * Caching is enabled by default and significantly improves performance when repeatedly
- * calling methods like `all()`, `between()`, or iterating over the same RRuleSet instance.
- * However, it may consume additional memory for large recurrence sets.
- *
- * @example
- * ```typescript
- * const rruleSet = new RRuleSet({
- *   dtstart: new DtStart(DateTime.local(2024, 1, 1, 9, 0, 0)),
- *   rrules: [new RRule({ frequency: Frequency.Daily, count: 100 })]
- * });
- *
- * // Disable caching if memory is a concern
- * rruleSet.cache.disable();
- *
- * // Enable caching for better performance
- * rruleSet.cache.enable();
- *
- * // Clear cached results
- * rruleSet.cache.clear();
- * ```
- */
 export interface RRuleSetCache {
-  /**
-   * Indicates whether caching is currently disabled.
-   * When `true`, all operations compute results fresh without storing them.
-   */
   disabled: boolean;
-
-  /**
-   * Clears all cached results.
-   * Use this method when you want to free memory while keeping caching enabled.
-   */
   clear(): void;
-
-  /**
-   * Disables caching for all subsequent operations.
-   * Existing cached results are preserved but not used. New operations will not cache results.
-   */
   disable(): void;
-
-  /**
-   * Enables caching for all subsequent operations.
-   * Operations will store and reuse results to improve performance.
-   */
   enable(): void;
 }
 
-/**
- * Options for creating an RRuleSet instance.
- */
-export interface RRuleSetOptions<
-  DT extends DateTime<Time> | DateTime<undefined>,
-  RRDT extends DT | undefined = DT | undefined,
-  ERDT extends DT | undefined = DT | undefined,
-> {
-  /** The start date/time for the recurrence set */
-  readonly dtstart: DtStart<DT>;
-  /** Array of recurrence rules to include */
-  readonly rrules?: readonly RRule<RRDT>[];
-  /** Array of recurrence rules to exclude */
-  readonly exrules?: readonly RRule<ERDT>[];
-  /** Array of exception dates to exclude */
-  readonly exdates?: readonly ExDate<DT>[];
-  /** Array of recurrence dates to include */
-  readonly rdates?: readonly RDate<DT>[];
+export interface RRuleSetOptions<DT extends RRuleValue> {
+  readonly dtstart: DT;
+  readonly rrules?: readonly RRule<DT | undefined>[];
+  readonly exrules?: readonly RRule<DT | undefined>[];
+  readonly exdates?: readonly DT[];
+  readonly rdates?: readonly DT[];
 }
 
-/**
- * Plain object representation of RRuleSet.
- */
-export interface RRuleSetLike<DT extends DateTimeLike | DateLike> {
-  /** The start date/time for the recurrence set */
-  readonly dtstart: DtStartLike<DT>;
-  /** Array of recurrence rules to include */
-  readonly rrules: readonly RRuleLike<DT>[];
-  /** Array of recurrence rules to exclude */
-  readonly exrules: readonly RRuleLike<DT>[];
-  /** Array of exception dates to exclude */
-  readonly exdates: readonly ExDateLike<DT>[];
-  /** Array of recurrence dates to include */
-  readonly rdates: readonly RDateLike<DT>[];
-}
+export class RRuleSet<DT extends RRuleValue> implements Iterable<DT> {
+  public readonly dtstart: DT;
+  public readonly rrules: readonly RRule<DT | undefined>[];
+  public readonly exrules: readonly RRule<DT | undefined>[];
+  public readonly exdates: readonly DT[];
+  public readonly rdates: readonly DT[];
 
-/**
- * Represents a set of recurrence rules (RRuleSet) according to RFC 5545.
- *
- * RRuleSet combines multiple recurrence components:
- * - DTSTART: The start date/time
- * - RRULE: Rules for generating occurrences
- * - EXRULE: Rules for excluding occurrences
- * - RDATE: Additional dates to include
- * - EXDATE: Specific dates to exclude
- *
- * @example
- * ```typescript
- * // Weekly meeting on Mondays, excluding holidays
- * const rruleSet = new RRuleSet({
- *   dtstart: new DtStart(DateTime.local(2024, 1, 15, 9, 0, 0)),
- *   rrules: [
- *     new RRule({
- *       frequency: Frequency.Weekly,
- *       byWeekday: [Weekday.Monday]
- *     })
- *   ],
- *   exdates: [
- *     new ExDate([
- *       DateTime.date(2024, 1, 1),  // New Year
- *       DateTime.date(2024, 12, 25) // Christmas
- *     ])
- *   ]
- * });
- *
- * // Get first 10 occurrences
- * const occurrences = rruleSet.all(10);
- * ```
- */
-export class RRuleSet<
-  DT extends DateTime<Time> | DateTime<undefined>,
-  RRDT extends DT | undefined = DT | undefined,
-  ERDT extends DT | undefined = DT | undefined,
-> implements Iterable<DateTime<Time> | DateTime<undefined>> {
-  /** The start date/time for the recurrence set */
-  public readonly dtstart: DtStart<DT>;
-  /** Array of recurrence rules to include */
-  public readonly rrules: readonly RRule<RRDT>[];
-  /** Array of recurrence rules to exclude */
-  public readonly exrules: readonly RRule<ERDT>[];
-  /** Array of exception dates to exclude */
-  public readonly exdates: readonly ExDate<DT>[];
-  /** Array of recurrence dates to include */
-  public readonly rdates: readonly RDate<DT>[];
-
-  private _cache: OperationCache = new OperationCache({
-    disabled: false,
-  });
-
-  /** @internal */
+  private _cache: OperationCache = new OperationCache({ disabled: false });
   private rust?: Rust;
 
-  public constructor(dtstart: DtStart<DT>);
-  public constructor(options: RRuleSetOptions<DT, RRDT, ERDT>);
-  public constructor(
-    optionsOrDtstart: DtStart<DT> | RRuleSetOptions<DT, RRDT, ERDT>,
-  ) {
-    if ('dtstart' in optionsOrDtstart) {
-      this.dtstart = optionsOrDtstart.dtstart;
-      this.rrules = optionsOrDtstart?.rrules ?? [];
-      this.exrules = optionsOrDtstart?.exrules ?? [];
-      this.exdates = optionsOrDtstart?.exdates ?? [];
-      this.rdates = optionsOrDtstart?.rdates ?? [];
+  public constructor(dtstart: DT);
+  public constructor(options: RRuleSetOptions<DT>);
+  public constructor(dtOrOptions: DT | RRuleSetOptions<DT>) {
+    if (isOptions(dtOrOptions)) {
+      this.dtstart = dtOrOptions.dtstart;
+      this.rrules = dtOrOptions.rrules ?? [];
+      this.exrules = dtOrOptions.exrules ?? [];
+      this.exdates = dtOrOptions.exdates ?? [];
+      this.rdates = dtOrOptions.rdates ?? [];
     } else {
-      this.dtstart = optionsOrDtstart;
+      this.dtstart = dtOrOptions;
       this.rrules = [];
       this.exrules = [];
       this.exdates = [];
@@ -173,105 +57,34 @@ export class RRuleSet<
     }
   }
 
-  /**
-   * Provides access to cache control for this RRuleSet instance.
-   *
-   * By default, caching is enabled to optimize repeated calls to methods like `all()`,
-   * `between()`, and iteration. Use this property to control caching behavior based on
-   * your performance and memory requirements.
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet({
-   *   dtstart: new DtStart(DateTime.local(2024, 1, 1, 9, 0, 0)),
-   *   rrules: [new RRule({ frequency: Frequency.Daily })]
-   * });
-   *
-   * // Check if caching is disabled
-   * console.log(rruleSet.cache.disabled); // false
-   *
-   * // Disable caching for memory-constrained environments
-   * rruleSet.cache.disable();
-   *
-   * // Clear cached data to free memory
-   * rruleSet.cache.clear();
-   * ```
-   */
   public get cache(): RRuleSetCache {
     return this._cache;
   }
 
-  /**
-   * Parses an RFC 5545 formatted string into an RRuleSet.
-   *
-   * @param str - RFC 5545 formatted string containing DTSTART, RRULE, etc.
-   * @returns A new RRuleSet instance
-   *
-   * @example
-   * ```typescript
-   * const str = `DTSTART:20240115T090000
-   * RRULE:FREQ=WEEKLY;BYDAY=MO
-   * EXDATE:20240101,20241225`;
-   * const rruleSet = RRuleSet.fromString(str);
-   * ```
-   */
-  public static fromString<DT extends DateTime<Time> | DateTime<undefined>>(
-    str: string,
-  ): RRuleSet<DT> {
+  public static fromString<DT extends RRuleValue>(str: string): RRuleSet<DT> {
     return this.fromRust(Rust.parse(str));
   }
 
-  /**
-   * Creates an RRuleSet from a plain object representation.
-   *
-   * @param plain - Plain object with recurrence set properties
-   * @returns A new RRuleSet instance
-   *
-   * @example
-   * ```typescript
-   * const plain = {
-   *   dtstart: { value: { year: 2024, month: 1, day: 15, hour: 9, minute: 0, second: 0, utc: false } },
-   *   rrules: [{ frequency: Frequency.Weekly, byWeekday: [Weekday.Monday], ... }],
-   *   exrules: [],
-   *   exdates: [],
-   *   rdates: []
-   * };
-   * const rruleSet = RRuleSet.fromPlain(plain);
-   * ```
-   */
-  public static fromPlain(
-    plain: RRuleSetLike<DateTimeLike>,
-  ): RRuleSet<DateTime<Time>>;
-  public static fromPlain(
-    plain: RRuleSetLike<DateLike>,
-  ): RRuleSet<DateTime<undefined>>;
-  public static fromPlain(
-    plain: RRuleSetLike<DateTimeLike> | RRuleSetLike<DateLike>,
-  ): RRuleSet<DateTime<Time>> | RRuleSet<DateTime<undefined>> {
-    return new RRuleSet({
-      dtstart: DtStart.fromPlain(plain.dtstart),
-      rrules: plain.rrules.map((rrule) => RRule.fromPlain(rrule)),
-      exrules: plain.exrules.map((rrule) => RRule.fromPlain(rrule)),
-      exdates: plain.exdates.map((datetime) => ExDate.fromPlain(datetime)),
-      rdates: plain.rdates.map((datetime) => RDate.fromPlain(datetime)),
-    });
-  }
-
-  /**
-   * @internal
-   */
-  public static fromRust<DT extends DateTime<Time> | DateTime<undefined>>(
-    rust: Rust,
-  ): RRuleSet<DT> {
+  /** @internal */
+  public static fromRust<DT extends RRuleValue>(rust: Rust): RRuleSet<DT> {
     const set = new RRuleSet<DT>({
-      dtstart: new DtStart<DT>({
-        value: DateTime.fromInt32Array<DT>(rust.dtstart),
-        tzid: rust.tzid ?? undefined,
-      }),
-      rrules: rust.rrules.map((rrule) => RRule.fromRust<DT>(rrule)),
-      exrules: rust.exrules.map((rrule) => RRule.fromRust<DT>(rrule)),
-      exdates: rust.exdates.map((exdate) => ExDate.fromRust<DT>(exdate)),
-      rdates: rust.rdates.map((rdate) => RDate.fromRust<DT>(rdate)),
+      dtstart: fromInt32<DT>(
+        rust.dtstart[0]!,
+        rust.dtstart[1]!,
+        rust.dtstart[2]!,
+        rust.dtstart[3]!,
+        rust.dtstart[4]!,
+        rust.dtstart[5]!,
+        rust.dtstart[6]!,
+      ),
+      rrules: rust.rrules.map((rrule) => RRule.fromRust<DT | undefined>(rrule)),
+      exrules: rust.exrules.map((rrule) =>
+        RRule.fromRust<DT | undefined>(rrule),
+      ),
+      exdates: rust.exdates.flatMap((exdate) =>
+        fromFlatInt32<DT>(exdate.values),
+      ),
+      rdates: rust.rdates.flatMap((rdate) => fromFlatInt32<DT>(rdate.values)),
     });
 
     set.rust = rust;
@@ -279,366 +92,100 @@ export class RRuleSet<
     return set;
   }
 
-  /**
-   * Creates a new RRuleSet with a different start date/time.
-   *
-   * @param dtstart - The new start date/time
-   * @returns A new RRuleSet instance
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet(new DtStart(DateTime.date(2024, 1, 15)));
-   * const updated = rruleSet.setDtStart(new DtStart(DateTime.date(2024, 2, 1)));
-   * ```
-   */
-  public setDtStart(dtstart: DtStart<DT>): RRuleSet<DT> {
+  public setDtStart<NDT extends RRuleValue>(dtstart: NDT): RRuleSet<NDT> {
     return new RRuleSet({
-      ...this.toOptions(),
-      dtstart: dtstart,
+      dtstart,
+      rrules: this.rrules as readonly RRule<NDT | undefined>[],
+      exrules: this.exrules as readonly RRule<NDT | undefined>[],
+      exdates: this.exdates as unknown as readonly NDT[],
+      rdates: this.rdates as unknown as readonly NDT[],
     });
   }
 
-  /**
-   * Creates a new RRuleSet with an additional recurrence rule.
-   *
-   * @param rrule - The recurrence rule to add
-   * @returns A new RRuleSet instance
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet(new DtStart(DateTime.date(2024, 1, 15)));
-   * const withRule = rruleSet.addRRule(new RRule(Frequency.Weekly));
-   * ```
-   */
-  public addRRule<NRRDT extends DT | undefined>(
-    rrule: RRule<NRRDT>,
-  ): RRuleSet<DT, RRDT | NRRDT, ERDT> {
-    const rrules: readonly RRule<RRDT | NRRDT>[] = [...this.rrules, rrule];
-
+  public addRRule(rrule: RRule<DT | undefined>): RRuleSet<DT> {
     return new RRuleSet({
-      ...this.toOptions(),
-      rrules,
+      ...toOptions(this),
+      rrules: [...this.rrules, rrule],
     });
   }
 
-  /**
-   * Creates a new RRuleSet with a different set of recurrence rules.
-   *
-   * @param rrules - The new array of recurrence rules
-   * @returns A new RRuleSet instance
-   */
-  public setRRules<NRDT extends DT | undefined>(
-    rrules: readonly RRule<NRDT>[],
-  ): RRuleSet<DT, NRDT> {
+  public setRRules(rrules: readonly RRule<DT | undefined>[]): RRuleSet<DT> {
+    return new RRuleSet({ ...toOptions(this), rrules });
+  }
+
+  public addExRule(rrule: RRule<DT | undefined>): RRuleSet<DT> {
     return new RRuleSet({
-      ...this.toOptions(),
-      rrules,
+      ...toOptions(this),
+      exrules: [...this.exrules, rrule],
     });
   }
 
-  /**
-   * Creates a new RRuleSet with an additional exclusion rule.
-   *
-   * @param rrule - The exclusion rule to add
-   * @returns A new RRuleSet instance
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet({
-   *   dtstart: new DtStart(DateTime.date(2024, 1, 15)),
-   *   rrules: [new RRule(Frequency.Daily)]
-   * });
-   * // Exclude weekends
-   * const noWeekends = rruleSet.addExRule(new RRule({
-   *   frequency: Frequency.Weekly,
-   *   byWeekday: [Weekday.Saturday, Weekday.Sunday]
-   * }));
-   * ```
-   */
-  public addExRule<NERDT extends DT | undefined>(
-    rrule: RRule<NERDT>,
-  ): RRuleSet<DT, RRDT, ERDT | NERDT> {
-    const exrules: RRule<ERDT | NERDT>[] = [...this.exrules, rrule];
-
-    return new RRuleSet({
-      ...this.toOptions(),
-      exrules,
-    });
+  public setExRules(rrules: readonly RRule<DT | undefined>[]): RRuleSet<DT> {
+    return new RRuleSet({ ...toOptions(this), exrules: rrules });
   }
 
-  /**
-   * Creates a new RRuleSet with a different set of exclusion rules.
-   *
-   * @param rrules - The new array of exclusion rules
-   * @returns A new RRuleSet instance
-   */
-  public setExRules<ERDT extends DT | undefined>(
-    rrules: readonly RRule<ERDT>[],
-  ): RRuleSet<DT, RRDT, ERDT> {
+  public addExDate(exdate: DT): RRuleSet<DT> {
     return new RRuleSet({
-      ...this.toOptions(),
-      exrules: rrules,
-    });
-  }
-
-  /**
-   * Creates a new RRuleSet with an additional exception date.
-   *
-   * @param exdate - The exception date(s) to add
-   * @returns A new RRuleSet instance
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet({
-   *   dtstart: new DtStart(DateTime.date(2024, 1, 15)),
-   *   rrules: [new RRule(Frequency.Daily)]
-   * });
-   * // Exclude specific holidays
-   * const withExceptions = rruleSet.addExDate(new ExDate([
-   *   DateTime.date(2024, 1, 1),
-   *   DateTime.date(2024, 12, 25)
-   * ]));
-   * ```
-   */
-  public addExDate(exdate: ExDate<DT>): RRuleSet<DT> {
-    return new RRuleSet({
-      ...this.toOptions(),
+      ...toOptions(this),
       exdates: [...this.exdates, exdate],
     });
   }
 
-  /**
-   * Creates a new RRuleSet with a different set of exception dates.
-   *
-   * @param exdates - The new array of exception dates
-   * @returns A new RRuleSet instance
-   */
-  public setExDates(exdates: readonly ExDate<DT>[]): RRuleSet<DT> {
+  public addExDates(exdates: readonly DT[]): RRuleSet<DT> {
     return new RRuleSet({
-      ...this.toOptions(),
-      exdates: exdates,
+      ...toOptions(this),
+      exdates: [...this.exdates, ...exdates],
     });
   }
 
-  /**
-   * Creates a new RRuleSet with an additional recurrence date.
-   *
-   * @param datetime - The recurrence date(s) to add
-   * @returns A new RRuleSet instance
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet({
-   *   dtstart: new DtStart(DateTime.date(2024, 1, 15)),
-   *   rrules: [new RRule(Frequency.Weekly)]
-   * });
-   * // Add extra dates not covered by the rule
-   * const withExtras = rruleSet.addRDate(new RDate([
-   *   DateTime.date(2024, 2, 14), // Valentine's Day special
-   *   DateTime.date(2024, 3, 17)  // St. Patrick's Day special
-   * ]));
-   * ```
-   */
-  public addRDate(datetime: RDate<DT>): RRuleSet<DT> {
+  public setExDates(exdates: readonly DT[]): RRuleSet<DT> {
+    return new RRuleSet({ ...toOptions(this), exdates });
+  }
+
+  public addRDate(rdate: DT): RRuleSet<DT> {
     return new RRuleSet({
-      ...this.toOptions(),
-      rdates: [...this.rdates, datetime],
+      ...toOptions(this),
+      rdates: [...this.rdates, rdate],
     });
   }
 
-  /**
-   * Creates a new RRuleSet with a different set of recurrence dates.
-   *
-   * @param datetimes - The new array of recurrence dates
-   * @returns A new RRuleSet instance
-   */
-  public setRDates(datetimes: readonly RDate<DT>[]): RRuleSet<DT> {
+  public addRDates(rdates: readonly DT[]): RRuleSet<DT> {
     return new RRuleSet({
-      ...this.toOptions(),
-      rdates: datetimes,
+      ...toOptions(this),
+      rdates: [...this.rdates, ...rdates],
     });
   }
 
-  /**
-   * Returns all the occurrences of the recurrence set.
-   *
-   * @param limit - Optional maximum number of occurrences to return
-   * @returns Array of date/time occurrences
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet({
-   *   dtstart: new DtStart(DateTime.date(2024, 1, 15)),
-   *   rrules: [new RRule({ frequency: Frequency.Daily, count: 5 })]
-   * });
-   *
-   * // Get all occurrences (limited by count in rule)
-   * const all = rruleSet.all();
-   *
-   * // Get first 10 occurrences
-   * const first10 = rruleSet.all(10);
-   * ```
-   */
+  public setRDates(rdates: readonly DT[]): RRuleSet<DT> {
+    return new RRuleSet({ ...toOptions(this), rdates });
+  }
 
   // TODO: add skip (?)
   public all(limit?: number): readonly DT[] {
     return this._cache.getOrCompute<DT[]>(`all:${limit}`, () =>
-      DateTime.fromFlatInt32Array(this.toRust().all(limit)),
+      fromFlatInt32<DT>(this.toRust().all(limit)),
     );
   }
 
-  /**
-   * Returns all occurrences between two dates.
-   *
-   * @param after - The lower bound date (exclusive by default)
-   * @param before - The upper bound date (exclusive by default)
-   * @param inclusive - Whether to include the boundary dates in results
-   * @returns Array of date/time occurrences in the range
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet({
-   *   dtstart: new DtStart(DateTime.date(2024, 1, 1)),
-   *   rrules: [new RRule(Frequency.Daily)]
-   * });
-   *
-   * // Get occurrences in January 2024 (exclusive)
-   * const january = rruleSet.between(
-   *   DateTime.date(2024, 1, 1),
-   *   DateTime.date(2024, 2, 1)
-   * );
-   *
-   * // Get occurrences in January 2024 (inclusive)
-   * const januaryInclusive = rruleSet.between(
-   *   DateTime.date(2024, 1, 1),
-   *   DateTime.date(2024, 1, 31),
-   *   true
-   * );
-   * ```
-   */
   public between(after: DT, before: DT, inclusive?: boolean): readonly DT[] {
     return this._cache.getOrCompute(
       `between:${after.toString()},${before.toString()},${inclusive}`,
       () =>
-        DateTime.fromFlatInt32Array(
-          this.toRust().between(
-            after.toInt32Array(),
-            before.toInt32Array(),
-            inclusive,
-          ),
+        fromFlatInt32<DT>(
+          this.toRust().between(toInt32(after), toInt32(before), inclusive),
         ),
     );
   }
 
-  /**
-   * Parses an RFC 5545 string and updates the RRuleSet.
-   *
-   * @param str - RFC 5545 formatted string
-   * @returns A new RRuleSet instance parsed from the string
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet(new DtStart(DateTime.date(2024, 1, 15)));
-   * const updated = rruleSet.setFromString(`DTSTART:20240201T090000
-   * RRULE:FREQ=WEEKLY;BYDAY=MO,WE,FR`);
-   * ```
-   */
-  public setFromString<NDT extends DateTime<Time> | DateTime<undefined> = DT>(
-    str: string,
-  ): RRuleSet<NDT> {
-    return RRuleSet.fromRust<NDT>(this.toRust().setFromString(str));
+  public setFromString(str: string): RRuleSet<DT> {
+    return RRuleSet.fromRust<DT>(this.toRust().setFromString(str));
   }
 
-  /**
-   * @internal
-   */
-  public toRust(): Rust {
-    this.rust ??= new Rust(
-      this.dtstart.value.toInt32Array(),
-      this.dtstart.tzid,
-      undefined,
-      this.rrules.map((rrule) => rrule.toRust()),
-      this.exrules.map((rrule) => rrule.toRust()),
-      this.exdates.map((exdate) => exdate.toRust()),
-      this.rdates.map((rdate) => rdate.toRust()),
-    );
-
-    return this.rust;
-  }
-
-  /**
-   * Converts the RRuleSet to an RFC 5545 formatted string.
-   *
-   * @returns RFC 5545 formatted string representation
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet({
-   *   dtstart: new DtStart(DateTime.date(2024, 1, 15)),
-   *   rrules: [new RRule({ frequency: Frequency.Weekly, byWeekday: [Weekday.Monday] })]
-   * });
-   * console.log(rruleSet.toString());
-   * // DTSTART:20240115
-   * // RRULE:FREQ=WEEKLY;BYDAY=MO
-   * ```
-   */
   public toString(): string {
     return this.toRust().toString();
   }
 
-  /**
-   * Converts the RRuleSet to a plain object representation.
-   *
-   * @returns A plain object with all RRuleSet properties
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet({
-   *   dtstart: new DtStart(DateTime.date(2024, 1, 15)),
-   *   rrules: [new RRule(Frequency.Weekly)]
-   * });
-   * const plain = rruleSet.toPlain();
-   * // Useful for serialization to JSON
-   * const json = JSON.stringify(plain);
-   * ```
-   */
-  public toPlain(): RRuleSetLike<
-    DT extends DateTime<Time> ? DateTimeLike : DateLike
-  >;
-  public toPlain(): RRuleSetLike<DateTimeLike> | RRuleSetLike<DateLike> {
-    return {
-      dtstart: this.dtstart.toPlain(),
-      rrules: this.rrules.map((rrule) => rrule.toPlain()),
-      exrules: this.exrules.map((rrule) => rrule.toPlain()),
-      exdates: this.exdates.map((rrule) => rrule.toPlain()),
-      rdates: this.rdates.map((rrule) => rrule.toPlain()),
-    };
-  }
-
-  /**
-   * Returns an iterator for the recurrence set.
-   *
-   * This allows using RRuleSet with for-of loops and other iteration constructs.
-   *
-   * @returns An iterator over the occurrences
-   *
-   * @example
-   * ```typescript
-   * const rruleSet = new RRuleSet({
-   *   dtstart: new DtStart(DateTime.date(2024, 1, 15)),
-   *   rrules: [new RRule({ frequency: Frequency.Daily, count: 5 })]
-   * });
-   *
-   * // Iterate over occurrences
-   * for (const occurrence of rruleSet) {
-   *   console.log(occurrence.toString());
-   * }
-   *
-   * // Use with spread operator
-   * const allOccurrences = [...rruleSet];
-   * ```
-   */
-  public [Symbol.iterator](): Iterator<DT, any, any> {
+  public [Symbol.iterator](): Iterator<DT, undefined, undefined> {
     const cache = this._cache.getOrSet('iterator:data', {
       values: [] as DT[],
       done: false,
@@ -659,15 +206,9 @@ export class RRuleSet<
         const cachedValue = cache.values[cacheIndex++];
 
         if (cachedValue) {
-          return {
-            done: false,
-            value: cachedValue,
-          };
+          return { done: false, value: cachedValue };
         } else if (cache.done) {
-          return {
-            done: true as const,
-            value: undefined,
-          };
+          return { done: true as const, value: undefined };
         }
 
         const [iter, store] = getIterAndStore();
@@ -675,31 +216,76 @@ export class RRuleSet<
 
         if (!next) {
           cache.done = true;
-
-          return {
-            done: true as const,
-            value: undefined,
-          };
+          return { done: true as const, value: undefined };
         }
 
-        const value = DateTime.fromInt32Array<DT>(next === true ? store : next);
+        const value =
+          next === true
+            ? fromInt32<DT>(
+                store[0]!,
+                store[1]!,
+                store[2]!,
+                store[3]!,
+                store[4]!,
+                store[5]!,
+                store[6]!,
+              )
+            : fromInt32<DT>(
+                next[0]!,
+                next[1]!,
+                next[2]!,
+                next[3]!,
+                next[4]!,
+                next[5]!,
+                next[6]!,
+              );
+
         cache.values.push(value);
 
-        return {
-          done: false,
-          value,
-        };
+        return { done: false, value };
       },
     };
   }
 
-  private toOptions(): RRuleSetOptions<DT, RRDT, ERDT> {
-    return {
-      dtstart: this.dtstart,
-      rrules: this.rrules,
-      exrules: this.exrules,
-      exdates: this.exdates,
-      rdates: this.rdates,
-    };
+  /** @internal */
+  public toRust(): Rust {
+    this.rust ??= new Rust(
+      toInt32(this.dtstart),
+      undefined,
+      this.rrules.map((rrule) => rrule.toRust()),
+      this.exrules.map((rrule) => rrule.toRust()),
+      this.exdates.length > 0
+        ? [new RustExDate(toFlatInt32(this.exdates))]
+        : undefined,
+      this.rdates.length > 0
+        ? [new RustRDate(toFlatInt32(this.rdates))]
+        : undefined,
+    );
+
+    return this.rust;
   }
+}
+
+function isOptions<DT extends RRuleValue>(
+  x: DT | RRuleSetOptions<DT>,
+): x is RRuleSetOptions<DT> {
+  return (
+    x !== null &&
+    typeof x === 'object' &&
+    'dtstart' in x &&
+    !(x instanceof Temporal.ZonedDateTime) &&
+    !(x instanceof Temporal.PlainDate)
+  );
+}
+
+function toOptions<DT extends RRuleValue>(
+  set: RRuleSet<DT>,
+): RRuleSetOptions<DT> {
+  return {
+    dtstart: set.dtstart,
+    rrules: set.rrules,
+    exrules: set.exrules,
+    exdates: set.exdates,
+    rdates: set.rdates,
+  };
 }

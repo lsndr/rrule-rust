@@ -114,5 +114,6 @@ module.exports.RRule = __napiModule.exports.RRule
 module.exports.RRuleSet = __napiModule.exports.RRuleSet
 module.exports.RRuleSetIterator = __napiModule.exports.RRuleSetIterator
 module.exports.Frequency = __napiModule.exports.Frequency
+module.exports.getTimezones = __napiModule.exports.getTimezones
 module.exports.Month = __napiModule.exports.Month
 module.exports.Weekday = __napiModule.exports.Weekday

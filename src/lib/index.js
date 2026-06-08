@@ -582,5 +582,6 @@ module.exports.RRule = nativeBinding.RRule
 module.exports.RRuleSet = nativeBinding.RRuleSet
 module.exports.RRuleSetIterator = nativeBinding.RRuleSetIterator
 module.exports.Frequency = nativeBinding.Frequency
+module.exports.getTimezones = nativeBinding.getTimezones
 module.exports.Month = nativeBinding.Month
 module.exports.Weekday = nativeBinding.Weekday

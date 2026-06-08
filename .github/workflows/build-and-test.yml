@@ -276,7 +276,7 @@ jobs:
           node-version: 24
           cache: npm
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --cpu=wasm32
       - name: Download artifacts
         uses: actions/download-artifact@v8
         with:

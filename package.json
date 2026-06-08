@@ -46,6 +46,8 @@
     "@atao60/fse-cli": "^0.1.9",
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
+    "@emnapi/core": "^1.9.2",
+    "@emnapi/runtime": "^1.9.2",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
     "@eslint/compat": "^2.0.0",
     "@eslint/js": "^9.27.0",

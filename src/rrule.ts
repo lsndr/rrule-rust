@@ -651,9 +651,7 @@ export class RRule<
         : undefined
   >;
   public toPlain():
-    | RRuleLike<DateTimeLike>
-    | RRuleLike<DateLike>
-    | RRuleLike<undefined> {
+    RRuleLike<DateTimeLike> | RRuleLike<DateLike> | RRuleLike<undefined> {
     return {
       frequency: this.frequency,
       interval: this.interval,

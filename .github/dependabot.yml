@@ -5,6 +5,11 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+    groups:
+      emnapi:
+        patterns:
+          - 'emnapi'
+          - '@emnapi/*'
   - package-ecosystem: 'cargo'
     target-branch: 'next'
     directory: '/'

@@ -277,6 +277,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci --cpu=wasm32
+      - name: Install rolldown WASI binding
+        run: npm install --no-save --cpu=wasm32 "@rolldown/binding-wasm32-wasi@$(node -p "require('rolldown/package.json').version")"
       - name: Download artifacts
         uses: actions/download-artifact@v8
         with:

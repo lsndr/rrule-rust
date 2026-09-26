@@ -277,8 +277,10 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci --cpu=wasm32
-      - name: Install rolldown WASI binding
-        run: npm install --no-save --cpu=wasm32 "@rolldown/binding-wasm32-wasi@$(node -p "require('rolldown/package.json').version")"
+      # `npm ci --cpu=wasm32` skips rolldown's native binding, and its wasm
+      # fallback is incompatible with the emnapi version used here.
+      - name: Install rolldown native binding
+        run: npm install --no-save --ignore-scripts "@rolldown/binding-linux-x64-gnu@$(node -p "require('rolldown/package.json').version")"
       - name: Download artifacts
         uses: actions/download-artifact@v8
         with:

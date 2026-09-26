@@ -278,9 +278,11 @@ jobs:
       - name: Install dependencies
         run: npm ci --cpu=wasm32
       # `npm ci --cpu=wasm32` skips rolldown's native binding, and its wasm
-      # fallback is incompatible with the emnapi version used here.
+      # fallback is incompatible with the emnapi version used here. --cpu=wasm32
+      # and --force keep the wasm32 dependency tree (e.g. @napi-rs/wasm-runtime)
+      # from being pruned.
       - name: Install rolldown native binding
-        run: npm install --no-save --ignore-scripts "@rolldown/binding-linux-x64-gnu@$(node -p "require('rolldown/package.json').version")"
+        run: npm install --no-save --ignore-scripts --force --cpu=wasm32 "@rolldown/binding-linux-x64-gnu@$(node -p "require('rolldown/package.json').version")"
       - name: Download artifacts
         uses: actions/download-artifact@v8
         with:

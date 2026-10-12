@@ -5,6 +5,10 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+    ignore:
+      # v10 is incompatible with @semantic-release/release-notes-generator@14
+      - dependency-name: 'conventional-changelog-conventionalcommits'
+        update-types: ['version-update:semver-major']
     groups:
       emnapi:
         patterns:

@@ -22,13 +22,13 @@
         "preset": "conventionalcommits",
         "presetConfig": {
           "types": [
-            { "type": "build", "section": "Build System", "hidden": true },
             {
               "type": "build",
               "scope": "deps",
               "section": "Build System",
               "hidden": false
             },
+            { "type": "build", "section": "Build System", "hidden": true },
             { "type": "chore", "section": "Build System", "hidden": true },
             {
               "type": "ci",
